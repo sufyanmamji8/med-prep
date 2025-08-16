@@ -16,14 +16,14 @@ import {
   MdMenu
 } from "react-icons/md";
 
-// Mock user data - replace with actual authentication
+// ye mock data hai authentication sy replace hoga
 const mockUser = {
-  name: "Dr. John Smith",
-  email: "john.smith@example.com",
+  name: "Sufyan Mamji",
+  email: "sufyanmamji@gmail.com",
   avatar: "https://randomuser.me/api/portraits/lego/1.jpg"
 };
 
-// Create a context for the app
+
 const AppContext = React.createContext();
 
 const Dashboard = () => {
@@ -34,7 +34,7 @@ const Dashboard = () => {
   const [subscriptionStatus, setSubscriptionStatus] = useState(true); // Change to false to test payment redirect
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Mock subjects data
+
   const subjects = [
     { id: 1, name: "Anatomy", icon: <FaUserMd className="text-lg" /> },
     { id: 2, name: "Physiology", icon: <FaBookMedical className="text-lg" /> },
