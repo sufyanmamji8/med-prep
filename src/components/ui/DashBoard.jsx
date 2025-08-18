@@ -4,7 +4,8 @@ import {
   FaVideo, FaUserMd, FaRegBell, FaLock, FaCheck,
   FaDownload, FaPlay, FaFileAlt, FaChartLine,
   FaBookOpen, FaClock, FaSearch, FaFilter,
-  FaStar, FaHistory, FaCalendarAlt, FaBookmark
+  FaStar, FaHistory, FaCalendarAlt, FaBookmark,
+  FaSignOutAlt
 } from 'react-icons/fa';
 import { 
   MdPayment, MdDashboard, MdQuiz, 
@@ -14,6 +15,9 @@ import {
 } from 'react-icons/md';
 import { RiTestTubeFill } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
+import { doSignOut } from '../../firebase/auth';
+import { auth } from '../../firebase/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -24,16 +28,41 @@ const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
   const [loading, setLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   
   const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
-    setTimeout(() => {
+    
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser({
+          displayName: user.displayName || 'User',
+          email: user.email,
+          photoURL: user.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg'
+        });
+      } else {
+        navigate('/');
+      }
       setLoading(false);
-      setHasSubscription(false); // Default to false for demo
+    });
+
+    setTimeout(() => {
+      setHasSubscription(false);
     }, 1000);
-  }, []);
+
+    return () => unsubscribe();
+  }, [navigate]);
+
+  const handleSignOut = async () => {
+    try {
+      await doSignOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const subjects = [
     { id: 1, name: "Anatomy", icon: <FaUserMd className="text-lg" />, color: "bg-red-100 text-red-800" },
@@ -377,7 +406,7 @@ const Dashboard = () => {
         return (
           <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Dashboard Overview</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Welcome, {currentUser?.displayName?.split(' ')[0] || 'User'}</h2>
               <div className="relative mt-3 md:mt-0 md:w-64">
                 <input
                   type="text"
@@ -655,9 +684,9 @@ const Dashboard = () => {
         <div className="p-4 border-b border-gray-200 flex items-center space-x-3 bg-gray-50">
           <div className="relative">
             <img 
-              src="https://randomuser.me/api/portraits/lego/1.jpg" 
+              src={currentUser?.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg'} 
               alt="User" 
-              className="w-10 h-10 rounded-full border-2 border-blue-200"
+              className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover"
             />
             {hasSubscription && (
               <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
@@ -666,9 +695,9 @@ const Dashboard = () => {
             )}
           </div>
           <div>
-            <p className="font-medium text-gray-800">Sufyan Mamji</p>
+            <p className="font-medium text-gray-800">{currentUser?.displayName || 'Loading...'}</p>
             <p className={`text-xs ${hasSubscription ? 'text-green-600' : 'text-yellow-600'}`}>
-              {hasSubscription ? 'Premium Member' : 'Checking Account'}
+              {hasSubscription ? 'Premium Member' : 'Basic Account'}
             </p>
           </div>
         </div>
@@ -793,6 +822,17 @@ const Dashboard = () => {
             )}
           </button>
         </nav>
+
+        {/* Sign Out Button */}
+        <div className="absolute bottom-0 w-full p-4 border-t border-gray-200">
+          <button 
+            onClick={handleSignOut}
+            className="flex items-center space-x-3 w-full p-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-red-600"
+          >
+            <FaSignOutAlt className="text-lg" />
+            <span>Sign Out</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -816,11 +856,34 @@ const Dashboard = () => {
               <FaRegBell className="text-xl" />
               <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
-            <img 
-              src="https://randomuser.me/api/portraits/lego/1.jpg" 
-              alt="User" 
-              className="w-8 h-8 rounded-full border-2 border-blue-200"
-            />
+            
+            {/* User Dropdown */}
+            <div className="relative group">
+              <button className="flex items-center space-x-2 focus:outline-none">
+                <img 
+                  src={currentUser?.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg'} 
+                  alt="User" 
+                  className="w-8 h-8 rounded-full border-2 border-blue-200 object-cover"
+                />
+                <span className="hidden md:inline text-sm font-medium">
+                  {currentUser?.displayName?.split(' ')[0] || 'User'}
+                </span>
+              </button>
+              
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
+                <div className="px-4 py-2 border-b border-gray-200">
+                  <p className="text-sm font-medium">{currentUser?.displayName || 'User'}</p>
+                  <p className="text-xs text-gray-500 truncate">{currentUser?.email || ''}</p>
+                </div>
+                <button 
+                  onClick={handleSignOut}
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                >
+                  <FaSignOutAlt className="mr-2" />
+                  Sign Out
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
