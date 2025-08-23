@@ -177,7 +177,7 @@ const AuthPage = () => {
               </svg>
             </div>
             <h1 className="text-xl font-bold text-gray-800 mb-2">
-              Welcome to Prep Center
+              Welcome to <span className="text-sky-600">Mrcem </span> 
             </h1>
           </div>
 
