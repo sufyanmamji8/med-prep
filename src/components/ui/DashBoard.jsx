@@ -55,6 +55,16 @@ const Dashboard = () => {
     return () => unsubscribe();
   }, [navigate]);
 
+  // ✅ Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileMenuOpen]);
+
   const handleSignOut = async () => {
     try {
       await doSignOut();
@@ -662,19 +672,33 @@ const Dashboard = () => {
       <button 
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow-lg border border-gray-200"
+        aria-label="Open navigation"
+        aria-expanded={mobileMenuOpen}
       >
         <MdMenu className="text-xl text-gray-700" />
       </button>
 
+      {/* ✅ Mobile overlay (prevents background interaction) */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar */}
-      <div className={`w-64 bg-white shadow-lg fixed h-full z-40 transition-all duration-300 ease-in-out transform ${
-        mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-      }`}>
+      <div
+        className={`w-64 bg-white shadow-lg fixed h-full z-40 transition-transform duration-300 ease-in-out transform
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+        aria-label="Sidebar"
+      >
         <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-blue-600 to-blue-800 text-white">
           <h2 className="text-xl font-bold">MedPrep Pro</h2>
           <button 
             onClick={() => setMobileMenuOpen(false)}
             className="md:hidden text-white"
+            aria-label="Close navigation"
           >
             &times;
           </button>
@@ -836,11 +860,10 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className={`flex-1 overflow-auto transition-all duration-300 ${
-        mobileMenuOpen ? 'ml-64' : 'md:ml-64'
-      }`}>
+      {/* ✅ No margin shift on mobile; only on md+ we keep space for the sidebar */}
+      <div className="flex-1 overflow-auto transition-all duration-300 md:ml-64">
         {/* Top Navigation */}
-        <div className="bg-white p-4 shadow-sm flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
+        <div className="bg-white p-4 shadow-sm flex justify-between items-center sticky top-0 z-10 border-b border-gray-200">
           <div className="flex items-center">
             <h1 className="text-xl font-bold text-gray-800">
               {activeSubject?.name || "Dashboard Overview"}
@@ -891,7 +914,7 @@ const Dashboard = () => {
         <main className="p-4 md:p-8">
           {/* Content Tabs */}
           {activeTab !== 'dashboard' && (
-            <div className="flex overflow-x-auto mb-6 bg-white p-1 rounded-lg shadow-sm sticky top-16 z-20 border border-gray-200">
+            <div className="flex overflow-x-auto mb-6 bg-white p-1 rounded-lg shadow-sm sticky top-16 z-10 border border-gray-200">
               {[
                 { id: "past-papers", label: "Past Papers", icon: <MdAssignment className="mr-2" /> },
                 { id: "mcqs", label: "MCQs Practice", icon: <MdQuiz className="mr-2" /> },

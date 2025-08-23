@@ -6,14 +6,16 @@ import {
   doSignInWithGoogle,
   doSignInWithGithub,
   doCreateUserWithEmailAndPassword,
+  doPasswordReset,
 } from "../../firebase/auth";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
+import toast, { Toaster } from "react-hot-toast";
 
 const AuthPage = () => {
   const navigate = useNavigate();
 
-  // Redirect if already logged in (no context used)
+  // Redirect if already logged in
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (user) navigate("/dashboard");
@@ -30,7 +32,6 @@ const AuthPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -38,61 +39,118 @@ const AuthPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 🔑 Handle Sign In / Sign Up
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
 
     if (!isSignIn) {
       if (formData.password !== formData.confirmPassword) {
-        setError("Passwords do not match!");
+        toast.error("❌ Passwords do not match!");
         return;
       }
       if (formData.password.length < 6) {
-        setError("Password must be at least 6 characters.");
+        toast.error("❌ Password must be at least 6 characters.");
         return;
       }
     }
 
     try {
       setLoading(true);
+
       if (isSignIn) {
         await doSignInWithEmailAndPassword(formData.email, formData.password);
+        toast.success("✅ Logged in successfully!");
       } else {
-        await doCreateUserWithEmailAndPassword(
+        const userCred = await doCreateUserWithEmailAndPassword(
           formData.email,
-          formData.password,
-          formData.name
+          formData.password
         );
+
+        await updateProfile(userCred.user, {
+          displayName: formData.name,
+          photoURL: "https://randomuser.me/api/portraits/lego/2.jpg",
+        });
+
+        toast.success("🎉 Account created successfully!");
       }
+
       navigate("/dashboard");
     } catch (err) {
-      setError(err?.message || "Authentication failed.");
+      console.error(err);
+      switch (err.code) {
+        case "auth/user-not-found":
+          toast.error("❌ No account found with this email.");
+          break;
+        case "auth/wrong-password":
+          toast.error("❌ Incorrect password.");
+          break;
+        case "auth/email-already-in-use":
+          toast.error("❌ This email is already registered.");
+          break;
+        case "auth/invalid-credential":
+          toast.error("❌ Invalid credentials. Please try again.");
+          break;
+        default:
+          toast.error(err?.message || "❌ Authentication failed.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  // 🔑 Google Login
   const handleGoogleLogin = async () => {
-    setError(null);
     try {
       setLoading(true);
       await doSignInWithGoogle();
+      toast.success("✅ Signed in with Google!");
       navigate("/dashboard");
     } catch (err) {
-      setError(err?.message || "Google sign-in failed.");
+      console.error(err);
+      toast.error("❌ Google sign-in failed.");
     } finally {
       setLoading(false);
     }
   };
 
+  // 🔑 GitHub Login
   const handleGithubLogin = async () => {
-    setError(null);
     try {
       setLoading(true);
       await doSignInWithGithub();
+      toast.success("✅ Signed in with GitHub!");
       navigate("/dashboard");
     } catch (err) {
-      setError(err?.message || "GitHub sign-in failed.");
+      console.error(err);
+      toast.error("❌ GitHub sign-in failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔑 Forgot Password
+  const handlePasswordReset = async () => {
+    if (!formData.email) {
+      toast.error("⚠️ Please enter your email first to reset password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await doPasswordReset(formData.email);
+      toast.success("📩 Password reset email sent! Check your inbox/spam.");
+    } catch (err) {
+      console.error(err);
+      switch (err.code) {
+        case "auth/user-not-found":
+          toast.error("❌ No user found with this email.");
+          break;
+        case "auth/invalid-email":
+          toast.error("❌ Invalid email address.");
+          break;
+        default:
+          toast.error("❌ Password reset failed. Try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -100,16 +158,27 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-500 to-white flex items-center justify-center p-4">
+      <Toaster position="top-right" />
       <div className="w-full max-w-md mx-auto">
         <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
           {/* Logo and Heading */}
           <div className="flex flex-col items-center pt-6 pb-2">
             <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center mb-3 border-2 border-sky-200">
-              <svg className="w-8 h-8 text-sky-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              <svg
+                className="w-8 h-8 text-sky-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
-            <h1 className="text-xl font-bold text-gray-800 mb-2">Welcome to Prep Center</h1>
+            <h1 className="text-xl font-bold text-gray-800 mb-2">
+              Welcome to Prep Center
+            </h1>
           </div>
 
           {/* Toggle */}
@@ -117,7 +186,9 @@ const AuthPage = () => {
             <button
               onClick={() => setIsSignIn(true)}
               className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                isSignIn ? "bg-sky-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                isSignIn
+                  ? "bg-sky-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               Sign In
@@ -125,7 +196,9 @@ const AuthPage = () => {
             <button
               onClick={() => setIsSignIn(false)}
               className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                !isSignIn ? "bg-sky-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                !isSignIn
+                  ? "bg-sky-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               Sign Up
@@ -134,16 +207,13 @@ const AuthPage = () => {
 
           {/* Form */}
           <div className="p-6">
-            {error && (
-              <div className="mb-4 p-3 text-sm text-red-700 bg-red-100 rounded-lg">
-                {error}
-              </div>
-            )}
-
             <form onSubmit={handleSubmit}>
               {!isSignIn && (
                 <div className="mb-3">
-                  <label htmlFor="name" className="block text-gray-700 text-xs font-medium mb-1">
+                  <label
+                    htmlFor="name"
+                    className="block text-gray-700 text-xs font-medium mb-1"
+                  >
                     Full Name
                   </label>
                   <input
@@ -159,8 +229,12 @@ const AuthPage = () => {
                 </div>
               )}
 
+              {/* Email */}
               <div className="mb-3">
-                <label htmlFor="email" className="block text-gray-700 text-xs font-medium mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-gray-700 text-xs font-medium mb-1"
+                >
                   Email Address
                 </label>
                 <input
@@ -177,7 +251,10 @@ const AuthPage = () => {
 
               {/* Password */}
               <div className="mb-3 relative">
-                <label htmlFor="password" className="block text-gray-700 text-xs font-medium mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-gray-700 text-xs font-medium mb-1"
+                >
                   Password
                 </label>
                 <input
@@ -193,8 +270,6 @@ const AuthPage = () => {
                 />
                 <button
                   type="button"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  title={showPassword ? "Hide password" : "Show password"}
                   className="absolute right-3 top-8 text-gray-500 hover:text-sky-600"
                   onClick={() => setShowPassword((s) => !s)}
                 >
@@ -205,7 +280,10 @@ const AuthPage = () => {
               {/* Confirm Password */}
               {!isSignIn && (
                 <div className="mb-4 relative">
-                  <label htmlFor="confirmPassword" className="block text-gray-700 text-xs font-medium mb-1">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-gray-700 text-xs font-medium mb-1"
+                  >
                     Confirm Password
                   </label>
                   <input
@@ -221,8 +299,6 @@ const AuthPage = () => {
                   />
                   <button
                     type="button"
-                    aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
-                    title={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                     className="absolute right-3 top-8 text-gray-500 hover:text-sky-600"
                     onClick={() => setShowConfirmPassword((s) => !s)}
                   >
@@ -231,6 +307,7 @@ const AuthPage = () => {
                 </div>
               )}
 
+              {/* Remember + Forgot Password */}
               {isSignIn && (
                 <div className="flex items-center justify-between mb-4">
                   <label className="flex items-center">
@@ -239,12 +316,14 @@ const AuthPage = () => {
                       type="checkbox"
                       className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
                     />
-                    <span className="ml-2 block text-xs text-gray-700">Remember me</span>
+                    <span className="ml-2 block text-xs text-gray-700">
+                      Remember me
+                    </span>
                   </label>
                   <button
                     type="button"
                     className="text-xs text-sky-600 hover:text-sky-500"
-                    onClick={() => alert("Password reset functionality to be implemented")}
+                    onClick={handlePasswordReset}
                   >
                     Forgot password?
                   </button>
@@ -260,16 +339,20 @@ const AuthPage = () => {
               </button>
             </form>
 
+            {/* Divider */}
             <div className="mt-4">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                  <span className="px-2 bg-white text-gray-500">
+                    Or continue with
+                  </span>
                 </div>
               </div>
 
+              {/* Social Login */}
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
                   onClick={handleGithubLogin}
@@ -288,6 +371,7 @@ const AuthPage = () => {
               </div>
             </div>
 
+            {/* Toggle Sign In / Sign Up */}
             <p className="mt-4 text-center text-xs text-gray-600">
               {isSignIn ? (
                 <>
