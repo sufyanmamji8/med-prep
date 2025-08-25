@@ -4,21 +4,10 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { doSignOut } from "../../firebase/auth";
 
-// Icons used to build the subjects list (passed to children)
-import { 
-  FaBookMedical, FaFileMedical, FaClipboardList,
-  FaVideo, FaUserMd
-} from "react-icons/fa";
-import { RiTestTubeFill } from "react-icons/ri";
-
-// Layout
 import Sidebar from "./layout/Sidebar";
 import Topbar from "./layout/Topbar";
-
-// Common
 import ContentTabs from "./common/ContentTabs";
 
-// Sections
 import DashboardHome from "./sections/DashboardHome";
 import PastPapers from "./sections/PastPapers";
 import Mcqs from "./sections/Mcqs";
@@ -30,6 +19,7 @@ const Dashboard = () => {
   const [activeSubject, setActiveSubject] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasSubscription, setHasSubscription] = useState(false);
+  const [subjects, setSubjects] = useState({}); // ✅ API subjects (object, not array)
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedYear, setSelectedYear] = useState("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
@@ -38,7 +28,7 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  // Auth + preload
+  // ✅ 1. Auth check
   useEffect(() => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -46,7 +36,8 @@ const Dashboard = () => {
         setCurrentUser({
           displayName: user.displayName || "User",
           email: user.email,
-          photoURL: user.photoURL || "https://randomuser.me/api/portraits/lego/1.jpg",
+          photoURL:
+            user.photoURL || "https://randomuser.me/api/portraits/lego/1.jpg",
         });
       } else {
         navigate("/");
@@ -54,7 +45,6 @@ const Dashboard = () => {
       setLoading(false);
     });
 
-    // Simulate subscription check (replace with real check later)
     const t = setTimeout(() => setHasSubscription(false), 1000);
 
     return () => {
@@ -63,11 +53,30 @@ const Dashboard = () => {
     };
   }, [navigate]);
 
-  // Lock body scroll when mobile sidebar is open
+  // ✅ 2. Fetch subjects from API
+  useEffect(() => {
+    fetch("/api/mrcem/textBookHierarchy")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("API Response:", data);
+        if (data?.textBookHierarchy) {
+          setSubjects(data.textBookHierarchy);
+        } else {
+          setSubjects({});
+        }
+      })
+      .catch((err) => {
+        console.error("API fetch error:", err);
+      });
+  }, []);
+
+  // ✅ 3. Lock body scroll when sidebar open
   useEffect(() => {
     if (mobileMenuOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [mobileMenuOpen]);
 
   const handleSignOut = async () => {
@@ -78,15 +87,6 @@ const Dashboard = () => {
       console.error("Error signing out:", e);
     }
   };
-
-  const subjects = [
-    { id: 1, name: "Anatomy", icon: <FaUserMd className="text-lg" />, color: "bg-red-100 text-red-800" },
-    { id: 2, name: "Physiology", icon: <FaBookMedical className="text-lg" />, color: "bg-blue-100 text-blue-800" },
-    { id: 3, name: "Biochemistry", icon: <RiTestTubeFill className="text-lg" />, color: "bg-green-100 text-green-800" },
-    { id: 4, name: "Pharmacology", icon: <FaClipboardList className="text-lg" />, color: "bg-purple-100 text-purple-800" },
-    { id: 5, name: "Pathology", icon: <FaFileMedical className="text-lg" />, color: "bg-yellow-100 text-yellow-800" },
-    { id: 6, name: "Microbiology", icon: <FaVideo className="text-lg" />, color: "bg-pink-100 text-pink-800" },
-  ];
 
   const handleContentAccess = (tab) => {
     if (!hasSubscription && tab !== "dashboard") {
@@ -105,9 +105,20 @@ const Dashboard = () => {
         aria-label="Open navigation"
         aria-expanded={mobileMenuOpen}
       >
-        {/* icon inside Sidebar on header too */}
         <span className="sr-only">Toggle menu</span>
-        <svg viewBox="0 0 24 24" className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg
+          viewBox="0 0 24 24"
+          className="w-6 h-6 text-gray-700"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
       </button>
 
       {/* Mobile overlay */}
@@ -126,7 +137,7 @@ const Dashboard = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         handleContentAccess={handleContentAccess}
-        subjects={subjects}
+        subjects={subjects} // ✅ updated
         activeSubject={activeSubject}
         setActiveSubject={setActiveSubject}
         hasSubscription={hasSubscription}
@@ -137,11 +148,18 @@ const Dashboard = () => {
 
       {/* Main content */}
       <div className="flex-1 overflow-auto transition-all duration-300 md:ml-64">
-        <Topbar activeSubject={activeSubject} currentUser={currentUser} onSignOut={handleSignOut} />
+        <Topbar
+          activeSubject={activeSubject}
+          currentUser={currentUser}
+          onSignOut={handleSignOut}
+        />
 
         <main className="p-4 md:p-8">
           {activeTab !== "dashboard" && (
-            <ContentTabs activeTab={activeTab} handleContentAccess={handleContentAccess} />
+            <ContentTabs
+              activeTab={activeTab}
+              handleContentAccess={handleContentAccess}
+            />
           )}
 
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
