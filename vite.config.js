@@ -9,12 +9,19 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
+    port: 5173,
     proxy: {
-      "/api": {
-        target: "http://whatsbiz.codovio.com", // API ka origin
+      "/mrcem": {
+        target: "https://mrcem.codovio.com",
         changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        secure: true,
+        rewrite: (path) => path.replace(/^\/mrcem/, ""),
+      },
+      "/whatsbiz": {
+        target: "https://whatsbiz.codovio.com",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/whatsbiz/, ""),
       },
     },
   },

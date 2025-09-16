@@ -1,54 +1,57 @@
+// Sidebar.jsx
 import React, { useState, useMemo } from "react";
-import { 
-  MdMenu, MdDashboard, MdAssignment, MdQuiz, MdNotes, MdPayment
+import {
+  FaCheck,
+  FaChevronDown,
+  FaChevronRight,
+  FaSignOutAlt,
+} from "react-icons/fa";
+import {
+  MdOutlineSchool,
+  MdQuiz,
+  MdNotes,
+  MdPayment,
 } from "react-icons/md";
-import { FaVideo, FaCheck, FaSignOutAlt } from "react-icons/fa";
-import { FaChevronDown, FaChevronRight } from "react-icons/fa6";
 
 // Utility function to normalize subjects data
 const normalizeSubjects = (subjects) => {
-  if (!subjects || typeof subjects !== 'object') return {};
-  
+  if (!subjects || typeof subjects !== "object") return {};
+
   const normalized = {};
-  
+
   Object.entries(subjects).forEach(([mainSubject, content]) => {
     normalized[mainSubject] = [];
-    
+
     if (Array.isArray(content)) {
-      content.forEach(item => {
-        if (typeof item === 'string') {
-          normalized[mainSubject].push({ 
-            id: `${mainSubject}-${item}`, 
-            name: item, 
-            type: 'topic' 
-          });
-        } else if (typeof item === 'object' && item !== null) {
-          normalized[mainSubject].push({ 
-            id: item.id || `${mainSubject}-${item.name}`,
-            name: item.name || 'Unnamed',
-            type: item.type || 'topic',
-            ...item
+      content.forEach((item) => {
+        if (typeof item === "string") {
+          normalized[mainSubject].push({ id: item, name: item, type: "topic" });
+        } else if (typeof item === "object" && item !== null) {
+          normalized[mainSubject].push({
+            id: item.id || item.name || Math.random().toString(36).substr(2, 9),
+            name: item.name || "Unnamed",
+            type: item.type || "topic",
           });
         }
       });
-    } else if (typeof content === 'object' && content !== null) {
-      Object.entries(content).forEach(([chapter, topics]) => {
-        if (Array.isArray(topics)) {
-          topics.forEach(topic => {
-            if (typeof topic === 'string') {
-              normalized[mainSubject].push({ 
-                id: `${mainSubject}-${chapter}-${topic}`, 
-                name: topic, 
-                type: 'subtopic',
-                chapter: chapter
+    } else if (typeof content === "object" && content !== null) {
+      Object.entries(content).forEach(([topic, items]) => {
+        if (Array.isArray(items)) {
+          items.forEach((item) => {
+            if (typeof item === "string") {
+              normalized[mainSubject].push({
+                id: `${mainSubject}-${topic}-${item}`,
+                name: item,
+                type: "subtopic",
+                chapter: topic,
               });
-            } else if (typeof topic === 'object' && topic !== null) {
-              normalized[mainSubject].push({ 
-                id: topic.id || `${mainSubject}-${chapter}-${topic.name}`,
-                name: topic.name || 'Unnamed',
-                type: topic.type || 'subtopic',
-                chapter: chapter,
-                ...topic
+            } else if (typeof item === "object" && item !== null) {
+              normalized[mainSubject].push({
+                id: item.id || `${mainSubject}-${topic}-${item.name}`,
+                name: item.name || "Unnamed",
+                type: item.type || "subtopic",
+                chapter: topic,
+                ...item,
               });
             }
           });
@@ -56,7 +59,7 @@ const normalizeSubjects = (subjects) => {
       });
     }
   });
-  
+
   return normalized;
 };
 
@@ -77,7 +80,6 @@ const Sidebar = ({
   const [openSubjects, setOpenSubjects] = useState({});
   const [openChapters, setOpenChapters] = useState({});
 
-  // Normalize subjects data
   const normalizedSubjects = useMemo(() => normalizeSubjects(subjects), [subjects]);
 
   const toggleDropdown = (mainSubject) => {
@@ -94,35 +96,26 @@ const Sidebar = ({
     }));
   };
 
-  // Navigation items
-  const mainMenuItems = [
-    { id: "dashboard", label: "Dashboard", Icon: MdDashboard }
-  ];
-
+  const mainMenuItems = [{ id: "dashboard", label: "Dashboard", Icon: MdOutlineSchool }];
   const studyResources = [
-    { id: "past-papers", label: "Past Papers", Icon: MdAssignment },
     { id: "mcqs", label: "MCQs Practice", Icon: MdQuiz },
-    { id: "videos", label: "Video Lectures", Icon: FaVideo },
     { id: "notes", label: "Study Notes", Icon: MdNotes },
   ];
-
-  const accountItems = [
-    { id: "subscribe", label: "Subscription", Icon: MdPayment, showUpgrade: !hasSubscription }
-  ];
+  const accountItems = [{ id: "subscribe", label: "Subscription", Icon: MdPayment, showUpgrade: !hasSubscription }];
 
   return (
     <div
-      className={`w-64 bg-white shadow-lg fixed h-full z-40 transition-transform duration-300 ease-in-out transform ${
+      className={`w-64 bg-white shadow-lg fixed h-full z-40 transform ${
         mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-      } md:translate-x-0`}
+      } md:translate-x-0 transition-transform duration-300 ease-out`}
       aria-label="Sidebar"
     >
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-blue-600 to-blue-800 text-white">
-        <h2 className="text-xl font-bold">MrCem Sufyan</h2>
+        <h2 className="text-xl font-bold">MrCem</h2>
         <button
           onClick={() => setMobileMenuOpen(false)}
-          className="md:hidden text-white"
+          className="md:hidden text-white transition-opacity duration-200 hover:opacity-80"
           aria-label="Close navigation menu"
         >
           &times;
@@ -135,10 +128,8 @@ const Sidebar = ({
           <img
             src={currentUser?.photoURL || "https://randomuser.me/api/portraits/lego/1.jpg"}
             alt="User profile"
-            className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover"
-            onError={(e) => {
-              e.target.src = "https://randomuser.me/api/portraits/lego/1.jpg";
-            }}
+            className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover transition-transform duration-200 ease-out hover:scale-[1.03]"
+            onError={(e) => (e.target.src = "https://randomuser.me/api/portraits/lego/1.jpg")}
           />
           {hasSubscription && (
             <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
@@ -147,9 +138,7 @@ const Sidebar = ({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-gray-800 truncate">
-            {currentUser?.displayName || "Loading..."}
-          </p>
+          <p className="font-medium text-gray-800 truncate">{currentUser?.displayName || "Loading..."}</p>
           <p className={`text-xs truncate ${hasSubscription ? "text-green-600" : "text-yellow-600"}`}>
             {hasSubscription ? "Premium Member" : "Basic Account"}
           </p>
@@ -159,10 +148,7 @@ const Sidebar = ({
       {/* Navigation */}
       <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-180px)] custom-scrollbar">
         {/* Main Menu */}
-        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
-          Main Menu
-        </div>
-
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Main Menu</div>
         {mainMenuItems.map(({ id, label, Icon }) => (
           <button
             key={id}
@@ -170,22 +156,19 @@ const Sidebar = ({
               setActiveTab(id);
               setMobileMenuOpen(false);
             }}
-            className={`flex items-center space-x-3 w-full p-2 rounded-lg text-sm font-medium ${
+            className={`group flex items-center space-x-3 w-full p-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
               activeTab === id ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"
             }`}
             aria-label={`Go to ${label}`}
             aria-current={activeTab === id ? "page" : undefined}
           >
-            <Icon className="text-lg" />
+            <Icon className="text-lg transition-transform duration-200 group-hover:scale-105" />
             <span>{label}</span>
           </button>
         ))}
 
         {/* Study Resources */}
-        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6 px-2">
-          Study Resources
-        </div>
-
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6 px-2">Study Resources</div>
         {studyResources.map(({ id, label, Icon }) => (
           <button
             key={id}
@@ -193,28 +176,24 @@ const Sidebar = ({
               handleContentAccess(id);
               setMobileMenuOpen(false);
             }}
-            className={`flex items-center space-x-3 w-full p-2 rounded-lg text-sm font-medium ${
+            className={`group flex items-center space-x-3 w-full p-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
               activeTab === id ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"
             }`}
             aria-label={`Access ${label}`}
           >
-            <Icon className="text-lg" />
+            <Icon className="text-lg transition-transform duration-200 group-hover:scale-105" />
             <span>{label}</span>
           </button>
         ))}
 
         {/* Subjects */}
-        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6 px-2">
-          Subjects
-        </div>
-
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6 px-2">Subjects</div>
         {Object.keys(normalizedSubjects).length > 0 ? (
           Object.entries(normalizedSubjects).map(([mainSubject, topics]) => (
             <div key={mainSubject} className="mb-1">
-              {/* Main Subject */}
               <button
                 onClick={() => toggleDropdown(mainSubject)}
-                className="flex justify-between items-center w-full p-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
+                className="flex justify-between items-center w-full p-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors duration-200"
                 aria-label={`Toggle ${mainSubject} dropdown`}
                 aria-expanded={openSubjects[mainSubject] || false}
               >
@@ -222,30 +201,25 @@ const Sidebar = ({
                 {openSubjects[mainSubject] ? <FaChevronDown /> : <FaChevronRight />}
               </button>
 
-              {/* Nested Content */}
               {openSubjects[mainSubject] && (
-                <div className="ml-4 mt-1 space-y-1">
-                  {/* Group topics by chapter if they have chapters */}
+                <div className="ml-4 mt-1 space-y-1 transition-all duration-200 ease-out">
                   {(() => {
                     const chapters = {};
-                    topics.forEach(topic => {
+                    topics.forEach((topic) => {
                       if (topic.chapter) {
-                        if (!chapters[topic.chapter]) {
-                          chapters[topic.chapter] = [];
-                        }
+                        if (!chapters[topic.chapter]) chapters[topic.chapter] = [];
                         chapters[topic.chapter].push(topic);
                       }
                     });
-                    
+
                     const hasChapters = Object.keys(chapters).length > 0;
-                    
+
                     if (hasChapters) {
-                      // Render with chapters
                       return Object.entries(chapters).map(([chapter, chapterTopics]) => (
                         <div key={chapter}>
                           <button
                             onClick={() => toggleChapter(chapter)}
-                            className="flex justify-between items-center w-full p-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
+                            className="flex justify-between items-center w-full p-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
                             aria-label={`Toggle ${chapter} chapter`}
                             aria-expanded={openChapters[chapter] || false}
                           >
@@ -253,18 +227,17 @@ const Sidebar = ({
                             {openChapters[chapter] ? <FaChevronDown /> : <FaChevronRight />}
                           </button>
                           {openChapters[chapter] && (
-                            <div className="ml-4 mt-1 space-y-1">
+                            <div className="ml-4 mt-1 space-y-1 transition-all duration-200 ease-out">
                               {chapterTopics.map((topic) => (
                                 <button
                                   key={topic.id}
                                   onClick={() => {
-                                    setActiveSubject(topic);
+                                    setActiveSubject({ ...topic, mainSubject });
+                                    setActiveTab("subject");
                                     setMobileMenuOpen(false);
                                   }}
-                                  className={`block w-full text-left p-2 rounded-md text-sm ${
-                                    activeSubject?.id === topic.id
-                                      ? "bg-blue-100 text-blue-700"
-                                      : "text-gray-600 hover:bg-gray-100"
+                                  className={`block w-full text-left p-2 rounded-md text-sm transition-colors duration-200 ${
+                                    activeSubject?.id === topic.id ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"
                                   }`}
                                   aria-label={`Select ${topic.name} topic`}
                                 >
@@ -276,18 +249,16 @@ const Sidebar = ({
                         </div>
                       ));
                     } else {
-                      // Render without chapters
                       return topics.map((topic) => (
                         <button
                           key={topic.id}
                           onClick={() => {
-                            setActiveSubject(topic);
+                            setActiveSubject({ ...topic, mainSubject });
+                            setActiveTab("subject");
                             setMobileMenuOpen(false);
                           }}
-                          className={`block w-full text-left p-2 rounded-md text-sm ${
-                            activeSubject?.id === topic.id
-                              ? "bg-blue-100 text-blue-700"
-                              : "text-gray-600 hover:bg-gray-100"
+                          className={`block w-full text-left p-2 rounded-md text-sm transition-colors duration-200 ${
+                            activeSubject?.id === topic.id ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"
                           }`}
                           aria-label={`Select ${topic.name} topic`}
                         >
@@ -305,10 +276,7 @@ const Sidebar = ({
         )}
 
         {/* Account */}
-        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6 px-2">
-          Account
-        </div>
-
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6 px-2">Account</div>
         {accountItems.map(({ id, label, Icon, showUpgrade }) => (
           <button
             key={id}
@@ -316,15 +284,13 @@ const Sidebar = ({
               navigate("/subscribe");
               setMobileMenuOpen(false);
             }}
-            className="flex items-center space-x-3 w-full p-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100"
+            className="group flex items-center space-x-3 w-full p-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors duration-200"
             aria-label={`Manage ${label}`}
           >
-            <Icon className="text-lg" />
+            <Icon className="text-lg transition-transform duration-200 group-hover:scale-105" />
             <span>{label}</span>
             {showUpgrade && (
-              <span className="ml-auto bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">
-                Upgrade
-              </span>
+              <span className="ml-auto bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">Upgrade</span>
             )}
           </button>
         ))}
@@ -333,11 +299,11 @@ const Sidebar = ({
       {/* Sign Out */}
       <div className="absolute bottom-0 w-full p-4 border-t border-gray-200 bg-white">
         <button
-          onClick={onSignOut}
-          className="flex items-center space-x-3 w-full p-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-red-600"
+           onClick={onSignOut}
+          className="group flex items-center space-x-3 w-full p-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-red-600 transition-colors duration-200"
           aria-label="Sign out of account"
         >
-          <FaSignOutAlt className="text-lg" />
+          <FaSignOutAlt className="text-lg transition-transform duration-200 group-hover:-translate-x-0.5" />
           <span>Sign Out</span>
         </button>
       </div>

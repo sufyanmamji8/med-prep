@@ -11,67 +11,94 @@ import {
   updateProfile,
 } from "firebase/auth";
 
-// Sign Up
-export const doCreateUserWithEmailAndPassword = async (email, password, displayName = "User") => {
+/**
+ * Create new user with email/password
+ * Sets displayName & default photoURL
+ * Sends email verification
+ */
+export const doCreateUserWithEmailAndPassword = async (
+  email,
+  password,
+  displayName = "User"
+) => {
   const result = await createUserWithEmailAndPassword(auth, email, password);
 
-  //  Update profile with name & default avatar
+  // Update profile with name & default avatar
   await updateProfile(result.user, {
-    displayName: displayName,
+    displayName,
     photoURL: "https://randomuser.me/api/portraits/lego/1.jpg",
   });
 
-  //  Send verification email
+  // Send verification email
   await sendEmailVerification(result.user, {
-    url: `${window.location.origin}/Dashboard`,
+    url: `${window.location.origin}/dashboard`, // ✅ lowercase for consistency
   });
 
-  return result;
+  // Reload user to ensure updated profile info
+  await result.user.reload();
+
+  return result.user;
 };
 
-// Sign In
+/**
+ * Sign In with email & password
+ */
 export const doSignInWithEmailAndPassword = async (email, password) => {
-  return signInWithEmailAndPassword(auth, email, password);
+  const result = await signInWithEmailAndPassword(auth, email, password);
+  await result.user.reload();
+  return result.user;
 };
 
-// Google Sign In
+/**
+ * Google Sign In
+ */
 export const doSignInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
-  return result;
+  await result.user.reload();
+  return result.user;
 };
 
-// GitHub Sign In
+/**
+ * GitHub Sign In
+ */
 export const doSignInWithGithub = async () => {
   const provider = new GithubAuthProvider();
   const result = await signInWithPopup(auth, provider);
-  return result;
+  await result.user.reload();
+  return result.user;
 };
 
-// Sign Out
-export const doSignOut = () => {
+/**
+ * Sign Out
+ */
+export const doSignOut = async () => {
   return auth.signOut();
 };
 
-// Password Reset
-export const doPasswordReset = (email) => {
+/**
+ * Send Password Reset Email
+ */
+export const doPasswordReset = async (email) => {
   return sendPasswordResetEmail(auth, email, {
-    url: `${window.location.origin}/`, // ✅ redirect after reset
+    url: `${window.location.origin}/`, // redirect after reset
   });
 };
 
-// Change Password
-export const doPasswordChange = (password) => {
+/**
+ * Change Password
+ */
+export const doPasswordChange = async (password) => {
+  if (!auth.currentUser) throw new Error("No user logged in");
   return updatePassword(auth.currentUser, password);
 };
 
-// Email Verification
-export const doSendEmailVerification = () => {
-  if (auth.currentUser) {
-    return sendEmailVerification(auth.currentUser, {
-      url: `${window.location.origin}/Dashboard`,
-    });
-  } else {
-    throw new Error("No user logged in");
-  }
+/**
+ * Send Email Verification
+ */
+export const doSendEmailVerification = async () => {
+  if (!auth.currentUser) throw new Error("No user logged in");
+  return sendEmailVerification(auth.currentUser, {
+    url: `${window.location.origin}/dashboard`,
+  });
 };

@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 import ProtectedContent from "../common/ProtectedContent";
 import { MdNotes } from "react-icons/md";
-import { FaDownload, FaStar } from "react-icons/fa";
+import { FaDownload, FaStar, FaArrowLeft } from "react-icons/fa";
 
-const Notes = ({ activeSubject, hasSubscription, navigate }) => {
+const Notes = ({ activeSubject, hasSubscription, navigate, onBack }) => {
   const notes = useMemo(() => {
     return [
       "Comprehensive Guide",
@@ -25,6 +25,15 @@ const Notes = ({ activeSubject, hasSubscription, navigate }) => {
   return (
     <ProtectedContent hasSubscription={hasSubscription} title="Study Notes" icon={<MdNotes />} navigate={navigate}>
       <div className="space-y-6">
+
+        {/* ✅ Back Button */}
+        <button
+          onClick={onBack}
+          className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium mb-4"
+        >
+          <FaArrowLeft className="mr-2" /> <span>Back to {activeSubject?.name || "Subject"}</span>
+        </button>
+
         <h3 className="text-2xl font-bold text-gray-800 flex items-center">
           <MdNotes className="text-blue-500 mr-3" /> {activeSubject?.name || "Select a Subject"} Study Notes
         </h3>

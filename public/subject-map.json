@@ -1,0 +1,1289 @@
+{
+  "Anatomy|Abdomen|Anterior%20Abdominal%20Wall": {
+    "slug": "anatomy-abdomen-anterior-abdominal-wall",
+    "slugPath": "anatomy-abdomen-anterior-abdominal-wall",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-anterior-abdominal-wall.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Anterior Abdominal Wall"
+    ]
+  },
+  "Anatomy|Abdomen|Female%20Reproductive%20System": {
+    "slug": "anatomy-abdomen-female-reproductive-system",
+    "slugPath": "anatomy-abdomen-female-reproductive-system",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-female-reproductive-system.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Female Reproductive System"
+    ]
+  },
+  "Anatomy|Abdomen|Gastrointestinal%20Tract": {
+    "slug": "anatomy-abdomen-gastrointestinal-tract",
+    "slugPath": "anatomy-abdomen-gastrointestinal-tract",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-gastrointestinal-tract.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Gastrointestinal Tract"
+    ]
+  },
+  "Anatomy|Abdomen|Inguinal%20Region": {
+    "slug": "anatomy-abdomen-inguinal-region",
+    "slugPath": "anatomy-abdomen-inguinal-region",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-inguinal-region.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Inguinal Region"
+    ]
+  },
+  "Anatomy|Abdomen|Liver%20and%20Biliary%20Tract": {
+    "slug": "anatomy-abdomen-liver-and-biliary-tract",
+    "slugPath": "anatomy-abdomen-liver-and-biliary-tract",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-liver-and-biliary-tract.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Liver and Biliary Tract"
+    ]
+  },
+  "Anatomy|Abdomen|Male%20Reproductive%20System": {
+    "slug": "anatomy-abdomen-male-reproductive-system",
+    "slugPath": "anatomy-abdomen-male-reproductive-system",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-male-reproductive-system.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Male Reproductive System"
+    ]
+  },
+  "Anatomy|Abdomen|Pancreas%20and%20Spleen": {
+    "slug": "anatomy-abdomen-pancreas-and-spleen",
+    "slugPath": "anatomy-abdomen-pancreas-and-spleen",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-pancreas-and-spleen.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Pancreas and Spleen"
+    ]
+  },
+  "Anatomy|Abdomen|Pelvic%20Cavity": {
+    "slug": "anatomy-abdomen-pelvic-cavity",
+    "slugPath": "anatomy-abdomen-pelvic-cavity",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-pelvic-cavity.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Pelvic Cavity"
+    ]
+  },
+  "Anatomy|Abdomen|Posterior%20Abdominal%20Wall": {
+    "slug": "anatomy-abdomen-posterior-abdominal-wall",
+    "slugPath": "anatomy-abdomen-posterior-abdominal-wall",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-posterior-abdominal-wall.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Posterior Abdominal Wall"
+    ]
+  },
+  "Anatomy|Abdomen|Topography%20of%20Abdominal%20Cavity": {
+    "slug": "anatomy-abdomen-topography-of-abdominal-cavity",
+    "slugPath": "anatomy-abdomen-topography-of-abdominal-cavity",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-topography-of-abdominal-cavity.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Topography of Abdominal Cavity"
+    ]
+  },
+  "Anatomy|Abdomen|Urinary%20Tract": {
+    "slug": "anatomy-abdomen-urinary-tract",
+    "slugPath": "anatomy-abdomen-urinary-tract",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-abdomen-urinary-tract.html",
+    "originalSegments": [
+      "Anatomy",
+      "Abdomen",
+      "Urinary Tract"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Ear": {
+    "slug": "anatomy-head-and-neck-ear",
+    "slugPath": "anatomy-head-and-neck-ear",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-ear.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Ear"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Face": {
+    "slug": "anatomy-head-and-neck-face",
+    "slugPath": "anatomy-head-and-neck-face",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-face.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Face"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Infratemporal%20Fossa": {
+    "slug": "anatomy-head-and-neck-infratemporal-fossa",
+    "slugPath": "anatomy-head-and-neck-infratemporal-fossa",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-infratemporal-fossa.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Infratemporal Fossa"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Larynx": {
+    "slug": "anatomy-head-and-neck-larynx",
+    "slugPath": "anatomy-head-and-neck-larynx",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-larynx.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Larynx"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Mouth%20and%20Hard%20Palate": {
+    "slug": "anatomy-head-and-neck-mouth-and-hard-palate",
+    "slugPath": "anatomy-head-and-neck-mouth-and-hard-palate",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-mouth-and-hard-palate.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Mouth and Hard Palate"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Neck": {
+    "slug": "anatomy-head-and-neck-neck",
+    "slugPath": "anatomy-head-and-neck-neck",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-neck.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Neck"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Nose%20and%20Paranasal%20Region": {
+    "slug": "anatomy-head-and-neck-nose-and-paranasal-region",
+    "slugPath": "anatomy-head-and-neck-nose-and-paranasal-region",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-nose-and-paranasal-region.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Nose and Paranasal Region"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Orbit%20and%20Eye": {
+    "slug": "anatomy-head-and-neck-orbit-and-eye",
+    "slugPath": "anatomy-head-and-neck-orbit-and-eye",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-orbit-and-eye.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Orbit and Eye"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Parotid%20Region": {
+    "slug": "anatomy-head-and-neck-parotid-region",
+    "slugPath": "anatomy-head-and-neck-parotid-region",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-parotid-region.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Parotid Region"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Pharynx": {
+    "slug": "anatomy-head-and-neck-pharynx",
+    "slugPath": "anatomy-head-and-neck-pharynx",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-pharynx.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Pharynx"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Scalp": {
+    "slug": "anatomy-head-and-neck-scalp",
+    "slugPath": "anatomy-head-and-neck-scalp",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-scalp.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Scalp"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Temporomandibular%20Joint": {
+    "slug": "anatomy-head-and-neck-temporomandibular-joint",
+    "slugPath": "anatomy-head-and-neck-temporomandibular-joint",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-temporomandibular-joint.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Temporomandibular Joint"
+    ]
+  },
+  "Anatomy|Head%20and%20Neck|Vertebral%20Column": {
+    "slug": "anatomy-head-and-neck-vertebral-column",
+    "slugPath": "anatomy-head-and-neck-vertebral-column",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-head-and-neck-vertebral-column.html",
+    "originalSegments": [
+      "Anatomy",
+      "Head and Neck",
+      "Vertebral Column"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Ankle%20and%20Foot%20Joints": {
+    "slug": "anatomy-lower-limb-ankle-and-foot-joints",
+    "slugPath": "anatomy-lower-limb-ankle-and-foot-joints",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-ankle-and-foot-joints.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Ankle and Foot Joints"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Anterior%20Leg": {
+    "slug": "anatomy-lower-limb-anterior-leg",
+    "slugPath": "anatomy-lower-limb-anterior-leg",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-anterior-leg.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Anterior Leg"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Anterior%20Thigh": {
+    "slug": "anatomy-lower-limb-anterior-thigh",
+    "slugPath": "anatomy-lower-limb-anterior-thigh",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-anterior-thigh.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Anterior Thigh"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Dorsum%20of%20Foot": {
+    "slug": "anatomy-lower-limb-dorsum-of-foot",
+    "slugPath": "anatomy-lower-limb-dorsum-of-foot",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-dorsum-of-foot.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Dorsum of Foot"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Femoral%20Triangle": {
+    "slug": "anatomy-lower-limb-femoral-triangle",
+    "slugPath": "anatomy-lower-limb-femoral-triangle",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-femoral-triangle.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Femoral Triangle"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Hip%20Joint%20and%20Gluteal%20Region": {
+    "slug": "anatomy-lower-limb-hip-joint-and-gluteal-region",
+    "slugPath": "anatomy-lower-limb-hip-joint-and-gluteal-region",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-hip-joint-and-gluteal-region.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Hip Joint and Gluteal Region"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Innervation%20of%20Lower%20Limb": {
+    "slug": "anatomy-lower-limb-innervation-of-lower-limb",
+    "slugPath": "anatomy-lower-limb-innervation-of-lower-limb",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-innervation-of-lower-limb.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Innervation of Lower Limb"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Lateral%20Leg": {
+    "slug": "anatomy-lower-limb-lateral-leg",
+    "slugPath": "anatomy-lower-limb-lateral-leg",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-lateral-leg.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Lateral Leg"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Medial%20Thigh": {
+    "slug": "anatomy-lower-limb-medial-thigh",
+    "slugPath": "anatomy-lower-limb-medial-thigh",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-medial-thigh.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Medial Thigh"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Patellar%20Region": {
+    "slug": "anatomy-lower-limb-patellar-region",
+    "slugPath": "anatomy-lower-limb-patellar-region",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-patellar-region.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Patellar Region"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Popliteal%20Fossa%20and%20Knee": {
+    "slug": "anatomy-lower-limb-popliteal-fossa-and-knee",
+    "slugPath": "anatomy-lower-limb-popliteal-fossa-and-knee",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-popliteal-fossa-and-knee.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Popliteal Fossa and Knee"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Posterior%20Leg": {
+    "slug": "anatomy-lower-limb-posterior-leg",
+    "slugPath": "anatomy-lower-limb-posterior-leg",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-posterior-leg.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Posterior Leg"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Posterior%20Thigh": {
+    "slug": "anatomy-lower-limb-posterior-thigh",
+    "slugPath": "anatomy-lower-limb-posterior-thigh",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-posterior-thigh.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Posterior Thigh"
+    ]
+  },
+  "Anatomy|Lower%20Limb|Sole%20of%20Foot": {
+    "slug": "anatomy-lower-limb-sole-of-foot",
+    "slugPath": "anatomy-lower-limb-sole-of-foot",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-lower-limb-sole-of-foot.html",
+    "originalSegments": [
+      "Anatomy",
+      "Lower Limb",
+      "Sole of Foot"
+    ]
+  },
+  "Anatomy|Thorax|Diaphragm": {
+    "slug": "anatomy-thorax-diaphragm",
+    "slugPath": "anatomy-thorax-diaphragm",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-thorax-diaphragm.html",
+    "originalSegments": [
+      "Anatomy",
+      "Thorax",
+      "Diaphragm"
+    ]
+  },
+  "Anatomy|Thorax|Heart%20and%20Pericardium": {
+    "slug": "anatomy-thorax-heart-and-pericardium",
+    "slugPath": "anatomy-thorax-heart-and-pericardium",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-thorax-heart-and-pericardium.html",
+    "originalSegments": [
+      "Anatomy",
+      "Thorax",
+      "Heart and Pericardium"
+    ]
+  },
+  "Anatomy|Thorax|Oesophagus": {
+    "slug": "anatomy-thorax-oesophagus",
+    "slugPath": "anatomy-thorax-oesophagus",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-thorax-oesophagus.html",
+    "originalSegments": [
+      "Anatomy",
+      "Thorax",
+      "Oesophagus"
+    ]
+  },
+  "Anatomy|Thorax|Osteology": {
+    "slug": "anatomy-thorax-osteology",
+    "slugPath": "anatomy-thorax-osteology",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-thorax-osteology.html",
+    "originalSegments": [
+      "Anatomy",
+      "Thorax",
+      "Osteology"
+    ]
+  },
+  "Anatomy|Thorax|Pleura%20and%20Lungs": {
+    "slug": "anatomy-thorax-pleura-and-lungs",
+    "slugPath": "anatomy-thorax-pleura-and-lungs",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-thorax-pleura-and-lungs.html",
+    "originalSegments": [
+      "Anatomy",
+      "Thorax",
+      "Pleura and Lungs"
+    ]
+  },
+  "Anatomy|Thorax|Thoracic%20Inlet": {
+    "slug": "anatomy-thorax-thoracic-inlet",
+    "slugPath": "anatomy-thorax-thoracic-inlet",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-thorax-thoracic-inlet.html",
+    "originalSegments": [
+      "Anatomy",
+      "Thorax",
+      "Thoracic Inlet"
+    ]
+  },
+  "Anatomy|Thorax|Thoracic%20Wall": {
+    "slug": "anatomy-thorax-thoracic-wall",
+    "slugPath": "anatomy-thorax-thoracic-wall",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-thorax-thoracic-wall.html",
+    "originalSegments": [
+      "Anatomy",
+      "Thorax",
+      "Thoracic Wall"
+    ]
+  },
+  "Anatomy|Thorax|Thymus": {
+    "slug": "anatomy-thorax-thymus",
+    "slugPath": "anatomy-thorax-thymus",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-thorax-thymus.html",
+    "originalSegments": [
+      "Anatomy",
+      "Thorax",
+      "Thymus"
+    ]
+  },
+  "Anatomy|Thorax|Trachea": {
+    "slug": "anatomy-thorax-trachea",
+    "slugPath": "anatomy-thorax-trachea",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-thorax-trachea.html",
+    "originalSegments": [
+      "Anatomy",
+      "Thorax",
+      "Trachea"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Anterior%20Arm": {
+    "slug": "anatomy-upper-limb-anterior-arm",
+    "slugPath": "anatomy-upper-limb-anterior-arm",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-anterior-arm.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Anterior Arm"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Anterior%20Forearm": {
+    "slug": "anatomy-upper-limb-anterior-forearm",
+    "slugPath": "anatomy-upper-limb-anterior-forearm",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-anterior-forearm.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Anterior Forearm"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Axilla": {
+    "slug": "anatomy-upper-limb-axilla",
+    "slugPath": "anatomy-upper-limb-axilla",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-axilla.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Axilla"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Breast": {
+    "slug": "anatomy-upper-limb-breast",
+    "slugPath": "anatomy-upper-limb-breast",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-breast.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Breast"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Digital%20Attachment%20of%20Long%20Tendons": {
+    "slug": "anatomy-upper-limb-digital-attachment-of-long-tendons",
+    "slugPath": "anatomy-upper-limb-digital-attachment-of-long-tendons",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-digital-attachment-of-long-tendons.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Digital Attachment of Long Tendons"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Innervation%20of%20Upper%20Limb": {
+    "slug": "anatomy-upper-limb-innervation-of-upper-limb",
+    "slugPath": "anatomy-upper-limb-innervation-of-upper-limb",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-innervation-of-upper-limb.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Innervation of Upper Limb"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Pectoral%20Region": {
+    "slug": "anatomy-upper-limb-pectoral-region",
+    "slugPath": "anatomy-upper-limb-pectoral-region",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-pectoral-region.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Pectoral Region"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Posterior%20Arm": {
+    "slug": "anatomy-upper-limb-posterior-arm",
+    "slugPath": "anatomy-upper-limb-posterior-arm",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-posterior-arm.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Posterior Arm"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Posterior%20Forearm": {
+    "slug": "anatomy-upper-limb-posterior-forearm",
+    "slugPath": "anatomy-upper-limb-posterior-forearm",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-posterior-forearm.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Posterior Forearm"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Shoulder": {
+    "slug": "anatomy-upper-limb-shoulder",
+    "slugPath": "anatomy-upper-limb-shoulder",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-shoulder.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Shoulder"
+    ]
+  },
+  "Anatomy|Upper%20Limb|Wrist%20and%20Hand": {
+    "slug": "anatomy-upper-limb-wrist-and-hand",
+    "slugPath": "anatomy-upper-limb-wrist-and-hand",
+    "localHtml": "https://mrcem.codovio.com/subject-html/anatomy-upper-limb-wrist-and-hand.html",
+    "originalSegments": [
+      "Anatomy",
+      "Upper Limb",
+      "Wrist and Hand"
+    ]
+  },
+  "Evidence%20Based%20Medicine|Critical%20Appraisal": {
+    "slug": "evidence-based-medicine-critical-appraisal",
+    "slugPath": "evidence-based-medicine-critical-appraisal",
+    "localHtml": "https://mrcem.codovio.com/subject-html/evidence-based-medicine-critical-appraisal.html",
+    "originalSegments": [
+      "Evidence Based Medicine",
+      "Critical Appraisal"
+    ]
+  },
+  "Evidence%20Based%20Medicine|Statistics": {
+    "slug": "evidence-based-medicine-statistics",
+    "slugPath": "evidence-based-medicine-statistics",
+    "localHtml": "https://mrcem.codovio.com/subject-html/evidence-based-medicine-statistics.html",
+    "originalSegments": [
+      "Evidence Based Medicine",
+      "Statistics"
+    ]
+  },
+  "Evidence%20Based%20Medicine|Study%20Methodology": {
+    "slug": "evidence-based-medicine-study-methodology",
+    "slugPath": "evidence-based-medicine-study-methodology",
+    "localHtml": "https://mrcem.codovio.com/subject-html/evidence-based-medicine-study-methodology.html",
+    "originalSegments": [
+      "Evidence Based Medicine",
+      "Study Methodology"
+    ]
+  },
+  "Microbiology|Pathogens|Chlamydia": {
+    "slug": "microbiology-pathogens-chlamydia",
+    "slugPath": "microbiology-pathogens-chlamydia",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-chlamydia.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Chlamydia"
+    ]
+  },
+  "Microbiology|Pathogens|Clostridial%20Infection": {
+    "slug": "microbiology-pathogens-clostridial-infection",
+    "slugPath": "microbiology-pathogens-clostridial-infection",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-clostridial-infection.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Clostridial Infection"
+    ]
+  },
+  "Microbiology|Pathogens|Gastrointestinal%20Viruses": {
+    "slug": "microbiology-pathogens-gastrointestinal-viruses",
+    "slugPath": "microbiology-pathogens-gastrointestinal-viruses",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-gastrointestinal-viruses.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Gastrointestinal Viruses"
+    ]
+  },
+  "Microbiology|Pathogens|Gram-negative%20Gastrointestinal%20Disease": {
+    "slug": "microbiology-pathogens-gram-negative-gastrointestinal-disease",
+    "slugPath": "microbiology-pathogens-gram-negative-gastrointestinal-disease",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-gram-negative-gastrointestinal-disease.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Gram-negative Gastrointestinal Disease"
+    ]
+  },
+  "Microbiology|Pathogens|Hepatitis": {
+    "slug": "microbiology-pathogens-hepatitis",
+    "slugPath": "microbiology-pathogens-hepatitis",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-hepatitis.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Hepatitis"
+    ]
+  },
+  "Microbiology|Pathogens|Herpes%20Viruses": {
+    "slug": "microbiology-pathogens-herpes-viruses",
+    "slugPath": "microbiology-pathogens-herpes-viruses",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-herpes-viruses.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Herpes Viruses"
+    ]
+  },
+  "Microbiology|Pathogens|HIV": {
+    "slug": "microbiology-pathogens-hiv",
+    "slugPath": "microbiology-pathogens-hiv",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-hiv.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "HIV"
+    ]
+  },
+  "Microbiology|Pathogens|Klebsiella%20and%20Enterobacteriae": {
+    "slug": "microbiology-pathogens-klebsiella-and-enterobacteriae",
+    "slugPath": "microbiology-pathogens-klebsiella-and-enterobacteriae",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-klebsiella-and-enterobacteriae.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Klebsiella and Enterobacteriae"
+    ]
+  },
+  "Microbiology|Pathogens|Legionella": {
+    "slug": "microbiology-pathogens-legionella",
+    "slugPath": "microbiology-pathogens-legionella",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-legionella.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Legionella"
+    ]
+  },
+  "Microbiology|Pathogens|Malaria": {
+    "slug": "microbiology-pathogens-malaria",
+    "slugPath": "microbiology-pathogens-malaria",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-malaria.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Malaria"
+    ]
+  },
+  "Microbiology|Pathogens|Measles%2C%20Mumps%20and%20Rubella": {
+    "slug": "microbiology-pathogens-measles-mumps-and-rubella",
+    "slugPath": "microbiology-pathogens-measles-mumps-and-rubella",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-measles-mumps-and-rubella.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Measles, Mumps and Rubella"
+    ]
+  },
+  "Microbiology|Pathogens|Neisseria": {
+    "slug": "microbiology-pathogens-neisseria",
+    "slugPath": "microbiology-pathogens-neisseria",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-neisseria.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Neisseria"
+    ]
+  },
+  "Microbiology|Pathogens|Pertussis": {
+    "slug": "microbiology-pathogens-pertussis",
+    "slugPath": "microbiology-pathogens-pertussis",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-pertussis.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Pertussis"
+    ]
+  },
+  "Microbiology|Pathogens|Pseudomonas": {
+    "slug": "microbiology-pathogens-pseudomonas",
+    "slugPath": "microbiology-pathogens-pseudomonas",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-pseudomonas.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Pseudomonas"
+    ]
+  },
+  "Microbiology|Pathogens|Respiratory%20Viruses": {
+    "slug": "microbiology-pathogens-respiratory-viruses",
+    "slugPath": "microbiology-pathogens-respiratory-viruses",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-respiratory-viruses.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Respiratory Viruses"
+    ]
+  },
+  "Microbiology|Pathogens|Streptococci%20and%20Staphylococci": {
+    "slug": "microbiology-pathogens-streptococci-and-staphylococci",
+    "slugPath": "microbiology-pathogens-streptococci-and-staphylococci",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-streptococci-and-staphylococci.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Streptococci and Staphylococci"
+    ]
+  },
+  "Microbiology|Pathogens|Tuberculosis": {
+    "slug": "microbiology-pathogens-tuberculosis",
+    "slugPath": "microbiology-pathogens-tuberculosis",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-tuberculosis.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Tuberculosis"
+    ]
+  },
+  "Microbiology|Pathogens|Worms": {
+    "slug": "microbiology-pathogens-worms",
+    "slugPath": "microbiology-pathogens-worms",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-worms.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Worms"
+    ]
+  },
+  "Microbiology|Pathogens|Yeasts%20and%20Fungi": {
+    "slug": "microbiology-pathogens-yeasts-and-fungi",
+    "slugPath": "microbiology-pathogens-yeasts-and-fungi",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-pathogens-yeasts-and-fungi.html",
+    "originalSegments": [
+      "Microbiology",
+      "Pathogens",
+      "Yeasts and Fungi"
+    ]
+  },
+  "Microbiology|Principles|Controlling%20Infection": {
+    "slug": "microbiology-principles-controlling-infection",
+    "slugPath": "microbiology-principles-controlling-infection",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-principles-controlling-infection.html",
+    "originalSegments": [
+      "Microbiology",
+      "Principles",
+      "Controlling Infection"
+    ]
+  },
+  "Microbiology|Principles|Mechanisms%20of%20Disease": {
+    "slug": "microbiology-principles-mechanisms-of-disease",
+    "slugPath": "microbiology-principles-mechanisms-of-disease",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-principles-mechanisms-of-disease.html",
+    "originalSegments": [
+      "Microbiology",
+      "Principles",
+      "Mechanisms of Disease"
+    ]
+  },
+  "Microbiology|Principles|Natural%20and%20Innate%20Immunity": {
+    "slug": "microbiology-principles-natural-and-innate-immunity",
+    "slugPath": "microbiology-principles-natural-and-innate-immunity",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-principles-natural-and-innate-immunity.html",
+    "originalSegments": [
+      "Microbiology",
+      "Principles",
+      "Natural and Innate Immunity"
+    ]
+  },
+  "Microbiology|Principles|Principles%20of%20Investigation": {
+    "slug": "microbiology-principles-principles-of-investigation",
+    "slugPath": "microbiology-principles-principles-of-investigation",
+    "localHtml": "https://mrcem.codovio.com/subject-html/microbiology-principles-principles-of-investigation.html",
+    "originalSegments": [
+      "Microbiology",
+      "Principles",
+      "Principles of Investigation"
+    ]
+  },
+  "Pathology|Haematology|Anaemia": {
+    "slug": "pathology-haematology-anaemia",
+    "slugPath": "pathology-haematology-anaemia",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pathology-haematology-anaemia.html",
+    "originalSegments": [
+      "Pathology",
+      "Haematology",
+      "Anaemia"
+    ]
+  },
+  "Pathology|Haematology|Coagulation%20Disorders": {
+    "slug": "pathology-haematology-coagulation-disorders",
+    "slugPath": "pathology-haematology-coagulation-disorders",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pathology-haematology-coagulation-disorders.html",
+    "originalSegments": [
+      "Pathology",
+      "Haematology",
+      "Coagulation Disorders"
+    ]
+  },
+  "Pathology|Haematology|Malignancy": {
+    "slug": "pathology-haematology-malignancy",
+    "slugPath": "pathology-haematology-malignancy",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pathology-haematology-malignancy.html",
+    "originalSegments": [
+      "Pathology",
+      "Haematology",
+      "Malignancy"
+    ]
+  },
+  "Pharmacology|Anaesthesia": {
+    "slug": "pharmacology-anaesthesia",
+    "slugPath": "pharmacology-anaesthesia",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-anaesthesia.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Anaesthesia"
+    ]
+  },
+  "Pharmacology|Cardiovascular": {
+    "slug": "pharmacology-cardiovascular",
+    "slugPath": "pharmacology-cardiovascular",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-cardiovascular.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Cardiovascular"
+    ]
+  },
+  "Pharmacology|Central%20Nervous%20System": {
+    "slug": "pharmacology-central-nervous-system",
+    "slugPath": "pharmacology-central-nervous-system",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-central-nervous-system.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Central Nervous System"
+    ]
+  },
+  "Pharmacology|Endocrine": {
+    "slug": "pharmacology-endocrine",
+    "slugPath": "pharmacology-endocrine",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-endocrine.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Endocrine"
+    ]
+  },
+  "Pharmacology|Fluids%20and%20Electrolytes": {
+    "slug": "pharmacology-fluids-and-electrolytes",
+    "slugPath": "pharmacology-fluids-and-electrolytes",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-fluids-and-electrolytes.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Fluids and Electrolytes"
+    ]
+  },
+  "Pharmacology|Gastrointestinal": {
+    "slug": "pharmacology-gastrointestinal",
+    "slugPath": "pharmacology-gastrointestinal",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-gastrointestinal.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Gastrointestinal"
+    ]
+  },
+  "Pharmacology|Immunoglobulins%20and%20Vaccines": {
+    "slug": "pharmacology-immunoglobulins-and-vaccines",
+    "slugPath": "pharmacology-immunoglobulins-and-vaccines",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-immunoglobulins-and-vaccines.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Immunoglobulins and Vaccines"
+    ]
+  },
+  "Pharmacology|Infections": {
+    "slug": "pharmacology-infections",
+    "slugPath": "pharmacology-infections",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-infections.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Infections"
+    ]
+  },
+  "Pharmacology|Musculoskeletal": {
+    "slug": "pharmacology-musculoskeletal",
+    "slugPath": "pharmacology-musculoskeletal",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-musculoskeletal.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Musculoskeletal"
+    ]
+  },
+  "Pharmacology|Respiratory": {
+    "slug": "pharmacology-respiratory",
+    "slugPath": "pharmacology-respiratory",
+    "localHtml": "https://mrcem.codovio.com/subject-html/pharmacology-respiratory.html",
+    "originalSegments": [
+      "Pharmacology",
+      "Respiratory"
+    ]
+  },
+  "Physiology|Basic%20Cellular|Action%20Potential": {
+    "slug": "physiology-basic-cellular-action-potential",
+    "slugPath": "physiology-basic-cellular-action-potential",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-basic-cellular-action-potential.html",
+    "originalSegments": [
+      "Physiology",
+      "Basic Cellular",
+      "Action Potential"
+    ]
+  },
+  "Physiology|Basic%20Cellular|Autonomic%20Nervous%20System": {
+    "slug": "physiology-basic-cellular-autonomic-nervous-system",
+    "slugPath": "physiology-basic-cellular-autonomic-nervous-system",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-basic-cellular-autonomic-nervous-system.html",
+    "originalSegments": [
+      "Physiology",
+      "Basic Cellular",
+      "Autonomic Nervous System"
+    ]
+  },
+  "Physiology|Basic%20Cellular|Blood%20and%20Blood%20Flow": {
+    "slug": "physiology-basic-cellular-blood-and-blood-flow",
+    "slugPath": "physiology-basic-cellular-blood-and-blood-flow",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-basic-cellular-blood-and-blood-flow.html",
+    "originalSegments": [
+      "Physiology",
+      "Basic Cellular",
+      "Blood and Blood Flow"
+    ]
+  },
+  "Physiology|Basic%20Cellular|Cell%20Structure%20and%20Function": {
+    "slug": "physiology-basic-cellular-cell-structure-and-function",
+    "slugPath": "physiology-basic-cellular-cell-structure-and-function",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-basic-cellular-cell-structure-and-function.html",
+    "originalSegments": [
+      "Physiology",
+      "Basic Cellular",
+      "Cell Structure and Function"
+    ]
+  },
+  "Physiology|Basic%20Cellular|Fluid%20Spaces": {
+    "slug": "physiology-basic-cellular-fluid-spaces",
+    "slugPath": "physiology-basic-cellular-fluid-spaces",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-basic-cellular-fluid-spaces.html",
+    "originalSegments": [
+      "Physiology",
+      "Basic Cellular",
+      "Fluid Spaces"
+    ]
+  },
+  "Physiology|Basic%20Cellular|Homeostasis": {
+    "slug": "physiology-basic-cellular-homeostasis",
+    "slugPath": "physiology-basic-cellular-homeostasis",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-basic-cellular-homeostasis.html",
+    "originalSegments": [
+      "Physiology",
+      "Basic Cellular",
+      "Homeostasis"
+    ]
+  },
+  "Physiology|Basic%20Cellular|Skeletal%20Muscle%20Physiology": {
+    "slug": "physiology-basic-cellular-skeletal-muscle-physiology",
+    "slugPath": "physiology-basic-cellular-skeletal-muscle-physiology",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-basic-cellular-skeletal-muscle-physiology.html",
+    "originalSegments": [
+      "Physiology",
+      "Basic Cellular",
+      "Skeletal Muscle Physiology"
+    ]
+  },
+  "Physiology|Basic%20Cellular|Vessel%20Fluid%20Dynamics": {
+    "slug": "physiology-basic-cellular-vessel-fluid-dynamics",
+    "slugPath": "physiology-basic-cellular-vessel-fluid-dynamics",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-basic-cellular-vessel-fluid-dynamics.html",
+    "originalSegments": [
+      "Physiology",
+      "Basic Cellular",
+      "Vessel Fluid Dynamics"
+    ]
+  },
+  "Physiology|Cardiovascular|Cardiac%20Cycle": {
+    "slug": "physiology-cardiovascular-cardiac-cycle",
+    "slugPath": "physiology-cardiovascular-cardiac-cycle",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-cardiovascular-cardiac-cycle.html",
+    "originalSegments": [
+      "Physiology",
+      "Cardiovascular",
+      "Cardiac Cycle"
+    ]
+  },
+  "Physiology|Cardiovascular|Cardiac%20Output": {
+    "slug": "physiology-cardiovascular-cardiac-output",
+    "slugPath": "physiology-cardiovascular-cardiac-output",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-cardiovascular-cardiac-output.html",
+    "originalSegments": [
+      "Physiology",
+      "Cardiovascular",
+      "Cardiac Output"
+    ]
+  },
+  "Physiology|Cardiovascular|Peripheral%20Vascular%20System": {
+    "slug": "physiology-cardiovascular-peripheral-vascular-system",
+    "slugPath": "physiology-cardiovascular-peripheral-vascular-system",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-cardiovascular-peripheral-vascular-system.html",
+    "originalSegments": [
+      "Physiology",
+      "Cardiovascular",
+      "Peripheral Vascular System"
+    ]
+  },
+  "Physiology|Endocrine|Adrenal%20Function": {
+    "slug": "physiology-endocrine-adrenal-function",
+    "slugPath": "physiology-endocrine-adrenal-function",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-endocrine-adrenal-function.html",
+    "originalSegments": [
+      "Physiology",
+      "Endocrine",
+      "Adrenal Function"
+    ]
+  },
+  "Physiology|Endocrine|Calcium%20and%20Bone": {
+    "slug": "physiology-endocrine-calcium-and-bone",
+    "slugPath": "physiology-endocrine-calcium-and-bone",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-endocrine-calcium-and-bone.html",
+    "originalSegments": [
+      "Physiology",
+      "Endocrine",
+      "Calcium and Bone"
+    ]
+  },
+  "Physiology|Endocrine|Pancreatic%20Function": {
+    "slug": "physiology-endocrine-pancreatic-function",
+    "slugPath": "physiology-endocrine-pancreatic-function",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-endocrine-pancreatic-function.html",
+    "originalSegments": [
+      "Physiology",
+      "Endocrine",
+      "Pancreatic Function"
+    ]
+  },
+  "Physiology|Endocrine|Pituitary%20Function": {
+    "slug": "physiology-endocrine-pituitary-function",
+    "slugPath": "physiology-endocrine-pituitary-function",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-endocrine-pituitary-function.html",
+    "originalSegments": [
+      "Physiology",
+      "Endocrine",
+      "Pituitary Function"
+    ]
+  },
+  "Physiology|Endocrine|Thyroid%20Function": {
+    "slug": "physiology-endocrine-thyroid-function",
+    "slugPath": "physiology-endocrine-thyroid-function",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-endocrine-thyroid-function.html",
+    "originalSegments": [
+      "Physiology",
+      "Endocrine",
+      "Thyroid Function"
+    ]
+  },
+  "Physiology|Gastrointestinal|Gut%20Wall": {
+    "slug": "physiology-gastrointestinal-gut-wall",
+    "slugPath": "physiology-gastrointestinal-gut-wall",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-gastrointestinal-gut-wall.html",
+    "originalSegments": [
+      "Physiology",
+      "Gastrointestinal",
+      "Gut Wall"
+    ]
+  },
+  "Physiology|Gastrointestinal|Large%20Intestine": {
+    "slug": "physiology-gastrointestinal-large-intestine",
+    "slugPath": "physiology-gastrointestinal-large-intestine",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-gastrointestinal-large-intestine.html",
+    "originalSegments": [
+      "Physiology",
+      "Gastrointestinal",
+      "Large Intestine"
+    ]
+  },
+  "Physiology|Gastrointestinal|Liver%20and%20Gallbladder": {
+    "slug": "physiology-gastrointestinal-liver-and-gallbladder",
+    "slugPath": "physiology-gastrointestinal-liver-and-gallbladder",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-gastrointestinal-liver-and-gallbladder.html",
+    "originalSegments": [
+      "Physiology",
+      "Gastrointestinal",
+      "Liver and Gallbladder"
+    ]
+  },
+  "Physiology|Gastrointestinal|Mouth%20and%20Oesophagus": {
+    "slug": "physiology-gastrointestinal-mouth-and-oesophagus",
+    "slugPath": "physiology-gastrointestinal-mouth-and-oesophagus",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-gastrointestinal-mouth-and-oesophagus.html",
+    "originalSegments": [
+      "Physiology",
+      "Gastrointestinal",
+      "Mouth and Oesophagus"
+    ]
+  },
+  "Physiology|Gastrointestinal|Pancreas": {
+    "slug": "physiology-gastrointestinal-pancreas",
+    "slugPath": "physiology-gastrointestinal-pancreas",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-gastrointestinal-pancreas.html",
+    "originalSegments": [
+      "Physiology",
+      "Gastrointestinal",
+      "Pancreas"
+    ]
+  },
+  "Physiology|Gastrointestinal|Small%20Intestine": {
+    "slug": "physiology-gastrointestinal-small-intestine",
+    "slugPath": "physiology-gastrointestinal-small-intestine",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-gastrointestinal-small-intestine.html",
+    "originalSegments": [
+      "Physiology",
+      "Gastrointestinal",
+      "Small Intestine"
+    ]
+  },
+  "Physiology|Gastrointestinal|Stomach": {
+    "slug": "physiology-gastrointestinal-stomach",
+    "slugPath": "physiology-gastrointestinal-stomach",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-gastrointestinal-stomach.html",
+    "originalSegments": [
+      "Physiology",
+      "Gastrointestinal",
+      "Stomach"
+    ]
+  },
+  "Physiology|Renal|Acid-Base%20Balance": {
+    "slug": "physiology-renal-acid-base-balance",
+    "slugPath": "physiology-renal-acid-base-balance",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-renal-acid-base-balance.html",
+    "originalSegments": [
+      "Physiology",
+      "Renal",
+      "Acid-Base Balance"
+    ]
+  },
+  "Physiology|Renal|Functional%20Anatomy": {
+    "slug": "physiology-renal-functional-anatomy",
+    "slugPath": "physiology-renal-functional-anatomy",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-renal-functional-anatomy.html",
+    "originalSegments": [
+      "Physiology",
+      "Renal",
+      "Functional Anatomy"
+    ]
+  },
+  "Physiology|Renal|Mechanism%20of%20Filtration": {
+    "slug": "physiology-renal-mechanism-of-filtration",
+    "slugPath": "physiology-renal-mechanism-of-filtration",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-renal-mechanism-of-filtration.html",
+    "originalSegments": [
+      "Physiology",
+      "Renal",
+      "Mechanism of Filtration"
+    ]
+  },
+  "Physiology|Renal|Potassium%20Balance": {
+    "slug": "physiology-renal-potassium-balance",
+    "slugPath": "physiology-renal-potassium-balance",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-renal-potassium-balance.html",
+    "originalSegments": [
+      "Physiology",
+      "Renal",
+      "Potassium Balance"
+    ]
+  },
+  "Physiology|Respiratory|Control%20of%20Respiration": {
+    "slug": "physiology-respiratory-control-of-respiration",
+    "slugPath": "physiology-respiratory-control-of-respiration",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-respiratory-control-of-respiration.html",
+    "originalSegments": [
+      "Physiology",
+      "Respiratory",
+      "Control of Respiration"
+    ]
+  },
+  "Physiology|Respiratory|Gas%20Transport%20in%20Circulation": {
+    "slug": "physiology-respiratory-gas-transport-in-circulation",
+    "slugPath": "physiology-respiratory-gas-transport-in-circulation",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-respiratory-gas-transport-in-circulation.html",
+    "originalSegments": [
+      "Physiology",
+      "Respiratory",
+      "Gas Transport in Circulation"
+    ]
+  },
+  "Physiology|Respiratory|Gas%20Transport%20in%20Lungs": {
+    "slug": "physiology-respiratory-gas-transport-in-lungs",
+    "slugPath": "physiology-respiratory-gas-transport-in-lungs",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-respiratory-gas-transport-in-lungs.html",
+    "originalSegments": [
+      "Physiology",
+      "Respiratory",
+      "Gas Transport in Lungs"
+    ]
+  },
+  "Physiology|Respiratory|Lung%20Mechanics": {
+    "slug": "physiology-respiratory-lung-mechanics",
+    "slugPath": "physiology-respiratory-lung-mechanics",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-respiratory-lung-mechanics.html",
+    "originalSegments": [
+      "Physiology",
+      "Respiratory",
+      "Lung Mechanics"
+    ]
+  },
+  "Physiology|Respiratory|Lung%20Volumes%20and%20Pressures": {
+    "slug": "physiology-respiratory-lung-volumes-and-pressures",
+    "slugPath": "physiology-respiratory-lung-volumes-and-pressures",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-respiratory-lung-volumes-and-pressures.html",
+    "originalSegments": [
+      "Physiology",
+      "Respiratory",
+      "Lung Volumes and Pressures"
+    ]
+  },
+  "Physiology|Respiratory|Ventilation-Perfusion%20Relationship": {
+    "slug": "physiology-respiratory-ventilation-perfusion-relationship",
+    "slugPath": "physiology-respiratory-ventilation-perfusion-relationship",
+    "localHtml": "https://mrcem.codovio.com/subject-html/physiology-respiratory-ventilation-perfusion-relationship.html",
+    "originalSegments": [
+      "Physiology",
+      "Respiratory",
+      "Ventilation-Perfusion Relationship"
+    ]
+  }
+}

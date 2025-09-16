@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { doSignOut } from "../../firebase/auth";
@@ -13,22 +13,32 @@ import PastPapers from "./sections/PastPapers";
 import Mcqs from "./sections/Mcqs";
 import Videos from "./sections/Videos";
 import Notes from "./sections/Notes";
+import SubjectPage from "./sections/SubjectPage";
+import McqPracticePage from "./sections/McqPracticePage";
+import McqResultPage from "./sections/McqResultPage";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [activeSubject, setActiveSubject] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [hasSubscription, setHasSubscription] = useState(false);
-  const [subjects, setSubjects] = useState({}); // ✅ API subjects (object, not array)
+  const [hasSubscription, setHasSubscription] = useState(true);
+  const [subjects, setSubjects] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedYear, setSelectedYear] = useState("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const navigate = useNavigate();
+  // ✅ MCQ result state
+  const [mcqResultData, setMcqResultData] = useState(null);
 
-  // ✅ 1. Auth check
+  // ✅ Subject details state
+  const [subjectDetails, setSubjectDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // 1️⃣ Auth check
   useEffect(() => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -44,33 +54,21 @@ const Dashboard = () => {
       }
       setLoading(false);
     });
-
-    const t = setTimeout(() => setHasSubscription(false), 1000);
-
-    return () => {
-      unsubscribe();
-      clearTimeout(t);
-    };
+    return () => unsubscribe();
   }, [navigate]);
 
-  // ✅ 2. Fetch subjects from API
+  // 2️⃣ Fetch subjects
   useEffect(() => {
-    fetch("/api/mrcem/textBookHierarchy")
+    fetch("https://whatsbiz.codovio.com/mrcem/textBookHierarchy")
       .then((res) => res.json())
       .then((data) => {
-        console.log("API Response:", data);
-        if (data?.textBookHierarchy) {
-          setSubjects(data.textBookHierarchy);
-        } else {
-          setSubjects({});
-        }
+        if (data?.textBookHierarchy) setSubjects(data.textBookHierarchy);
+        else setSubjects({});
       })
-      .catch((err) => {
-        console.error("API fetch error:", err);
-      });
+      .catch(() => setSubjects({}));
   }, []);
 
-  // ✅ 3. Lock body scroll when sidebar open
+  // 3️⃣ Lock body scroll when mobile menu open
   useEffect(() => {
     if (mobileMenuOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -79,6 +77,7 @@ const Dashboard = () => {
     };
   }, [mobileMenuOpen]);
 
+  // 4️⃣ Handle sign out
   const handleSignOut = async () => {
     try {
       await doSignOut();
@@ -96,14 +95,101 @@ const Dashboard = () => {
     setActiveTab(tab);
   };
 
+  // 5️⃣ Build subject path
+  const findMainSubjectFor = (subject) => {
+    if (!subject || !subjects) return null;
+    for (const [main, content] of Object.entries(subjects)) {
+      if (Array.isArray(content)) {
+        for (const it of content) {
+          if (typeof it === "string" && it === subject.name) return main;
+          if (
+            typeof it === "object" &&
+            (it.name === subject.name || it.id === subject.id)
+          )
+            return main;
+        }
+      } else if (content && typeof content === "object") {
+        for (const items of Object.values(content)) {
+          if (!Array.isArray(items)) continue;
+          for (const it of items) {
+            if (typeof it === "string" && it === subject.name) return main;
+            if (
+              typeof it === "object" &&
+              (it.name === subject.name || it.id === subject.id)
+            )
+              return main;
+          }
+        }
+      }
+    }
+    return null;
+  };
+
+  const buildSubjectPath = (subject) => {
+    if (!subject) return null;
+    const parts = [];
+    const main = subject.mainSubject || findMainSubjectFor(subject);
+    if (main) parts.push(main);
+    if (subject.chapter && subject.chapter !== main) parts.push(subject.chapter);
+    const candidateTopic = subject.topic || subject.name;
+    if (
+      candidateTopic &&
+      candidateTopic !== main &&
+      candidateTopic !== subject.chapter
+    ) {
+      parts.push(candidateTopic);
+    }
+    if (parts.length === 0 && subject.name) parts.push(subject.name);
+    const encoded = parts.map((p) => encodeURIComponent(p)).join("|");
+    return encoded;
+  };
+
+  useEffect(() => {
+    if (location.state?.fromMcqPractice && location.state?.mcqResultData) {
+      setMcqResultData(location.state.mcqResultData);
+      setActiveTab("mcqResult");
+      window.history.replaceState({}, document.title); // clean state
+    }
+  }, [location.state]);
+
+  // 6️⃣ Fetch subject details
+  useEffect(() => {
+    if (!activeSubject) {
+      setSubjectDetails(null);
+      setLoadingDetails(false);
+      return;
+    }
+
+    const path = buildSubjectPath(activeSubject);
+    if (!path) {
+      setSubjectDetails(null);
+      setLoadingDetails(false);
+      return;
+    }
+
+    const isLocal =
+      typeof window !== "undefined" &&
+      /localhost|127\.0\.0\.1/i.test(window.location.host);
+    const backupUrl = isLocal
+      ? `/whatsbiz/mrcem/getFile/${path}`
+      : `https://whatsbiz.codovio.com/mrcem/getFile/${path}`;
+
+    setLoadingDetails(true);
+    setSubjectDetails(null);
+
+    fetch(backupUrl, { cache: "no-store" })
+      .then((res) => res.text())
+      .then((txt) => setSubjectDetails(txt))
+      .catch(() => setSubjectDetails(null))
+      .finally(() => setLoadingDetails(false));
+  }, [activeSubject, subjects]);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Mobile menu button */}
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow-lg border border-gray-200"
-        aria-label="Open navigation"
-        aria-expanded={mobileMenuOpen}
       >
         <span className="sr-only">Toggle menu</span>
         <svg
@@ -126,7 +212,6 @@ const Dashboard = () => {
         <div
           className="fixed inset-0 bg-black/40 z-30 md:hidden"
           onClick={() => setMobileMenuOpen(false)}
-          aria-hidden="true"
         />
       )}
 
@@ -137,7 +222,7 @@ const Dashboard = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         handleContentAccess={handleContentAccess}
-        subjects={subjects} // ✅ updated
+        subjects={subjects}
         activeSubject={activeSubject}
         setActiveSubject={setActiveSubject}
         hasSubscription={hasSubscription}
@@ -152,6 +237,10 @@ const Dashboard = () => {
           activeSubject={activeSubject}
           currentUser={currentUser}
           onSignOut={handleSignOut}
+          onBack={() => {
+            setActiveSubject(null);
+            setActiveTab("dashboard");
+          }}
         />
 
         <main className="p-4 md:p-8">
@@ -179,16 +268,8 @@ const Dashboard = () => {
                     subjects={subjects}
                     activeSubject={activeSubject}
                     setActiveSubject={setActiveSubject}
+                    setActiveTab={setActiveTab}
                     handleContentAccess={handleContentAccess}
-                  />
-                ),
-                "past-papers": (
-                  <PastPapers
-                    activeSubject={activeSubject}
-                    selectedYear={selectedYear}
-                    setSelectedYear={setSelectedYear}
-                    hasSubscription={hasSubscription}
-                    navigate={navigate}
                   />
                 ),
                 mcqs: (
@@ -197,21 +278,46 @@ const Dashboard = () => {
                     selectedDifficulty={selectedDifficulty}
                     setSelectedDifficulty={setSelectedDifficulty}
                     hasSubscription={hasSubscription}
-                    navigate={navigate}
-                  />
-                ),
-                videos: (
-                  <Videos
-                    activeSubject={activeSubject}
-                    hasSubscription={hasSubscription}
-                    navigate={navigate}
+                    navigate={navigate} // ✅ FIXED
+                    onBack={() => setActiveTab("subject")}
+                    setActiveTab={setActiveTab}
+                    setMcqResultData={setMcqResultData}
                   />
                 ),
                 notes: (
                   <Notes
                     activeSubject={activeSubject}
                     hasSubscription={hasSubscription}
-                    navigate={navigate}
+                    navigate={navigate} // ✅ FIXED
+                    onBack={() => setActiveTab("subject")}
+                  />
+                ),
+                subject: (
+                  <SubjectPage
+                    activeSubject={activeSubject}
+                    subjectDetails={subjectDetails}
+                    loadingDetails={loadingDetails}
+                    handleContentAccess={handleContentAccess}
+                    navigate={navigate} // ✅ FIXED
+                    hasSubscription={hasSubscription}
+                  />
+                ),
+                mcqPractice: (
+                  <McqPracticePage
+                    activeSubject={activeSubject}
+                    difficulty={selectedDifficulty}
+                    onFinish={(result) => {
+                      setMcqResultData(result);
+                      setActiveTab("mcqResult");
+                    }}
+                    onBack={() => setActiveTab("mcqs")}
+                  />
+                ),
+                mcqResult: (
+                  <McqResultPage
+                    resultData={mcqResultData}
+                    onRetry={() => setActiveTab("mcqPractice")}
+                    onBack={() => setActiveTab("mcqs")}
                   />
                 ),
               }[activeTab]

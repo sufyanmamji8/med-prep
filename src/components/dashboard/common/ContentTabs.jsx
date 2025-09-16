@@ -4,9 +4,9 @@ import { FaVideo } from "react-icons/fa";
 
 const ContentTabs = ({ activeTab, handleContentAccess }) => {
   const tabs = [
-    { id: "past-papers", label: "Past Papers", icon: <MdAssignment className="mr-2" /> },
+    // { id: "past-papers", label: "Past Papers", icon: <MdAssignment className="mr-2" /> },
     { id: "mcqs", label: "MCQs Practice", icon: <MdQuiz className="mr-2" /> },
-    { id: "videos", label: "Video Lectures", icon: <FaVideo className="mr-2" /> },
+    // { id: "videos", label: "Video Lectures", icon: <FaVideo className="mr-2" /> },
     { id: "notes", label: "Study Notes", icon: <MdNotes className="mr-2" /> },
   ];
 

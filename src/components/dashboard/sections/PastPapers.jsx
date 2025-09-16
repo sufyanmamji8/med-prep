@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 import ProtectedContent from "../common/ProtectedContent";
 import { MdAssignment } from "react-icons/md";
-import { FaClock, FaDownload, FaStar } from "react-icons/fa";
+import { FaClock, FaDownload, FaStar, FaArrowLeft } from "react-icons/fa";
 
-const PastPapers = ({ activeSubject, selectedYear, setSelectedYear, hasSubscription, navigate }) => {
+const PastPapers = ({ activeSubject, selectedYear, setSelectedYear, hasSubscription, navigate, onBack }) => {
   const papers = useMemo(() => {
     return [2023, 2022, 2021, 2020].map((year) => ({
       id: year,
@@ -18,6 +18,15 @@ const PastPapers = ({ activeSubject, selectedYear, setSelectedYear, hasSubscript
   return (
     <ProtectedContent hasSubscription={hasSubscription} title="Past Papers" icon={<MdAssignment />} navigate={navigate}>
       <div className="space-y-6">
+
+        {/* ✅ Back Button */}
+        <button
+          onClick={onBack}
+          className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium mb-4"
+        >
+          <FaArrowLeft className="mr-2" /> Back
+        </button>
+
         <h3 className="text-2xl font-bold text-gray-800 flex items-center">
           <MdAssignment className="text-blue-500 mr-3" /> {activeSubject?.name || "Select a Subject"} Past Papers
         </h3>

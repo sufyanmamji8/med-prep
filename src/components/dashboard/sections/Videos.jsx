@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import ProtectedContent from "../common/ProtectedContent";
-import { FaVideo, FaPlay, FaStar } from "react-icons/fa";
+import { FaVideo, FaPlay, FaStar, FaArrowLeft } from "react-icons/fa";
 
-const Videos = ({ activeSubject, hasSubscription, navigate }) => {
+const Videos = ({ activeSubject, hasSubscription, navigate, onBack }) => {
   const videos = useMemo(() => {
     return [
       "Introduction",
@@ -24,6 +24,15 @@ const Videos = ({ activeSubject, hasSubscription, navigate }) => {
   return (
     <ProtectedContent hasSubscription={hasSubscription} title="Video Lectures" icon={<FaVideo />} navigate={navigate}>
       <div className="space-y-6">
+
+        {/* ✅ Back Button */}
+        <button
+          onClick={onBack}
+          className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium mb-4"
+        >
+          <FaArrowLeft className="mr-2" /> Back
+        </button>
+
         <h3 className="text-2xl font-bold text-gray-800 flex items-center">
           <FaVideo className="text-blue-500 mr-3" /> {activeSubject?.name || "Select a Subject"} Video Lectures
         </h3>

@@ -59,12 +59,15 @@ const AuthPage = () => {
 
       if (isSignIn) {
         await doSignInWithEmailAndPassword(formData.email, formData.password);
+
         toast.success("✅ Logged in successfully!");
       } else {
         const userCred = await doCreateUserWithEmailAndPassword(
           formData.email,
           formData.password
         );
+
+        // firebase database
 
         await updateProfile(userCred.user, {
           displayName: formData.name,
@@ -266,7 +269,7 @@ const AuthPage = () => {
                   required
                   minLength={6}
                   className="w-full px-3 py-2 text-sm rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500 pr-10"
-                  placeholder="••••••••"
+                  placeholder="Enter Password"
                 />
                 <button
                   type="button"
@@ -295,7 +298,7 @@ const AuthPage = () => {
                     required={!isSignIn}
                     minLength={6}
                     className="w-full px-3 py-2 text-sm rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500 pr-10"
-                    placeholder="••••••••"
+                    placeholder="Confirm Password"
                   />
                   <button
                     type="button"
