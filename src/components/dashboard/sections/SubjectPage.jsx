@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaHistory, FaUserPlus, FaUserMinus } from "react-icons/fa";
+import { FaHistory, FaUserPlus, FaUserMinus, FaTimes } from "react-icons/fa";
 import { MdQuiz, MdNotes } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -27,6 +27,8 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
   const [showLocalHtml, setShowLocalHtml] = useState(false);
   const [subjectMap, setSubjectMap] = useState(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [action, setAction] = useState(""); // Tracks whether it's enroll or disenroll
 
   useEffect(() => {
     fetch("/subject-map.json")
@@ -38,7 +40,6 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
   // Check enrollment status when activeSubject changes
   useEffect(() => {
     if (activeSubject) {
-      // Check from localStorage or API for enrollment status
       const enrolledSubjects = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
       setIsEnrolled(enrolledSubjects.includes(activeSubject.id));
     }
@@ -47,30 +48,30 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
   const handleEnrollToggle = () => {
     if (!activeSubject) return;
 
-    const subjectName = activeSubject.name;
-    let confirmMessage;
-    
-    if (isEnrolled) {
-      confirmMessage = `Are you sure you want to disenroll from "${subjectName}"?`;
-    } else {
-      confirmMessage = `Do you want to enroll in "${subjectName}"?`;
-    }
+    setAction(isEnrolled ? "disenroll" : "enroll");
+    setShowConfirmation(true);
+  };
 
-    if (window.confirm(confirmMessage)) {
-      const enrolledSubjects = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
-      
-      if (isEnrolled) {
-        // Disenroll
-        const updatedSubjects = enrolledSubjects.filter(id => id !== activeSubject.id);
-        localStorage.setItem('enrolledSubjects', JSON.stringify(updatedSubjects));
-        setIsEnrolled(false);
-      } else {
-        // Enroll
-        const updatedSubjects = [...enrolledSubjects, activeSubject.id];
-        localStorage.setItem('enrolledSubjects', JSON.stringify(updatedSubjects));
-        setIsEnrolled(true);
-      }
+  const handleConfirm = () => {
+    if (!activeSubject) return;
+
+    const subjectName = activeSubject.name;
+    const enrolledSubjects = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
+
+    if (action === "enroll") {
+      const updatedSubjects = [...enrolledSubjects, activeSubject.id];
+      localStorage.setItem('enrolledSubjects', JSON.stringify(updatedSubjects));
+      setIsEnrolled(true);
+    } else if (action === "disenroll") {
+      const updatedSubjects = enrolledSubjects.filter(id => id !== activeSubject.id);
+      localStorage.setItem('enrolledSubjects', JSON.stringify(updatedSubjects));
+      setIsEnrolled(false);
     }
+    setShowConfirmation(false);
+  };
+
+  const handleCancel = () => {
+    setShowConfirmation(false);
   };
 
   const filteredDetails = filterSubjectDetails(subjectDetails);
@@ -87,8 +88,7 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
   ];
 
   const subjectKey = activeSubject?.slug;
-  const localHtml =
-    subjectKey && subjectMap ? subjectMap[subjectKey]?.localHtml : null;
+  const localHtml = subjectKey && subjectMap ? subjectMap[subjectKey]?.localHtml : null;
 
   const handleContentAccess = (id) => {
     console.log("Button clicked:", id);
@@ -98,7 +98,6 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
       return;
     }
     
-    // Use the parent's handleContentAccess function to switch tabs
     if (parentHandleContentAccess) {
       if (id === "mcqs") {
         parentHandleContentAccess("mcqs");
@@ -109,7 +108,7 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       {/* Subject Header with Enroll Button */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -279,6 +278,51 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
           </div>
         </div>
       </div>
+
+      {/* Custom Confirmation Container */}
+      {showConfirmation && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 ">
+          <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300 relative w-full max-w-md">
+            {/* Close Icon */}
+            <button
+              onClick={handleCancel}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+              <FaTimes size={20} />
+            </button>
+
+            {/* Confirmation Message */}
+            <h2 className="text-lg font-semibold mb-4">
+              {action === "enroll" ? "Confirm Enrollment" : "Confirm Disenrollment"}
+            </h2>
+            <p className="mb-6">
+              Are you sure you want to{" "}
+              {action === "enroll" ? "enroll in" : "disenroll from"}{" "}
+              <strong>{activeSubject?.name}</strong>?
+            </p>
+
+            {/* Buttons */}
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirm}
+                className={`px-4 py-2 rounded ${
+                  action === "enroll"
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-red-600 text-white hover:bg-red-700"
+                }`}
+              >
+                {action === "enroll" ? "Enroll" : "Disenroll"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Horizontal scroll solution for wide images */}
       <style jsx>{`

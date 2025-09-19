@@ -1,96 +1,100 @@
-import React from 'react';
-import { FaCheck, FaLock } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { FaArrowLeft, FaCheck, FaLock } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const SubscriptionPage = ({ setHasSubscription }) => {
   const navigate = useNavigate();
 
   const handleSubscribe = () => {
     setHasSubscription(true);
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+      {/* Header with Back Button */}
+      <div className="max-w-2xl mx-auto">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="flex items-center text-blue-700 hover:text-blue-900 mb-6 transition-colors duration-200"
+        >
+          <FaArrowLeft className="mr-2" />
+          <span className="text-sm font-medium">Back to Dashboard</span>
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-blue-600 text-white p-6 text-center">
+        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-600 p-6 text-center">
           <FaLock className="text-4xl mx-auto mb-4" />
           <h1 className="text-3xl font-bold">Upgrade to Premium</h1>
-          <p className="mt-2">Unlock all study materials and features</p>
+          <p className="mt-2 text-lg text-blue-700">
+            Elevate your learning with exclusive features and unlimited access.
+          </p>
         </div>
 
         {/* Pricing Plans */}
         <div className="p-6 grid md:grid-cols-2 gap-6">
           {/* Monthly Plan */}
-          <div className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-            <h2 className="text-xl font-semibold mb-2">Monthly Plan</h2>
-            <p className="text-4xl font-bold text-gray-800 mb-2">
-              $9.99<span className="text-lg text-gray-500">/month</span>
+          <div className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Monthly Plan</h2>
+            <p className="text-3xl font-bold text-gray-800 mb-2">
+              $9.99<span className="text-base text-gray-500">/month</span>
             </p>
-            <ul className="space-y-3 mb-6">
+            <ul className="space-y-2 mb-4 text-gray-700">
               <li className="flex items-center">
                 <FaCheck className="text-green-500 mr-2" />
-                Access to all subjects
+                <span>Access to all subjects</span>
               </li>
               <li className="flex items-center">
                 <FaCheck className="text-green-500 mr-2" />
-                Download past papers
+                <span>Download past papers</span>
               </li>
               <li className="flex items-center">
                 <FaCheck className="text-green-500 mr-2" />
-                Unlimited MCQs practice
+                <span>Unlimited MCQs practice</span>
               </li>
             </ul>
             <button
               onClick={handleSubscribe}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
             >
               Get Monthly Plan
             </button>
           </div>
 
           {/* Annual Plan (Recommended) */}
-          <div className="border-2 border-blue-500 rounded-lg p-6 bg-blue-50 hover:shadow-md transition-shadow">
-            <div className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block mb-3">
-              BEST VALUE
+          <div className="border-2 border-blue-500 rounded-lg p-5 bg-blue-50 hover:shadow-md transition-shadow">
+            <div className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block mb-2 uppercase tracking-wide">
+              Best Value
             </div>
-            <h2 className="text-xl font-semibold mb-2">Annual Plan</h2>
-            <p className="text-4xl font-bold text-gray-800 mb-2">
-              $99.99<span className="text-lg text-gray-500">/year</span>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Annual Plan</h2>
+            <p className="text-3xl font-bold text-gray-800 mb-2">
+              $99.99<span className="text-base text-gray-500">/year</span>
             </p>
-            <p className="text-sm text-gray-600 mb-4">Save 20% compared to monthly</p>
-            <ul className="space-y-3 mb-6">
+            <p className="text-sm text-gray-600 mb-3">Save 20% vs. monthly</p>
+            <ul className="space-y-2 mb-4 text-gray-700">
               <li className="flex items-center">
                 <FaCheck className="text-green-500 mr-2" />
-                Everything in Monthly
+                <span>Everything in Monthly</span>
               </li>
               <li className="flex items-center">
                 <FaCheck className="text-green-500 mr-2" />
-                Priority support
+                <span>Priority support</span>
               </li>
               <li className="flex items-center">
                 <FaCheck className="text-green-500 mr-2" />
-                Offline access
+                <span>Offline access</span>
               </li>
             </ul>
             <button
               onClick={handleSubscribe}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
             >
               Get Annual Plan
             </button>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 text-center border-t">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="text-blue-600 hover:text-blue-800 font-medium"
-          >
-            ← Back to Dashboard
-          </button>
         </div>
       </div>
     </div>

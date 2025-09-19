@@ -189,7 +189,7 @@ const Dashboard = () => {
       {/* Mobile menu button */}
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow-lg border border-gray-200"
+        className="md:hidden fixed top-2 left-4 z-50 bg-white p-2 rounded-lg shadow-lg border border-gray-200"
       >
         <span className="sr-only">Toggle menu</span>
         <svg

@@ -26,20 +26,29 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
   return (
     <div className="bg-white h-14 sm:h-16 px-3 sm:px-4 py-2 shadow-sm flex justify-between items-center sticky top-0 z-40 border-b border-gray-200">
       {/* Left Section - Flexible width */}
-      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 mr-4">
+      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 mr-4 md:mr-6">
         {activeSubject && (
           <button
             onClick={onBack}
-            className="text-gray-600 hover:text-blue-600 focus:outline-none flex-shrink-0"
+            className="hidden sm:flex text-gray-600 hover:text-blue-600 focus:outline-none flex-shrink-0 p-1"
           >
             <FaArrowLeft size={18} className="sm:w-5 sm:h-5" />
           </button>
         )}
 
         {/* Title Section - Responsive */}
-        <div className="min-w-0 flex-1">
-          <h1 className="font-bold text-gray-800 text-sm sm:text-base md:text-lg lg:text-xl truncate">
-            {activeSubject?.name || "Dashboard Overview"}
+        <div className="min-w-0 flex-1 sm:ml-6 ml-16"> {/* Keep ml-16 for right shift */}
+          <h1 className="font-bold text-gray-800 text-sm sm:text-base md:text-lg lg:text-xl truncate flex items-center gap-2">
+            {activeSubject && (
+              <button
+                onClick={onBack}
+                className="inline-flex sm:hidden text-gray-600 hover:text-blue-600 focus:outline-none flex-shrink-0 p-1"
+                aria-label="Go back"
+              >
+                <FaArrowLeft size={16} />
+              </button>
+            )}
+            <span className="truncate">{activeSubject?.name || "Dashboard Overview"}</span>
           </h1>
           
           {/* Subject badge - only show on larger screens */}
