@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaHistory } from "react-icons/fa";
+import { FaHistory, FaUserPlus, FaUserMinus } from "react-icons/fa";
 import { MdQuiz, MdNotes } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -21,11 +21,12 @@ const filterSubjectDetails = (details) => {
   return details;
 };
 
-const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails }) => {
+const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleContentAccess: parentHandleContentAccess }) => {
   const navigate = useNavigate();
   const { subjectId } = useParams();
   const [showLocalHtml, setShowLocalHtml] = useState(false);
   const [subjectMap, setSubjectMap] = useState(null);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   useEffect(() => {
     fetch("/subject-map.json")
@@ -33,6 +34,44 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails }) => {
       .then((data) => setSubjectMap(data))
       .catch((err) => console.error("Error loading subject-map.json:", err));
   }, []);
+
+  // Check enrollment status when activeSubject changes
+  useEffect(() => {
+    if (activeSubject) {
+      // Check from localStorage or API for enrollment status
+      const enrolledSubjects = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
+      setIsEnrolled(enrolledSubjects.includes(activeSubject.id));
+    }
+  }, [activeSubject]);
+
+  const handleEnrollToggle = () => {
+    if (!activeSubject) return;
+
+    const subjectName = activeSubject.name;
+    let confirmMessage;
+    
+    if (isEnrolled) {
+      confirmMessage = `Are you sure you want to disenroll from "${subjectName}"?`;
+    } else {
+      confirmMessage = `Do you want to enroll in "${subjectName}"?`;
+    }
+
+    if (window.confirm(confirmMessage)) {
+      const enrolledSubjects = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
+      
+      if (isEnrolled) {
+        // Disenroll
+        const updatedSubjects = enrolledSubjects.filter(id => id !== activeSubject.id);
+        localStorage.setItem('enrolledSubjects', JSON.stringify(updatedSubjects));
+        setIsEnrolled(false);
+      } else {
+        // Enroll
+        const updatedSubjects = [...enrolledSubjects, activeSubject.id];
+        localStorage.setItem('enrolledSubjects', JSON.stringify(updatedSubjects));
+        setIsEnrolled(true);
+      }
+    }
+  };
 
   const filteredDetails = filterSubjectDetails(subjectDetails);
 
@@ -52,30 +91,62 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails }) => {
     subjectKey && subjectMap ? subjectMap[subjectKey]?.localHtml : null;
 
   const handleContentAccess = (id) => {
-    if (!activeSubject) return alert("Select a subject first!");
-
-    if (id === "mcqs") {
-      navigate(`/dashboard/subjects/${activeSubject.id}/mcqs/practice`, {
-        state: { subject: activeSubject },
-      });
-    } else if (id === "notes") {
-      navigate(`/dashboard/subjects/${activeSubject.id}/notes`);
+    console.log("Button clicked:", id);
+    
+    if (!activeSubject) {
+      alert("Select a subject first!");
+      return;
+    }
+    
+    // Use the parent's handleContentAccess function to switch tabs
+    if (parentHandleContentAccess) {
+      if (id === "mcqs") {
+        parentHandleContentAccess("mcqs");
+      } else if (id === "notes") {
+        parentHandleContentAccess("notes");
+      }
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Subject Header */}
-      <div>
-        <p className="text-xs text-gray-500">Subject</p>
-        <h1 className="text-2xl font-bold">{activeSubject?.name || "Subject"}</h1>
-        {activeSubject?.chapter && (
-          <p className="text-sm text-gray-400">Chapter: {activeSubject.chapter}</p>
+      {/* Subject Header with Enroll Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs text-gray-500">Subject</p>
+          <h1 className="text-2xl font-bold">{activeSubject?.name || "Subject"}</h1>
+          {activeSubject?.chapter && (
+            <p className="text-sm text-gray-400">Chapter: {activeSubject.chapter}</p>
+          )}
+        </div>
+        
+        {/* Enroll/Disenroll Button */}
+        {activeSubject && (
+          <button
+            onClick={handleEnrollToggle}
+            className={`mt-4 sm:mt-0 px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200 ${
+              isEnrolled
+                ? "bg-red-100 text-red-700 border border-red-200 hover:bg-red-200"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+          >
+            {isEnrolled ? (
+              <>
+                <FaUserMinus className="text-sm" />
+                <span>Disenroll</span>
+              </>
+            ) : (
+              <>
+                <FaUserPlus className="text-sm" />
+                <span>Enroll Now</span>
+              </>
+            )}
+          </button>
         )}
       </div>
 
       {/* Details Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition overflow-hidden">
         {loadingDetails ? (
           <div className="flex items-center justify-center py-10">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
@@ -89,29 +160,64 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails }) => {
             className="w-full h-[80vh] border-0 rounded-lg"
           />
         ) : typeof filteredDetails === "string" ? (
-          <div
-            className="prose max-w-none prose-headings:font-semibold prose-img:rounded-lg prose-img:shadow"
-            dangerouslySetInnerHTML={{ __html: filteredDetails }}
-          />
+          <div 
+            className="subject-content overflow-x-auto"
+            style={{ 
+              width: '100%',
+              maxWidth: '100%'
+            }}
+          >
+            <div 
+              dangerouslySetInnerHTML={{ 
+                __html: filteredDetails.replace(
+                  /<img([^>]*?)>/g, 
+                  '<div style="width: 100%; overflow-x: auto; text-align: center; margin: 16px 0;"><img$1 style="max-width: none; width: auto; height: auto; max-height: 400px; display: inline-block; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>'
+                )
+              }}
+            />
+          </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-6">
             {Object.entries(filteredDetails || {}).map(([k, v]) => (
-              <div key={k} className="border rounded-md p-3 hover:bg-gray-50">
-                <p className="text-xs text-gray-500 mb-1">{k}</p>
+              <div key={k} className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all duration-200">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                  {k}
+                </h4>
                 {typeof v === "string" ? (
                   v.endsWith(".jpg") || v.endsWith(".png") ? (
-                    <img
-                      src={v.startsWith("http") ? v : `${window.location.origin}${v}`}
-                      alt={k}
-                      className="max-h-60 rounded shadow"
-                    />
+                    <div className="bg-white rounded-lg p-2 shadow-sm overflow-x-auto" style={{ width: '100%', maxWidth: '100%' }}>
+                      <div style={{ width: '100%', textAlign: 'center', overflowX: 'auto' }}>
+                        <img
+                          src={v.startsWith("http") ? v : `${window.location.origin}${v}`}
+                          alt={k}
+                          style={{
+                            maxWidth: 'none',
+                            width: 'auto', 
+                            height: 'auto',
+                            maxHeight: '400px',
+                            display: 'inline-block',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            objectFit: 'contain'
+                          }}
+                        />
+                      </div>
+                      <p className="text-sm text-gray-500 mt-3 text-center italic">
+                        {k}
+                      </p>
+                    </div>
                   ) : (
-                    <p className="text-gray-700">{v}</p>
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <p className="text-gray-700 leading-relaxed">{v}</p>
+                    </div>
                   )
                 ) : (
-                  <pre className="whitespace-pre-wrap text-sm">
-                    {JSON.stringify(v, null, 2)}
-                  </pre>
+                  <div className="bg-white rounded-lg p-4 shadow-sm">
+                    <pre className="whitespace-pre-wrap text-sm text-gray-600 overflow-x-auto font-mono bg-gray-100 p-3 rounded">
+                      {JSON.stringify(v, null, 2)}
+                    </pre>
+                  </div>
                 )}
               </div>
             ))}
@@ -146,7 +252,7 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails }) => {
 
           <div className="pt-4 border-t">
             <h4 className="text-sm font-medium mb-2">Quick Access</h4>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {quickItems.map(({ id, label, Icon }) => (
                 <button
                   key={id}
@@ -173,6 +279,61 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails }) => {
           </div>
         </div>
       </div>
+
+      {/* Horizontal scroll solution for wide images */}
+      <style jsx>{`
+        /* Allow horizontal scroll for images wider than container */
+        .subject-content {
+          width: 100%;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        
+        .subject-content img {
+          max-width: none !important;
+          width: auto !important;
+          height: auto !important;
+          max-height: 400px !important;
+          display: inline-block !important;
+          object-fit: contain !important;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          margin: 16px 0;
+        }
+        
+        /* Image containers should allow horizontal scroll */
+        .subject-content div:has(img),
+        [style*="text-align: center"] {
+          overflow-x: auto !important;
+          width: 100% !important;
+          -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Mobile adjustments */
+        @media screen and (max-width: 768px) {
+          .subject-content img {
+            max-height: 300px !important;
+          }
+        }
+        
+        /* Typography */
+        .subject-content h1, .subject-content h2, .subject-content h3 {
+          color: #1f2937;
+          font-weight: 600;
+          margin: 24px 0 16px 0;
+          line-height: 1.3;
+        }
+        
+        .subject-content h1 { font-size: 1.875rem; }
+        .subject-content h2 { font-size: 1.5rem; }
+        .subject-content h3 { font-size: 1.25rem; }
+        
+        .subject-content p {
+          margin: 16px 0;
+          line-height: 1.7;
+          color: #4b5563;
+        }
+      `}</style>
     </div>
   );
 };

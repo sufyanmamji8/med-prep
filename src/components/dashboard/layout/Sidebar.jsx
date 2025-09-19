@@ -111,7 +111,7 @@ const Sidebar = ({
       aria-label="Sidebar"
     >
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <div className="h-16 p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <h2 className="text-xl font-bold">MrCem</h2>
         <button
           onClick={() => setMobileMenuOpen(false)}

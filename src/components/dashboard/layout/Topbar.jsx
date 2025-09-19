@@ -5,7 +5,6 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -25,46 +24,43 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
   }, [dropdownOpen]);
 
   return (
-    <div className="bg-white p-3 sm:p-4 shadow-sm flex justify-between items-center sticky top-0 z-40 border-b border-gray-200">
-      {/* Left Section */}
-      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+    <div className="bg-white h-14 sm:h-16 px-3 sm:px-4 py-2 shadow-sm flex justify-between items-center sticky top-0 z-40 border-b border-gray-200">
+      {/* Left Section - Flexible width */}
+      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 mr-4">
         {activeSubject && (
           <button
             onClick={onBack}
-            className="text-gray-600 hover:text-blue-600 focus:outline-none"
+            className="text-gray-600 hover:text-blue-600 focus:outline-none flex-shrink-0"
           >
-            <FaArrowLeft size={20} />
+            <FaArrowLeft size={18} className="sm:w-5 sm:h-5" />
           </button>
         )}
 
-        {/* Heading - Dashboard should not truncate, subjects can truncate */}
-        <h1
-          className={`font-bold text-gray-800 ${
-            activeSubject
-              ? "text-base sm:text-lg md:text-xl truncate max-w-[120px] sm:max-w-xs"
-              : "text-lg sm:text-xl md:text-2xl"
-          }`}
-        >
-          {activeSubject?.name || "Dashboard Overview"}
-        </h1>
-
-        {activeSubject && (
-          <span
-            className={`ml-1 sm:ml-2 text-[10px] sm:text-xs px-2 py-0.5 rounded-full ${activeSubject.color}`}
-          >
-            {activeSubject.name}
-          </span>
-        )}
+        {/* Title Section - Responsive */}
+        <div className="min-w-0 flex-1">
+          <h1 className="font-bold text-gray-800 text-sm sm:text-base md:text-lg lg:text-xl truncate">
+            {activeSubject?.name || "Dashboard Overview"}
+          </h1>
+          
+          {/* Subject badge - only show on larger screens */}
+          {activeSubject && (
+            <div className="hidden sm:block">
+              <span className="text-xs text-gray-500 truncate block max-w-[200px] md:max-w-[300px]">
+                {activeSubject.chapter && `Chapter: ${activeSubject.chapter}`}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Right Section */}
-      <div className="flex items-center space-x-3 sm:space-x-4">
+      {/* Right Section - Fixed width */}
+      <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
         {/* Notifications */}
         <button
-          className="text-gray-600 hover:text-gray-900 relative"
+          className="text-gray-600 hover:text-gray-900 relative p-1"
           aria-label="Notifications"
         >
-          <FaRegBell className="text-lg sm:text-xl" />
+          <FaRegBell className="w-4 h-4 sm:w-5 sm:h-5" />
           <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
@@ -72,7 +68,7 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="flex items-center space-x-2 focus:outline-none"
+            className="flex items-center space-x-1 sm:space-x-2 focus:outline-none"
           >
             <img
               src={
@@ -81,22 +77,23 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
                   : "/default-avatar.png"
               }
               alt="User"
-              className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full border object-cover flex-shrink-0 bg-gray-100"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border object-cover flex-shrink-0 bg-gray-100"
               referrerPolicy="no-referrer"
               onError={(e) => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = "/default-avatar.png";
               }}
             />
-            <span className="hidden md:inline text-sm font-medium truncate max-w-[100px]">
+            {/* User name - only show on medium+ screens */}
+            <span className="hidden md:inline text-sm font-medium truncate max-w-[80px] lg:max-w-[120px]">
               {currentUser?.displayName?.split(" ")[0] || "User"}
             </span>
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
               <div className="px-4 py-2 border-b border-gray-200">
-                <p className="text-sm font-medium">
+                <p className="text-sm font-medium truncate">
                   {currentUser?.displayName || "User"}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
@@ -104,10 +101,13 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
                 </p>
               </div>
               <button
-                onClick={onSignOut}
+                onClick={() => {
+                  setDropdownOpen(false);
+                  onSignOut();
+                }}
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
               >
-                <FaSignOutAlt className="mr-2" /> Sign Out
+                <FaSignOutAlt className="mr-2 w-4 h-4" /> Sign Out
               </button>
             </div>
           )}

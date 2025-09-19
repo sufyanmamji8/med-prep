@@ -128,14 +128,14 @@ const DashboardHome = ({
   return (
     <div className="space-y-8 p-4 md:p-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+      <div className=" flex flex-col md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 transition-colors">
           Welcome, {currentUser?.displayName?.split(" ")[0] || "User"}
         </h2>
         <div className="relative mt-3 md:mt-0 md:w-64">
           <input
             type="text"
-            placeholder="Search resources..."
+            placeholder="Search Subjects..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow duration-200"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
