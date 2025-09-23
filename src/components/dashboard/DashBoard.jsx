@@ -3,11 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { doSignOut } from "../../firebase/auth";
-
 import Sidebar from "./layout/Sidebar";
 import Topbar from "./layout/Topbar";
 import ContentTabs from "./common/ContentTabs";
-
 import DashboardHome from "./sections/DashboardHome";
 import PastPapers from "./sections/PastPapers";
 import Mcqs from "./sections/Mcqs";
@@ -88,10 +86,8 @@ const Dashboard = () => {
   };
 
   const handleContentAccess = (tab) => {
-    if (!hasSubscription && tab !== "dashboard") {
-      navigate("/subscribe");
-      return;
-    }
+    // Allow navigation to tabs even without subscription.
+    // Individual tabs (e.g., MCQs, Notes) handle showing lock messages.
     setActiveTab(tab);
   };
 

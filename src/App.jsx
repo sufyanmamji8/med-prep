@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState } from "react";
+
 import AuthPage from "./components/ui/AuthPage";
 import Loader from "./components/ui/Loader";
 import SubscriptionPage from "./components/ui/SubscriptionPage";
@@ -13,6 +15,9 @@ import McqPracticePage from "./components/dashboard/sections/McqPracticePage";
 import McqResultPage from "./components/dashboard/sections/McqResultPage";
 
 function App() {
+  // temporary state for subscription
+  const [hasSubscription, setHasSubscription] = useState(false);
+
   return (
     <Router>
       <Routes>
@@ -27,7 +32,10 @@ function App() {
 
           {/* Subject-related routes */}
           <Route path="subjects/:subjectId" element={<SubjectPage />} />
-          <Route path="subjects/:subjectId/mcqs" element={<Mcqs />} />
+          <Route
+            path="subjects/:subjectId/mcqs"
+            element={<Mcqs hasSubscription={hasSubscription} />}
+          />
           <Route path="subjects/:subjectId/notes" element={<Notes />} />
           <Route path="subjects/:subjectId/pastpapers" element={<PastPapers />} />
           <Route path="subjects/:subjectId/videos" element={<Videos />} />

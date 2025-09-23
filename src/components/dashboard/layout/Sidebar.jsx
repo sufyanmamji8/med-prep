@@ -153,6 +153,10 @@ const Sidebar = ({
           <button
             key={id}
             onClick={() => {
+              // When navigating to dashboard, clear any selected subject so topbar resets
+              if (id === "dashboard") {
+                setActiveSubject(null);
+              }
               setActiveTab(id);
               setMobileMenuOpen(false);
             }}

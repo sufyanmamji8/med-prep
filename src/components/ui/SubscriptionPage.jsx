@@ -6,7 +6,9 @@ const SubscriptionPage = ({ setHasSubscription }) => {
   const navigate = useNavigate();
 
   const handleSubscribe = () => {
-    setHasSubscription(true);
+    if (typeof setHasSubscription === "function") {
+      setHasSubscription(true);
+    }
     navigate("/dashboard");
   };
 
@@ -15,7 +17,7 @@ const SubscriptionPage = ({ setHasSubscription }) => {
       {/* Header with Back Button */}
       <div className="max-w-2xl mx-auto">
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate(-1)}
           className="flex items-center text-blue-700 hover:text-blue-900 mb-6 transition-colors duration-200"
         >
           <FaArrowLeft className="mr-2" />
