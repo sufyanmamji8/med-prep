@@ -3,7 +3,12 @@ import ProtectedContent from "../common/ProtectedContent";
 import { MdNotes } from "react-icons/md";
 import { FaDownload, FaStar, FaArrowLeft } from "react-icons/fa";
 
-const Notes = ({ activeSubject, hasSubscription, navigate, onBack }) => {
+const Notes = ({ activeSubject, hasSubscription, onBack }) => {
+  // ✅ Back button handler
+  const handleBack = () => {
+    if (onBack) onBack(); // Dashboard.jsx se jo onBack aayega wahi chalega
+  };
+
   const notes = useMemo(() => {
     return [
       "Comprehensive Guide",
@@ -14,7 +19,7 @@ const Notes = ({ activeSubject, hasSubscription, navigate, onBack }) => {
       "Mnemonics Collection",
     ].map((title, i) => ({
       id: i + 1,
-      title: `${activeSubject?.name} ${title}`,
+      title: `${activeSubject?.name || "Subject"} ${title}`,
       pages: Math.floor(Math.random() * 20) + 5,
       downloads: Math.floor(Math.random() * 800) + 200,
       rating: (Math.random() * 1 + 4).toFixed(1),
@@ -23,29 +28,38 @@ const Notes = ({ activeSubject, hasSubscription, navigate, onBack }) => {
   }, [activeSubject]);
 
   return (
-    <ProtectedContent hasSubscription={hasSubscription} title="Study Notes" icon={<MdNotes />} navigate={navigate}>
+    <ProtectedContent hasSubscription={hasSubscription} title="Study Notes" icon={<MdNotes />}>
       <div className="space-y-6">
 
         {/* ✅ Back Button */}
         <button
-          onClick={onBack}
+          onClick={handleBack}
           className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium mb-4"
         >
-          <FaArrowLeft className="mr-2" /> <span>Back to {activeSubject?.name || "Subject"}</span>
+          <FaArrowLeft className="mr-2" />
+          <span>
+            {activeSubject ? `Back to ${activeSubject.name}` : "Back to Dashboard"}
+          </span>
         </button>
 
         <h3 className="text-2xl font-bold text-gray-800 flex items-center">
-          <MdNotes className="text-blue-500 mr-3" /> {activeSubject?.name || "Select a Subject"} Study Notes
+          <MdNotes className="text-blue-500 mr-3" />{" "}
+          {activeSubject?.name || "Select a Subject"} Study Notes
         </h3>
 
         {!activeSubject && (
-          <div className="text-center text-gray-600">Select a subject from the sidebar to view notes.</div>
+          <div className="text-center text-gray-600">
+            Select a subject from the sidebar to view notes.
+          </div>
         )}
 
         {activeSubject && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {notes.map((note) => (
-              <div key={note.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
+              <div
+                key={note.id}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow"
+              >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center">
                     <div className="p-2 bg-blue-100 rounded-lg mr-3">

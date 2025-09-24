@@ -7,13 +7,14 @@ import Sidebar from "./layout/Sidebar";
 import Topbar from "./layout/Topbar";
 import ContentTabs from "./common/ContentTabs";
 import DashboardHome from "./sections/DashboardHome";
-import PastPapers from "./sections/PastPapers";
+// import PastPapers from "./sections/PastPapers";
 import Mcqs from "./sections/Mcqs";
-import Videos from "./sections/Videos";
+// import Videos from "./sections/Videos";
 import Notes from "./sections/Notes";
 import SubjectPage from "./sections/SubjectPage";
 import McqPracticePage from "./sections/McqPracticePage";
 import McqResultPage from "./sections/McqResultPage";
+
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -274,7 +275,7 @@ const Dashboard = () => {
                     selectedDifficulty={selectedDifficulty}
                     setSelectedDifficulty={setSelectedDifficulty}
                     hasSubscription={hasSubscription}
-                    navigate={navigate} // ✅ FIXED
+                    navigate={navigate} 
                     onBack={() => setActiveTab("subject")}
                     setActiveTab={setActiveTab}
                     setMcqResultData={setMcqResultData}
@@ -284,17 +285,20 @@ const Dashboard = () => {
                   <Notes
                     activeSubject={activeSubject}
                     hasSubscription={hasSubscription}
-                    navigate={navigate} // ✅ FIXED
-                    onBack={() => setActiveTab("subject")}
+                    onBack={() =>
+                      activeSubject ? setActiveTab("subject") : setActiveTab("dashboard")
+                    }
                   />
                 ),
+
+
                 subject: (
                   <SubjectPage
                     activeSubject={activeSubject}
                     subjectDetails={subjectDetails}
                     loadingDetails={loadingDetails}
                     handleContentAccess={handleContentAccess}
-                    navigate={navigate} // ✅ FIXED
+                    navigate={navigate} 
                     hasSubscription={hasSubscription}
                   />
                 ),

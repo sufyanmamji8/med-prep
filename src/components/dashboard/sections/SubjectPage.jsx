@@ -47,7 +47,6 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
 
   const handleEnrollToggle = () => {
     if (!activeSubject) return;
-
     setAction(isEnrolled ? "disenroll" : "enroll");
     setShowConfirmation(true);
   };
@@ -55,7 +54,6 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
   const handleConfirm = () => {
     if (!activeSubject) return;
 
-    const subjectName = activeSubject.name;
     const enrolledSubjects = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
 
     if (action === "enroll") {
@@ -91,19 +89,12 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
   const localHtml = subjectKey && subjectMap ? subjectMap[subjectKey]?.localHtml : null;
 
   const handleContentAccess = (id) => {
-    console.log("Button clicked:", id);
-    
     if (!activeSubject) {
       alert("Select a subject first!");
       return;
     }
-    
     if (parentHandleContentAccess) {
-      if (id === "mcqs") {
-        parentHandleContentAccess("mcqs");
-      } else if (id === "notes") {
-        parentHandleContentAccess("notes");
-      }
+      parentHandleContentAccess(id);
     }
   };
 
@@ -144,6 +135,17 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
         )}
       </div>
 
+      {/* Enrollment Status Message */}
+      {activeSubject && (
+        <div className="text-sm mt-2">
+          {isEnrolled ? (
+            <p className="text-green-600">You are enrolled in <strong>{activeSubject.name}</strong>.</p>
+          ) : (
+            <p className="text-red-600">You are not enrolled in this subject yet.</p>
+          )}
+        </div>
+      )}
+
       {/* Details Section */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition overflow-hidden">
         {loadingDetails ? (
@@ -159,13 +161,7 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
             className="w-full h-[80vh] border-0 rounded-lg"
           />
         ) : typeof filteredDetails === "string" ? (
-          <div 
-            className="subject-content overflow-x-auto"
-            style={{ 
-              width: '100%',
-              maxWidth: '100%'
-            }}
-          >
+          <div className="subject-content overflow-x-auto">
             <div 
               dangerouslySetInnerHTML={{ 
                 __html: filteredDetails.replace(
@@ -185,8 +181,8 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
                 </h4>
                 {typeof v === "string" ? (
                   v.endsWith(".jpg") || v.endsWith(".png") ? (
-                    <div className="bg-white rounded-lg p-2 shadow-sm overflow-x-auto" style={{ width: '100%', maxWidth: '100%' }}>
-                      <div style={{ width: '100%', textAlign: 'center', overflowX: 'auto' }}>
+                    <div className="bg-white rounded-lg p-2 shadow-sm overflow-x-auto">
+                      <div className="text-center">
                         <img
                           src={v.startsWith("http") ? v : `${window.location.origin}${v}`}
                           alt={k}
@@ -197,7 +193,7 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
                             maxHeight: '400px',
                             display: 'inline-block',
                             borderRadius: '8px',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                             objectFit: 'contain'
                           }}
                         />
@@ -239,10 +235,7 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
           <h3 className="text-lg font-semibold">Stats</h3>
           <ul className="space-y-2 text-gray-700">
             {statsData.map((s) => (
-              <li
-                key={s.id}
-                className="flex justify-between hover:bg-gray-50 p-2 rounded-md transition"
-              >
+              <li key={s.id} className="flex justify-between hover:bg-gray-50 p-2 rounded-md transition">
                 <span className="text-sm text-gray-600">{s.label}</span>
                 <span className="font-medium">{s.value}</span>
               </li>
@@ -280,8 +273,9 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
       </div>
 
       {/* Custom Confirmation Container */}
-      {showConfirmation && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 ">
+    {showConfirmation && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/20">
+
           <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300 relative w-full max-w-md">
             {/* Close Icon */}
             <button
@@ -323,61 +317,6 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
           </div>
         </div>
       )}
-
-      {/* Horizontal scroll solution for wide images */}
-      <style jsx>{`
-        /* Allow horizontal scroll for images wider than container */
-        .subject-content {
-          width: 100%;
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
-        }
-        
-        .subject-content img {
-          max-width: none !important;
-          width: auto !important;
-          height: auto !important;
-          max-height: 400px !important;
-          display: inline-block !important;
-          object-fit: contain !important;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-          margin: 16px 0;
-        }
-        
-        /* Image containers should allow horizontal scroll */
-        .subject-content div:has(img),
-        [style*="text-align: center"] {
-          overflow-x: auto !important;
-          width: 100% !important;
-          -webkit-overflow-scrolling: touch;
-        }
-        
-        /* Mobile adjustments */
-        @media screen and (max-width: 768px) {
-          .subject-content img {
-            max-height: 300px !important;
-          }
-        }
-        
-        /* Typography */
-        .subject-content h1, .subject-content h2, .subject-content h3 {
-          color: #1f2937;
-          font-weight: 600;
-          margin: 24px 0 16px 0;
-          line-height: 1.3;
-        }
-        
-        .subject-content h1 { font-size: 1.875rem; }
-        .subject-content h2 { font-size: 1.5rem; }
-        .subject-content h3 { font-size: 1.25rem; }
-        
-        .subject-content p {
-          margin: 16px 0;
-          line-height: 1.7;
-          color: #4b5563;
-        }
-      `}</style>
     </div>
   );
 };
