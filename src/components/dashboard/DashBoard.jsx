@@ -281,15 +281,15 @@ const Dashboard = () => {
                     setMcqResultData={setMcqResultData}
                   />
                 ),
-                notes: (
-                  <Notes
-                    activeSubject={activeSubject}
-                    hasSubscription={hasSubscription}
-                    onBack={() =>
-                      activeSubject ? setActiveTab("subject") : setActiveTab("dashboard")
-                    }
-                  />
-                ),
+  notes: (
+  <Notes
+    activeSubject={activeSubject}
+    hasSubscription={hasSubscription}
+    onBack={() => setActiveTab("subject")} // subjects tab open hoga
+  />
+),
+
+
 
 
                 subject: (

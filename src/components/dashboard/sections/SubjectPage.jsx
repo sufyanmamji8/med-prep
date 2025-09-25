@@ -3,6 +3,67 @@ import { FaHistory, FaUserPlus, FaUserMinus, FaTimes } from "react-icons/fa";
 import { MdQuiz, MdNotes } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 
+// ImageSlider Component
+const ImageSlider = ({ images, altText }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!images || images.length === 0) return null;
+
+  const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length);
+  const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+
+  return (
+    <div className="relative bg-white rounded-lg p-4 border border-gray-200">
+      <div className="overflow-x-auto">
+        <div className="flex justify-center min-w-min">
+          <img
+            src={images[currentIndex].startsWith("http") ? images[currentIndex] : `${window.location.origin}${images[currentIndex]}`}
+            alt={`${altText} - ${currentIndex + 1}`}
+            className="max-w-none h-auto rounded-lg shadow-md max-h-96"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              setTimeout(nextSlide, 100);
+            }}
+          />
+        </div>
+      </div>
+      
+      {images.length > 1 && (
+        <>
+          <button 
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-lg border border-gray-200 transition-all hover:scale-110"
+          >
+            ←
+          </button>
+          <button 
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-lg border border-gray-200 transition-all hover:scale-110"
+          >
+            →
+          </button>
+          
+          <div className="flex justify-center mt-4 space-x-2">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  index === currentIndex ? 'bg-blue-500 scale-110' : 'bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
+          
+          <div className="absolute top-4 right-4 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+            {currentIndex + 1} / {images.length}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 // Recursive filter function to remove blocked keys
 const filterSubjectDetails = (details) => {
   const blockedKeys = ["Video Lectures", "Past Papers"];
@@ -146,88 +207,193 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
         </div>
       )}
 
-      {/* Details Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 md:p-6 hover:shadow-md transition overflow-hidden">
-        {loadingDetails ? (
-          <div className="flex items-center justify-center py-10">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : !activeSubject ? (
-          <p className="text-sm text-gray-500">Select a subject to see details.</p>
-        ) : showLocalHtml && localHtml ? (
-          <iframe
-            src={localHtml}
-            title={activeSubject.name}
-            className="w-full h-[80vh] border-0 rounded-lg"
-          />
-        ) : typeof filteredDetails === "string" ? (
-          <div className="subject-content overflow-x-auto">
-            <div 
-              dangerouslySetInnerHTML={{ 
-                __html: filteredDetails.replace(
-                  /<img([^>]*?)>/g, 
-                  '<div style="width: 100%; overflow-x: auto; text-align: center; margin: 16px 0;"><img$1 style="max-width: none; width: auto; height: auto; max-height: 400px; display: inline-block; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>'
-                )
-              }}
-            />
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {Object.entries(filteredDetails || {}).map(([k, v]) => (
-              <div key={k} className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all duration-200">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
-                  {k}
-                </h4>
-                {typeof v === "string" ? (
-                  v.endsWith(".jpg") || v.endsWith(".png") ? (
-                    <div className="bg-white rounded-lg p-2 shadow-sm overflow-x-auto">
-                      <div className="text-center">
-                        <img
-                          src={v.startsWith("http") ? v : `${window.location.origin}${v}`}
-                          alt={k}
-                          style={{
-                            maxWidth: 'none',
-                            width: 'auto', 
-                            height: 'auto',
-                            maxHeight: '400px',
-                            display: 'inline-block',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                            objectFit: 'contain'
-                          }}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-500 mt-3 text-center italic">
-                        {k}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="bg-white rounded-lg p-4 shadow-sm">
-                      <p className="text-gray-700 leading-relaxed">{v}</p>
-                    </div>
-                  )
-                ) : (
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <pre className="whitespace-pre-wrap text-sm text-gray-600 overflow-x-auto font-mono bg-gray-100 p-3 rounded">
-                      {JSON.stringify(v, null, 2)}
-                    </pre>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {localHtml && (
-          <button
-            onClick={() => setShowLocalHtml((prev) => !prev)}
-            className="mt-4 px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          >
-            {showLocalHtml ? "Show API Details" : "Show Offline Details"}
-          </button>
-        )}
+    {/* Details Section */}
+<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 hover:shadow-md transition-all duration-300">
+  {loadingDetails ? (
+    <div className="flex items-center justify-center py-10">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  ) : !activeSubject ? (
+    <div className="text-center py-8">
+      <div className="text-4xl text-gray-300 mb-3">📚</div>
+      <p className="text-gray-500 font-medium">Select a subject to see details</p>
+    </div>
+  ) : showLocalHtml && localHtml ? (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-xl font-bold text-gray-800">{activeSubject.name}</h3>
+        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Offline Mode</span>
       </div>
+      <iframe
+        src={localHtml}
+        title={activeSubject.name}
+        className="w-full h-[75vh] border-0 rounded-lg shadow-inner"
+      />
+    </div>
+  ) : (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-xl font-bold text-gray-800">{activeSubject.name}</h3>
+        <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Subject Details</span>
+      </div>
+      
+      {/* Image Slider at the Top */}
+      {(() => {
+        const extractAllImages = (details) => {
+          const images = [];
+          
+          if (typeof details === "string") {
+            const imgRegex = /<img[^>]+src="([^">]+)"/g;
+            let match;
+            while ((match = imgRegex.exec(details)) !== null) {
+              images.push(match[1]);
+            }
+          } else if (typeof details === "object" && details !== null) {
+            const extractFromObject = (obj) => {
+              Object.values(obj).forEach(value => {
+                if (typeof value === "string" && value.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+                  images.push(value);
+                } else if (Array.isArray(value)) {
+                  value.forEach(item => {
+                    if (typeof item === "string" && item.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+                      images.push(item);
+                    }
+                  });
+                } else if (typeof value === "object" && value !== null) {
+                  extractFromObject(value);
+                }
+              });
+            };
+            extractFromObject(details);
+          }
+          
+          return images;
+        };
+
+        const allImages = extractAllImages(filteredDetails);
+        
+        if (allImages.length > 0) {
+          return (
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <span className="w-3 h-3 bg-blue-500 rounded-full mr-3"></span>
+                Images
+              </h4>
+              <ImageSlider images={allImages} altText={activeSubject.name} />
+            </div>
+          );
+        }
+        return null;
+      })()}
+      
+      {/* Content Display */}
+      {typeof filteredDetails === "string" ? (
+        <div className="subject-content space-y-4">
+          <div
+            dangerouslySetInnerHTML={{
+              __html: filteredDetails
+                .replace(/HTML Content|HTMIL Content/gi, '')
+                .replace(
+                  /<img[^>]*>/g,
+                  '' // Remove images since they're now in the slider above
+                )
+                .replace(
+                  /<table/g,
+                  '<div class="overflow-x-auto w-full"><table class="min-w-full table-auto" style="table-layout: fixed; width: 100%;"'
+                )
+                .replace(
+                  /<\/table>/g,
+                  '</table></div>'
+                )
+                .replace(
+                  /<td/g,
+                  '<td style="word-wrap: break-word; overflow-wrap: break-word;"'
+                )
+                .replace(
+                  /<th/g,
+                  '<th style="word-wrap: break-word; overflow-wrap: break-word;"'
+                )
+            }}
+            className="w-full overflow-hidden break-words"
+            style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+          />
+        </div>
+      ) : (
+        Object.entries(filteredDetails || {}).map(([key, value]) => {
+          const isImage = typeof value === "string" && value.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i);
+          const isImageArray = Array.isArray(value) && value.every(item => typeof item === "string" && item.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i));
+          
+          if (isImage || isImageArray) return null;
+          
+          return (
+            <div
+              key={key}
+              className="bg-gray-50 rounded-xl p-4 md:p-6 border border-gray-200 hover:shadow-md transition-all duration-200 w-full"
+            >
+              <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center break-words">
+                <span className="w-3 h-3 bg-blue-500 rounded-full mr-3 flex-shrink-0"></span>
+                {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </h4>
+
+              {typeof value === "string" ? (
+                value.startsWith('http') ? (
+                  <div className="bg-white rounded-lg p-3 border border-gray-200 w-full">
+                    <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 break-all">
+                      🔗 {value}
+                    </a>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg p-4 border border-gray-200 w-full">
+                    <div 
+                      className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words w-full"
+                      style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                    >
+                      {value}
+                    </div>
+                  </div>
+                )
+              ) : Array.isArray(value) ? (
+                <div className="space-y-2 w-full">
+                  {value.map((item, index) => (
+                    <div key={index} className="bg-white rounded-lg p-3 border border-gray-200 w-full">
+                      <div 
+                        className="text-gray-700 break-words"
+                        style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                      >
+                        {String(item)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg p-4 border border-gray-200 w-full overflow-x-auto">
+                  <pre 
+                    className="whitespace-pre-wrap text-sm text-gray-600 break-words"
+                    style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                  >
+                    {JSON.stringify(value, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          );
+        })
+      )}
+    </div>
+  )}
+
+  {localHtml && (
+    <div className="flex justify-center mt-6">
+      <button
+        onClick={() => setShowLocalHtml((prev) => !prev)}
+        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 flex items-center"
+      >
+        <span className="mr-2">{showLocalHtml ? "📄" : "🌐"}</span>
+        {showLocalHtml ? "Show API Details" : "Show Offline Details"}
+      </button>
+    </div>
+  )}
+</div>
 
       {/* Stats + Quick Access */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -273,11 +439,9 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
       </div>
 
       {/* Custom Confirmation Container */}
-    {showConfirmation && (
-  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/20">
-
+      {showConfirmation && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/20">
           <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300 relative w-full max-w-md">
-            {/* Close Icon */}
             <button
               onClick={handleCancel}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
@@ -285,7 +449,6 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
               <FaTimes size={20} />
             </button>
 
-            {/* Confirmation Message */}
             <h2 className="text-lg font-semibold mb-4">
               {action === "enroll" ? "Confirm Enrollment" : "Confirm Disenrollment"}
             </h2>
@@ -295,7 +458,6 @@ const SubjectPage = ({ activeSubject, subjectDetails, loadingDetails, handleCont
               <strong>{activeSubject?.name}</strong>?
             </p>
 
-            {/* Buttons */}
             <div className="flex justify-end space-x-4">
               <button
                 onClick={handleCancel}

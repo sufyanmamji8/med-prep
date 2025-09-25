@@ -2,12 +2,22 @@ import React, { useMemo } from "react";
 import ProtectedContent from "../common/ProtectedContent";
 import { MdNotes } from "react-icons/md";
 import { FaDownload, FaStar, FaArrowLeft } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Notes = ({ activeSubject, hasSubscription, onBack }) => {
+  const navigate = useNavigate();
+
   // ✅ Back button handler
-  const handleBack = () => {
-    if (onBack) onBack(); // Dashboard.jsx se jo onBack aayega wahi chalega
-  };
+const handleBack = () => {
+  if (activeSubject && onBack) {
+    onBack(); // subject selected hai → subjects tab par wapas
+  } else {
+    // subject select nahi hai → tab reset kardo
+    navigate("/dashboard", { replace: true });
+    window.location.reload(); // force reset of tab state
+  }
+};
+
 
   const notes = useMemo(() => {
     return [
@@ -43,8 +53,7 @@ const Notes = ({ activeSubject, hasSubscription, onBack }) => {
         </button>
 
         <h3 className="text-2xl font-bold text-gray-800 flex items-center">
-          <MdNotes className="text-blue-500 mr-3" />{" "}
-          {activeSubject?.name || "Select a Subject"} Study Notes
+          <MdNotes className="text-blue-500 mr-3" /> {activeSubject?.name || "Select a Subject"} Study Notes
         </h3>
 
         {!activeSubject && (
@@ -56,10 +65,7 @@ const Notes = ({ activeSubject, hasSubscription, onBack }) => {
         {activeSubject && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {notes.map((note) => (
-              <div
-                key={note.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow"
-              >
+              <div key={note.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center">
                     <div className="p-2 bg-blue-100 rounded-lg mr-3">

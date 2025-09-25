@@ -1,26 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import {
-  doSignInWithEmailAndPassword,
-  doSignInWithGoogle,
-  doSignInWithGithub,
-  doCreateUserWithEmailAndPassword,
-  doPasswordReset,
-} from "../../firebase/auth";
-import { onAuthStateChanged, updateProfile } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
+
+// 🔴 Old Firebase imports (commented out)
+// import {
+//   doSignInWithEmailAndPassword,
+//   doSignInWithGoogle,
+//   doSignInWithGithub,
+//   doCreateUserWithEmailAndPassword,
+//   doPasswordReset,
+// } from "../../firebase/auth";
+// import { onAuthStateChanged, updateProfile } from "firebase/auth";
+// import { auth } from "../../firebase/firebase";
+
 import toast, { Toaster } from "react-hot-toast";
+
+// ✅ Backend auth service
+import {
+  loginUser,
+  registerUser,
+  logoutUser,
+  getCurrentUser,
+} from "../../services/authService";
 
 const AuthPage = () => {
   const navigate = useNavigate();
 
-  // Redirect if already logged in
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (user) navigate("/dashboard");
-    });
-    return () => unsub();
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) navigate("/dashboard");
+    } catch (err) {
+      /* ignore */
+    }
   }, [navigate]);
 
   const [isSignIn, setIsSignIn] = useState(true);
@@ -39,7 +51,6 @@ const AuthPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🔑 Handle Sign In / Sign Up
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -58,105 +69,80 @@ const AuthPage = () => {
       setLoading(true);
 
       if (isSignIn) {
-        await doSignInWithEmailAndPassword(formData.email, formData.password);
-
-        toast.success("✅ Logged in successfully!");
-      } else {
-        const userCred = await doCreateUserWithEmailAndPassword(
-          formData.email,
-          formData.password
-        );
-
-        // firebase database
-
-        await updateProfile(userCred.user, {
-          displayName: formData.name,
-          photoURL: "https://randomuser.me/api/portraits/lego/2.jpg",
+        // ✅ Backend Login
+        const res = await loginUser({
+          email: formData.email,
+          password: formData.password,
         });
 
-        toast.success("🎉 Account created successfully!");
+        console.log("🔑 Login response:", res);
+
+        if (res?.token) {
+          // Store token
+          localStorage.setItem("token", res.token);
+
+          // Store minimal user info if backend doesn't provide
+          const minimalUser = res.user || { email: formData.email };
+          localStorage.setItem("user", JSON.stringify(minimalUser));
+
+          toast.success("✅ Logged in successfully!");
+          navigate("/dashboard");
+        } else {
+          toast.error("❌ Login failed, please try again.");
+        }
+      } else {
+        // ✅ Backend Register
+        const res = await registerUser({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+        });
+
+        console.log("📝 Signup response:", res);
+
+        if (res?.token) {
+          // Auto-login after signup
+          localStorage.setItem("token", res.token);
+          const newUser = res.user || { email: formData.email, name: formData.name };
+          localStorage.setItem("user", JSON.stringify(newUser));
+
+          toast.success("🎉 Account created & logged in successfully!");
+          navigate("/dashboard");
+        } else {
+          // Fallback: show Sign In form
+          toast.success(res.message || "User registered successfully");
+          setIsSignIn(true);
+          setFormData((prev) => ({ ...prev, password: "", confirmPassword: "" }));
+        }
       }
-
-      navigate("/dashboard");
     } catch (err) {
-      console.error(err);
-      switch (err.code) {
-        case "auth/user-not-found":
-          toast.error("❌ No account found with this email.");
-          break;
-        case "auth/wrong-password":
-          toast.error("❌ Incorrect password.");
-          break;
-        case "auth/email-already-in-use":
-          toast.error("❌ This email is already registered.");
-          break;
-        case "auth/invalid-credential":
-          toast.error("❌ Invalid credentials. Please try again.");
-          break;
-        default:
-          toast.error(err?.message || "❌ Authentication failed.");
-      }
+      console.error("Auth error:", err);
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.messages ||
+        err?.message ||
+        "❌ Authentication failed.";
+      toast.error(typeof msg === "object" ? JSON.stringify(msg) : String(msg));
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔑 Google Login
-  const handleGoogleLogin = async () => {
-    try {
-      setLoading(true);
-      await doSignInWithGoogle();
-      toast.success("✅ Signed in with Google!");
-      navigate("/dashboard");
-    } catch (err) {
-      console.error(err);
-      toast.error("❌ Google sign-in failed.");
-    } finally {
-      setLoading(false);
-    }
+  const handleGoogleLogin = () => {
+    toast.error("Google login not yet supported in backend.");
   };
 
-  // 🔑 GitHub Login
-  const handleGithubLogin = async () => {
-    try {
-      setLoading(true);
-      await doSignInWithGithub();
-      toast.success("✅ Signed in with GitHub!");
-      navigate("/dashboard");
-    } catch (err) {
-      console.error(err);
-      toast.error("❌ GitHub sign-in failed.");
-    } finally {
-      setLoading(false);
-    }
+  const handleGithubLogin = () => {
+    toast.error("GitHub login not yet supported in backend.");
   };
 
-  // 🔑 Forgot Password
-  const handlePasswordReset = async () => {
+  const handlePasswordReset = () => {
     if (!formData.email) {
-      toast.error("⚠️ Please enter your email first to reset password.");
+      toast.error("⚠️ Please enter your email first.");
       return;
     }
-
-    try {
-      setLoading(true);
-      await doPasswordReset(formData.email);
-      toast.success("📩 Password reset email sent! Check your inbox/spam.");
-    } catch (err) {
-      console.error(err);
-      switch (err.code) {
-        case "auth/user-not-found":
-          toast.error("❌ No user found with this email.");
-          break;
-        case "auth/invalid-email":
-          toast.error("❌ Invalid email address.");
-          break;
-        default:
-          toast.error("❌ Password reset failed. Try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
+    toast.info("Password reset not yet implemented in backend.");
   };
 
   return (
@@ -180,7 +166,7 @@ const AuthPage = () => {
               </svg>
             </div>
             <h1 className="text-xl font-bold text-gray-800 mb-2">
-              Welcome to <span className="text-sky-600">Mrcem </span> 
+              Welcome to <span className="text-sky-600">Mrcem </span>
             </h1>
           </div>
 
@@ -189,9 +175,7 @@ const AuthPage = () => {
             <button
               onClick={() => setIsSignIn(true)}
               className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                isSignIn
-                  ? "bg-sky-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                isSignIn ? "bg-sky-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               Sign In
@@ -199,9 +183,7 @@ const AuthPage = () => {
             <button
               onClick={() => setIsSignIn(false)}
               className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                !isSignIn
-                  ? "bg-sky-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                !isSignIn ? "bg-sky-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               Sign Up
@@ -213,10 +195,7 @@ const AuthPage = () => {
             <form onSubmit={handleSubmit}>
               {!isSignIn && (
                 <div className="mb-3">
-                  <label
-                    htmlFor="name"
-                    className="block text-gray-700 text-xs font-medium mb-1"
-                  >
+                  <label htmlFor="name" className="block text-gray-700 text-xs font-medium mb-1">
                     Full Name
                   </label>
                   <input
@@ -234,10 +213,7 @@ const AuthPage = () => {
 
               {/* Email */}
               <div className="mb-3">
-                <label
-                  htmlFor="email"
-                  className="block text-gray-700 text-xs font-medium mb-1"
-                >
+                <label htmlFor="email" className="block text-gray-700 text-xs font-medium mb-1">
                   Email Address
                 </label>
                 <input
@@ -254,10 +230,7 @@ const AuthPage = () => {
 
               {/* Password */}
               <div className="mb-3 relative">
-                <label
-                  htmlFor="password"
-                  className="block text-gray-700 text-xs font-medium mb-1"
-                >
+                <label htmlFor="password" className="block text-gray-700 text-xs font-medium mb-1">
                   Password
                 </label>
                 <input
@@ -283,10 +256,7 @@ const AuthPage = () => {
               {/* Confirm Password */}
               {!isSignIn && (
                 <div className="mb-4 relative">
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-gray-700 text-xs font-medium mb-1"
-                  >
+                  <label htmlFor="confirmPassword" className="block text-gray-700 text-xs font-medium mb-1">
                     Confirm Password
                   </label>
                   <input
@@ -319,9 +289,7 @@ const AuthPage = () => {
                       type="checkbox"
                       className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
                     />
-                    <span className="ml-2 block text-xs text-gray-700">
-                      Remember me
-                    </span>
+                    <span className="ml-2 block text-xs text-gray-700">Remember me</span>
                   </label>
                   <button
                     type="button"
@@ -349,9 +317,7 @@ const AuthPage = () => {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-white text-gray-500">
-                    Or continue with
-                  </span>
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
                 </div>
               </div>
 
