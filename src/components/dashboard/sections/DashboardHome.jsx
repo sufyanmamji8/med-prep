@@ -130,8 +130,7 @@ const DashboardHome = ({
       {/* Header */}
       <div className=" flex flex-col md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 transition-colors">
-          Welcome, {currentUser?.displayName?.split(" ")[0] || "User"}
-        </h2>
+Welcome, {currentUser?.name?.split(" ")[0] || "User"}        </h2>
         <div className="relative mt-3 md:mt-0 md:w-64">
           <input
             type="text"
@@ -293,11 +292,10 @@ const DashboardHome = ({
                           setActiveSubject({ ...topic, mainSubject });
                           setActiveTab && setActiveTab("subject");
                         }}
-                        className={`flex items-center w-full p-2 rounded-md text-sm transition-colors duration-200 ${
-                          activeSubject?.id === topic.id
+                        className={`flex items-center w-full p-2 rounded-md text-sm transition-colors duration-200 ${activeSubject?.id === topic.id
                             ? "bg-blue-100 text-blue-700"
                             : "text-gray-600 hover:bg-gray-100"
-                        }`}
+                          }`}
                         aria-label={`Select ${topic.name}`}
                       >
                         <span>{topic.name}</span>

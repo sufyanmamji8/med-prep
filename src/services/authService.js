@@ -1,62 +1,95 @@
-// src/services/authService.js
 import axios from "axios";
 
 const API_BASE_URL = "https://mrbe.codovio.com/api/v1/users";
 
-// ✅ Register user
+// Register user
 export const registerUser = async ({ name, email, password, confirmPassword }) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/register`, {
       name,
       email,
       password,
-      confirm_password: confirmPassword, // backend requires this
+      confirm_password: confirmPassword,
     });
 
-    // Return consistent structure: user, token, message
+    const token = response.data.token;
+    const user = {
+      name: name,
+      email: email
+    };
+
+    // ✅ Save in localStorage
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+
     return {
       message: response.data.message || "User registered successfully",
-      user: response.data.user || null,
-      token: response.data.token || null,
+      user,
+      token,
     };
   } catch (err) {
     const backendMsg = err.response?.data?.messages || err.response?.data || err.message;
-    console.error("Register error:", backendMsg);
     throw new Error(
       backendMsg?.email ||
-      backendMsg?.password ||
-      backendMsg?.confirm_password ||
-      backendMsg?.name ||
-      "Registration failed"
+        backendMsg?.password ||
+        backendMsg?.confirm_password ||
+        backendMsg?.name ||
+        "Registration failed"
     );
   }
 };
 
-// ✅ Login user
+// Login user
 export const loginUser = async ({ email, password }) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, { email, password });
+    
+    const token = response.data.token;
+    let user = { email };
 
-    // Return consistent structure: user, token, message
+    // ✅ Extract user info from token if available
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        user = {
+          name: payload.name || email.split('@')[0], // Use name from token or email prefix
+          email: payload.email || email,
+          id: payload.id
+        };
+      } catch (tokenError) {
+        console.warn("Token parsing failed, using basic user info");
+        user = { email, name: email.split('@')[0] };
+      }
+    }
+
+    // ✅ Save in localStorage
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+
     return {
       message: response.data.message || "Login successful",
-      user: response.data.user || null,
-      token: response.data.token || null,
+      user,
+      token,
     };
   } catch (err) {
     const backendMsg = err.response?.data?.messages || err.response?.data || err.message;
-    console.error("Login error:", backendMsg);
     throw new Error(backendMsg?.email || backendMsg?.password || "Login failed");
   }
 };
 
-// ✅ Logout user
+// Logout user
 export const logoutUser = () => {
-  localStorage.removeItem("user");
-  localStorage.removeItem("token");
+  try {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    return true;
+  } catch (err) {
+    console.error("Logout error:", err);
+    return false;
+  }
 };
 
-// ✅ Get current user
+// Get current user
 export const getCurrentUser = () => {
   try {
     const stored = localStorage.getItem("user");

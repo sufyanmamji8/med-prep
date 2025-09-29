@@ -103,6 +103,9 @@ const Sidebar = ({
   ];
   const accountItems = [{ id: "subscribe", label: "Subscription", Icon: MdPayment, showUpgrade: !hasSubscription }];
 
+  
+
+
   return (
     <div
       className={`w-64 bg-white shadow-lg fixed h-full z-40 transform ${
@@ -122,28 +125,37 @@ const Sidebar = ({
         </button>
       </div>
 
-      {/* User Profile */}
-      <div className="p-4 border-b border-gray-200 flex items-center space-x-3 bg-gray-50">
-        <div className="relative">
-          <img
-            src={currentUser?.photoURL || "https://randomuser.me/api/portraits/lego/1.jpg"}
-            alt="User profile"
-            className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover transition-transform duration-200 ease-out hover:scale-[1.03]"
-            onError={(e) => (e.target.src = "https://randomuser.me/api/portraits/lego/1.jpg")}
-          />
-          {hasSubscription && (
-            <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
-              <FaCheck className="text-white text-xs" />
-            </div>
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="font-medium text-gray-800 truncate">{currentUser?.displayName || "Loading..."}</p>
-          <p className={`text-xs truncate ${hasSubscription ? "text-green-600" : "text-yellow-600"}`}>
-            {hasSubscription ? "Premium Member" : "Basic Account"}
-          </p>
-        </div>
+     {/* User Profile */}
+<div className="p-4 border-b border-gray-200 flex items-center space-x-3 bg-gray-50">
+  <div className="relative">
+    <img
+      src={currentUser?.photoURL || "https://randomuser.me/api/portraits/lego/1.jpg"}
+      alt="User profile"
+      className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover transition-transform duration-200 ease-out hover:scale-[1.03]"
+      onError={(e) => (e.target.src = "https://randomuser.me/api/portraits/lego/1.jpg")}
+    />
+    {hasSubscription && (
+      <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
+        <FaCheck className="text-white text-xs" />
       </div>
+    )}
+  </div>
+  <div className="min-w-0 flex-1">
+    {/* ✅ Use name instead of displayName */}
+<p className="font-medium text-gray-800 truncate">
+  {currentUser?.name || "user" }
+
+
+  
+
+</p>
+    
+    <p className={`text-xs truncate ${hasSubscription ? "text-green-600" : "text-yellow-600"}`}>
+      {hasSubscription ? "Premium Member" : "Basic Account"}
+    </p>
+  </div>
+</div>
+
 
       {/* Navigation */}
       <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-180px)] custom-scrollbar">

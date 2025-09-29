@@ -1,38 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-
-// 🔴 Old Firebase imports (commented out)
-// import {
-//   doSignInWithEmailAndPassword,
-//   doSignInWithGoogle,
-//   doSignInWithGithub,
-//   doCreateUserWithEmailAndPassword,
-//   doPasswordReset,
-// } from "../../firebase/auth";
-// import { onAuthStateChanged, updateProfile } from "firebase/auth";
-// import { auth } from "../../firebase/firebase";
-
 import toast, { Toaster } from "react-hot-toast";
 
 // ✅ Backend auth service
-import {
-  loginUser,
-  registerUser,
-  logoutUser,
-  getCurrentUser,
-} from "../../services/authService";
+import { loginUser, registerUser } from "../../services/authService";
 
 const AuthPage = () => {
   const navigate = useNavigate();
 
+  // ✅ Redirect if already logged in
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("user");
-      if (stored) navigate("/dashboard");
-    } catch (err) {
-      /* ignore */
-    }
+    const stored = localStorage.getItem("user");
+    if (stored) navigate("/dashboard"); // go to dashboard if already logged in
   }, [navigate]);
 
   const [isSignIn, setIsSignIn] = useState(true);
@@ -46,14 +26,17 @@ const AuthPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // ✅ Update input values
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ✅ Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validation for signup
     if (!isSignIn) {
       if (formData.password !== formData.confirmPassword) {
         toast.error("❌ Passwords do not match!");
@@ -69,80 +52,51 @@ const AuthPage = () => {
       setLoading(true);
 
       if (isSignIn) {
-        // ✅ Backend Login
-        const res = await loginUser({
-          email: formData.email,
-          password: formData.password,
-        });
+        // 🔑 Login
+const res = await loginUser({
+  email: formData.email,
+  password: formData.password,
+});
+console.log("🔑 Login response:", res);
 
-        console.log("🔑 Login response:", res);
+// ❌ remove duplicate localStorage.setItem here
+// if (res.token) localStorage.setItem("token", res.token);
+// localStorage.setItem("user", JSON.stringify(res.user));
 
-        if (res?.token) {
-          // Store token
-          localStorage.setItem("token", res.token);
+toast.success("✅ Logged in successfully!");
+navigate("/dashboard");
 
-          // Store minimal user info if backend doesn't provide
-          const minimalUser = res.user || { email: formData.email };
-          localStorage.setItem("user", JSON.stringify(minimalUser));
-
-          toast.success("✅ Logged in successfully!");
-          navigate("/dashboard");
-        } else {
-          toast.error("❌ Login failed, please try again.");
-        }
       } else {
-        // ✅ Backend Register
+        // 📝 Signup
         const res = await registerUser({
           name: formData.name,
           email: formData.email,
           password: formData.password,
           confirmPassword: formData.confirmPassword,
         });
-
         console.log("📝 Signup response:", res);
 
-        if (res?.token) {
-          // Auto-login after signup
+        if (res.token) {
           localStorage.setItem("token", res.token);
-          const newUser = res.user || { email: formData.email, name: formData.name };
-          localStorage.setItem("user", JSON.stringify(newUser));
-
-          toast.success("🎉 Account created & logged in successfully!");
-          navigate("/dashboard");
-        } else {
-          // Fallback: show Sign In form
-          toast.success(res.message || "User registered successfully");
-          setIsSignIn(true);
-          setFormData((prev) => ({ ...prev, password: "", confirmPassword: "" }));
         }
+        localStorage.setItem("user", JSON.stringify(res.user));
+
+        toast.success(res.message || "🎉 Account created successfully!");
+        navigate("/dashboard");
       }
     } catch (err) {
       console.error("Auth error:", err);
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.messages ||
-        err?.message ||
-        "❌ Authentication failed.";
-      toast.error(typeof msg === "object" ? JSON.stringify(msg) : String(msg));
+      toast.error(err.message || "❌ Authentication failed.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    toast.error("Google login not yet supported in backend.");
-  };
-
-  const handleGithubLogin = () => {
-    toast.error("GitHub login not yet supported in backend.");
-  };
-
+  const handleGoogleLogin = () => toast.error("Google login not yet supported.");
+  const handleGithubLogin = () => toast.error("GitHub login not yet supported.");
   const handlePasswordReset = () => {
-    if (!formData.email) {
-      toast.error("⚠️ Please enter your email first.");
-      return;
-    }
-    toast.info("Password reset not yet implemented in backend.");
+    if (!formData.email) return toast.error("⚠️ Please enter your email first.");
+    toast.info("Password reset not yet implemented.");
   };
 
   return (
@@ -150,14 +104,10 @@ const AuthPage = () => {
       <Toaster position="top-right" />
       <div className="w-full max-w-md mx-auto">
         <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
-          {/* Logo and Heading */}
+          {/* Logo */}
           <div className="flex flex-col items-center pt-6 pb-2">
             <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center mb-3 border-2 border-sky-200">
-              <svg
-                className="w-8 h-8 text-sky-600"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
+              <svg className="w-8 h-8 text-sky-600" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
@@ -166,7 +116,7 @@ const AuthPage = () => {
               </svg>
             </div>
             <h1 className="text-xl font-bold text-gray-800 mb-2">
-              Welcome to <span className="text-sky-600">Mrcem </span>
+              Welcome to <span className="text-sky-600">Mrcem</span>
             </h1>
           </div>
 
@@ -195,17 +145,14 @@ const AuthPage = () => {
             <form onSubmit={handleSubmit}>
               {!isSignIn && (
                 <div className="mb-3">
-                  <label htmlFor="name" className="block text-gray-700 text-xs font-medium mb-1">
-                    Full Name
-                  </label>
+                  <label className="block text-gray-700 text-xs font-medium mb-1">Full Name</label>
                   <input
-                    id="name"
                     name="name"
                     type="text"
                     value={formData.name}
                     onChange={handleChange}
                     required={!isSignIn}
-                    className="w-full px-3 py-2 text-sm rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500"
                     placeholder="Enter your name"
                   />
                 </div>
@@ -213,35 +160,29 @@ const AuthPage = () => {
 
               {/* Email */}
               <div className="mb-3">
-                <label htmlFor="email" className="block text-gray-700 text-xs font-medium mb-1">
-                  Email Address
-                </label>
+                <label className="block text-gray-700 text-xs font-medium mb-1">Email Address</label>
                 <input
-                  id="email"
                   name="email"
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 text-sm rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500"
                   placeholder="your@email.com"
                 />
               </div>
 
               {/* Password */}
               <div className="mb-3 relative">
-                <label htmlFor="password" className="block text-gray-700 text-xs font-medium mb-1">
-                  Password
-                </label>
+                <label className="block text-gray-700 text-xs font-medium mb-1">Password</label>
                 <input
-                  id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full px-3 py-2 text-sm rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500 pr-10"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500 pr-10"
                   placeholder="Enter Password"
                 />
                 <button
@@ -256,18 +197,15 @@ const AuthPage = () => {
               {/* Confirm Password */}
               {!isSignIn && (
                 <div className="mb-4 relative">
-                  <label htmlFor="confirmPassword" className="block text-gray-700 text-xs font-medium mb-1">
-                    Confirm Password
-                  </label>
+                  <label className="block text-gray-700 text-xs font-medium mb-1">Confirm Password</label>
                   <input
-                    id="confirmPassword"
                     name="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required={!isSignIn}
                     minLength={6}
-                    className="w-full px-3 py-2 text-sm rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500 pr-10"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500 pr-10"
                     placeholder="Confirm Password"
                   />
                   <button
@@ -280,15 +218,11 @@ const AuthPage = () => {
                 </div>
               )}
 
-              {/* Remember + Forgot Password */}
+              {/* Forgot Password */}
               {isSignIn && (
                 <div className="flex items-center justify-between mb-4">
                   <label className="flex items-center">
-                    <input
-                      id="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
-                    />
+                    <input type="checkbox" className="h-4 w-4 text-sky-600 border-gray-300 rounded" />
                     <span className="ml-2 block text-xs text-gray-700">Remember me</span>
                   </label>
                   <button
@@ -301,6 +235,7 @@ const AuthPage = () => {
                 </div>
               )}
 
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
@@ -340,7 +275,7 @@ const AuthPage = () => {
               </div>
             </div>
 
-            {/* Toggle Sign In / Sign Up */}
+            {/* Toggle */}
             <p className="mt-4 text-center text-xs text-gray-600">
               {isSignIn ? (
                 <>

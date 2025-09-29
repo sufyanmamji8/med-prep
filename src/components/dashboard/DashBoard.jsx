@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
-import { doSignOut } from "../../firebase/auth";
 import Sidebar from "./layout/Sidebar";
 import Topbar from "./layout/Topbar";
 import ContentTabs from "./common/ContentTabs";
 import DashboardHome from "./sections/DashboardHome";
-// import PastPapers from "./sections/PastPapers";
 import Mcqs from "./sections/Mcqs";
-// import Videos from "./sections/Videos";
 import Notes from "./sections/Notes";
 import SubjectPage from "./sections/SubjectPage";
 import McqPracticePage from "./sections/McqPracticePage";
 import McqResultPage from "./sections/McqResultPage";
 
+// ✅ Backend Auth
+import { getCurrentUser, logoutUser } from "../../services/authService";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -37,23 +34,21 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 1️⃣ Auth check
+  // 1️⃣ Auth check (Backend)
   useEffect(() => {
     setLoading(true);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser({
-          displayName: user.displayName || "User",
-          email: user.email,
-          photoURL:
-            user.photoURL || "https://randomuser.me/api/portraits/lego/1.jpg",
-        });
-      } else {
-        navigate("/");
-      }
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    const user = getCurrentUser();
+    if (user) {
+
+     setCurrentUser({
+  name: user.name || "User",  // ← Fixed: 'name' instead of 'displayName'
+  email: user.email,
+  photoURL: user.profileImage || "https://randomuser.me/api/portraits/lego/1.jpg",
+});
+    } else {
+      navigate("/dashboard"); // redirect if not logged in
+    }
+    setLoading(false);
   }, [navigate]);
 
   // 2️⃣ Fetch subjects
@@ -77,18 +72,12 @@ const Dashboard = () => {
   }, [mobileMenuOpen]);
 
   // 4️⃣ Handle sign out
-  const handleSignOut = async () => {
-    try {
-      await doSignOut();
-      navigate("/");
-    } catch (e) {
-      console.error("Error signing out:", e);
-    }
+  const handleSignOut = () => {
+    logoutUser();
+    navigate("/");
   };
 
   const handleContentAccess = (tab) => {
-    // Allow navigation to tabs even without subscription.
-    // Individual tabs (e.g., MCQs, Notes) handle showing lock messages.
     setActiveTab(tab);
   };
 
@@ -275,30 +264,26 @@ const Dashboard = () => {
                     selectedDifficulty={selectedDifficulty}
                     setSelectedDifficulty={setSelectedDifficulty}
                     hasSubscription={hasSubscription}
-                    navigate={navigate} 
+                    navigate={navigate}
                     onBack={() => setActiveTab("subject")}
                     setActiveTab={setActiveTab}
                     setMcqResultData={setMcqResultData}
                   />
                 ),
-  notes: (
-  <Notes
-    activeSubject={activeSubject}
-    hasSubscription={hasSubscription}
-    onBack={() => setActiveTab("subject")} // subjects tab open hoga
-  />
-),
-
-
-
-
+                notes: (
+                  <Notes
+                    activeSubject={activeSubject}
+                    hasSubscription={hasSubscription}
+                    onBack={() => setActiveTab("subject")}
+                  />
+                ),
                 subject: (
                   <SubjectPage
                     activeSubject={activeSubject}
                     subjectDetails={subjectDetails}
                     loadingDetails={loadingDetails}
                     handleContentAccess={handleContentAccess}
-                    navigate={navigate} 
+                    navigate={navigate}
                     hasSubscription={hasSubscription}
                   />
                 ),

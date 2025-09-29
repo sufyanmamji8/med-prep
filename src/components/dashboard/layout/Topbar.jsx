@@ -23,9 +23,11 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
     };
   }, [dropdownOpen]);
 
+
+
   return (
     <div className="bg-white h-14 sm:h-16 px-3 sm:px-4 py-2 shadow-sm flex justify-between items-center sticky top-0 z-40 border-b border-gray-200">
-      {/* Left Section - Flexible width */}
+      {/* Left Section */}
       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 mr-4 md:mr-6">
         {activeSubject && (
           <button
@@ -36,8 +38,7 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
           </button>
         )}
 
-        {/* Title Section - Responsive */}
-        <div className="min-w-0 flex-1 sm:ml-6 ml-16"> {/* Keep ml-16 for right shift */}
+        <div className="min-w-0 flex-1 sm:ml-6 ml-16">
           <h1 className="font-bold text-gray-800 text-sm sm:text-base md:text-lg lg:text-xl truncate flex items-center gap-2">
             {activeSubject && (
               <button
@@ -50,8 +51,6 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
             )}
             <span className="truncate">{activeSubject?.name || "Dashboard Overview"}</span>
           </h1>
-          
-          {/* Subject badge - only show on larger screens */}
           {activeSubject && (
             <div className="hidden sm:block">
               <span className="text-xs text-gray-500 truncate block max-w-[200px] md:max-w-[300px]">
@@ -62,7 +61,7 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
         </div>
       </div>
 
-      {/* Right Section - Fixed width */}
+      {/* Right Section */}
       <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
         {/* Notifications */}
         <button
@@ -79,23 +78,18 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
             onClick={() => setDropdownOpen((prev) => !prev)}
             className="flex items-center space-x-1 sm:space-x-2 focus:outline-none"
           >
-            <img
-              src={
-                currentUser?.photoURL && currentUser.photoURL.trim() !== ""
-                  ? currentUser.photoURL
-                  : "/default-avatar.png"
-              }
-              alt="User"
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border object-cover flex-shrink-0 bg-gray-100"
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = "/default-avatar.png";
-              }}
-            />
-            {/* User name - only show on medium+ screens */}
+          <img
+  src={currentUser?.photoURL || "/default-avatar.png"}  // ✅ Use user's photoURL
+  alt="User"
+  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border object-cover flex-shrink-0 bg-gray-100"
+  onError={(e) => {
+    // Fallback if image fails to load
+    e.target.src = "/default-avatar.png";
+  }}
+/>
+            {/* Show user name */}
             <span className="hidden md:inline text-sm font-medium truncate max-w-[80px] lg:max-w-[120px]">
-              {currentUser?.displayName?.split(" ")[0] || "User"}
+              {currentUser?.name || "User"}
             </span>
           </button>
 
@@ -103,7 +97,7 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
               <div className="px-4 py-2 border-b border-gray-200">
                 <p className="text-sm font-medium truncate">
-                  {currentUser?.displayName || "User"}
+                  {currentUser?.name || "User"}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
                   {currentUser?.email || ""}
