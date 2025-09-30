@@ -198,7 +198,7 @@ const McqPracticePage = ({ activeSubject, onFinish, onBack, difficulty }) => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl lg:rounded-2xl shadow-xl p-4 lg:p-6 border border-gray-200 h-fit lg:sticky lg:top-24">
+            <div className="bg-white rounded-xl lg:rounded-2xl shadow-xl p-4 lg:p-6 border border-gray-200 h-full lg:sticky lg:top-24 flex flex-col">
               {/* Timer inside container */}
               <div className={`flex items-center justify-center space-x-3 px-4 py-3 rounded-lg mb-4 ${
                 timeLeft <= 10 ? 'bg-red-100 border border-red-200' : 'bg-blue-100 border border-blue-200'
@@ -258,7 +258,7 @@ const McqPracticePage = ({ activeSubject, onFinish, onBack, difficulty }) => {
               </div>
 
               {/* Progress Bar - Hidden on mobile since it's in header */}
-              <div className="mb-2 hidden lg:block">
+              <div className="mt-auto hidden lg:block">
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
                   <span>Progress</span>
                   <span>{Math.round(progress)}%</span>
@@ -275,7 +275,7 @@ const McqPracticePage = ({ activeSubject, onFinish, onBack, difficulty }) => {
 
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl lg:rounded-2xl shadow-lg lg:shadow-xl p-4 lg:p-6 xl:p-8 border border-gray-200">
+            <div className="bg-white rounded-xl lg:rounded-2xl shadow-lg lg:shadow-xl p-4 lg:p-6 xl:p-8 border border-gray-200 h-full flex flex-col">
               {/* Question Header - Hidden on mobile since it's in sticky header */}
               <div className="hidden sm:flex items-center justify-between mb-4 lg:mb-6">
                 <div className="flex items-center space-x-3">
@@ -301,7 +301,7 @@ const McqPracticePage = ({ activeSubject, onFinish, onBack, difficulty }) => {
               </div>
 
               {/* Options */}
-              <div className="space-y-2 lg:space-y-3 xl:space-y-4 mb-4 lg:mb-6 xl:mb-8">
+              <div className="space-y-2 lg:space-y-3 xl:space-y-4 mb-4 lg:mb-6 xl:mb-8 flex-1">
                 {currentQuestion.options.map((option, index) => (
                   <button
                     key={index}
