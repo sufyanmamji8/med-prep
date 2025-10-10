@@ -9,6 +9,7 @@ import Notes from "./sections/Notes";
 import SubjectPage from "./sections/SubjectPage";
 import McqPracticePage from "./sections/McqPracticePage";
 import McqResultPage from "./sections/McqResultPage";
+import RevisionPage from "./sections/RevisionPage";
 
 // ✅ Backend Auth
 import { getCurrentUser, logoutUser } from "../../services/authService";
@@ -21,7 +22,7 @@ const Dashboard = () => {
   const [subjects, setSubjects] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with true
   const [currentUser, setCurrentUser] = useState(null);
 
   // ✅ MCQ result state
@@ -34,33 +35,57 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 1️⃣ Auth check (Backend)
+  // 1️⃣ FIXED Auth check (Backend)
   useEffect(() => {
-    setLoading(true);
+    console.log("🔍 Dashboard - Checking authentication...");
+    
     const user = getCurrentUser();
-    if (user) {
-
-     setCurrentUser({
-  name: user.name || "User",  // ← Fixed: 'name' instead of 'displayName'
-  email: user.email,
-  photoURL: user.profileImage || "https://randomuser.me/api/portraits/lego/1.jpg",
-});
-    } else {
-      navigate("/dashboard"); // redirect if not logged in
+    const token = localStorage.getItem('token');
+    
+    console.log("🔍 Dashboard - User from getCurrentUser:", user);
+    console.log("🔍 Dashboard - Token from localStorage:", token);
+    console.log("🔍 Dashboard - All localStorage:");
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      console.log(`  ${key}: ${localStorage.getItem(key)?.substring(0, 30)}...`);
     }
-    setLoading(false);
+
+    if (user && token) {
+      console.log("✅ Dashboard - User authenticated");
+      setCurrentUser({
+        name: user.name || "User",
+        email: user.email,
+        photoURL: user.profileImage || "https://randomuser.me/api/portraits/lego/1.jpg",
+      });
+      setLoading(false);
+    } else {
+      console.log("❌ Dashboard - No user or token, redirecting to login");
+      // ✅ FIX: Redirect to LOGIN, not dashboard (this was causing infinite loop)
+      navigate("/");
+    }
   }, [navigate]);
 
   // 2️⃣ Fetch subjects
   useEffect(() => {
+    if (loading) return; // Don't fetch until auth is checked
+    
+    console.log("📚 Dashboard - Fetching subjects...");
     fetch("https://whatsbiz.codovio.com/mrcem/textBookHierarchy")
       .then((res) => res.json())
       .then((data) => {
-        if (data?.textBookHierarchy) setSubjects(data.textBookHierarchy);
-        else setSubjects({});
+        if (data?.textBookHierarchy) {
+          setSubjects(data.textBookHierarchy);
+          console.log("✅ Subjects loaded successfully");
+        } else {
+          setSubjects({});
+          console.log("❌ No subjects data found");
+        }
       })
-      .catch(() => setSubjects({}));
-  }, []);
+      .catch((error) => {
+        console.error("❌ Error fetching subjects:", error);
+        setSubjects({});
+      });
+  }, [loading]);
 
   // 3️⃣ Lock body scroll when mobile menu open
   useEffect(() => {
@@ -73,15 +98,17 @@ const Dashboard = () => {
 
   // 4️⃣ Handle sign out
   const handleSignOut = () => {
+    console.log("🚪 Dashboard - Signing out...");
     logoutUser();
     navigate("/");
   };
 
   const handleContentAccess = (tab) => {
+    console.log("📱 Dashboard - Switching to tab:", tab);
     setActiveTab(tab);
   };
 
-  // 5️⃣ Build subject path
+  // 5️⃣ Build subject path (keep your existing function)
   const findMainSubjectFor = (subject) => {
     if (!subject || !subjects) return null;
     for (const [main, content] of Object.entries(subjects)) {
@@ -170,8 +197,49 @@ const Dashboard = () => {
       .finally(() => setLoadingDetails(false));
   }, [activeSubject, subjects]);
 
+  // ✅ Add debug button to check auth status
+  const debugAuth = () => {
+    console.log("=== 🐞 DASHBOARD AUTH DEBUG ===");
+    console.log("Current User State:", currentUser);
+    console.log("Loading State:", loading);
+    console.log("Token:", localStorage.getItem('token'));
+    console.log("User:", localStorage.getItem('user'));
+    console.log("All localStorage:");
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      console.log(`  ${key}: ${localStorage.getItem(key)}`);
+    }
+    console.log("=== END DEBUG ===");
+  };
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-gray-50 items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+          <button 
+            onClick={debugAuth}
+            className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
+          >
+            Debug Auth
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-50">
+      {/* Debug button */}
+      {/* <button 
+        onClick={debugAuth}
+        className="fixed top-2 right-2 z-50 bg-red-500 text-white p-2 rounded text-sm"
+      >
+        
+      </button> */}
+
       {/* Mobile menu button */}
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -238,75 +306,70 @@ const Dashboard = () => {
           )}
 
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            {loading ? (
-              <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-              </div>
-            ) : (
-              {
-                dashboard: (
-                  <DashboardHome
-                    currentUser={currentUser}
-                    hasSubscription={hasSubscription}
-                    navigate={navigate}
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    subjects={subjects}
-                    activeSubject={activeSubject}
-                    setActiveSubject={setActiveSubject}
-                    setActiveTab={setActiveTab}
-                    handleContentAccess={handleContentAccess}
-                  />
-                ),
-                mcqs: (
-                  <Mcqs
-                    activeSubject={activeSubject}
-                    selectedDifficulty={selectedDifficulty}
-                    setSelectedDifficulty={setSelectedDifficulty}
-                    hasSubscription={hasSubscription}
-                    navigate={navigate}
-                    onBack={() => setActiveTab("subject")}
-                    setActiveTab={setActiveTab}
-                    setMcqResultData={setMcqResultData}
-                  />
-                ),
-                notes: (
-                  <Notes
-                    activeSubject={activeSubject}
-                    hasSubscription={hasSubscription}
-                    onBack={() => setActiveTab("subject")}
-                  />
-                ),
-                subject: (
-                  <SubjectPage
-                    activeSubject={activeSubject}
-                    subjectDetails={subjectDetails}
-                    loadingDetails={loadingDetails}
-                    handleContentAccess={handleContentAccess}
-                    navigate={navigate}
-                    hasSubscription={hasSubscription}
-                  />
-                ),
-                mcqPractice: (
-                  <McqPracticePage
-                    activeSubject={activeSubject}
-                    difficulty={selectedDifficulty}
-                    onFinish={(result) => {
-                      setMcqResultData(result);
-                      setActiveTab("mcqResult");
-                    }}
-                    onBack={() => setActiveTab("mcqs")}
-                  />
-                ),
-                mcqResult: (
-                  <McqResultPage
-                    resultData={mcqResultData}
-                    onRetry={() => setActiveTab("mcqPractice")}
-                    onBack={() => setActiveTab("mcqs")}
-                  />
-                ),
-              }[activeTab]
-            )}
+            {{
+              dashboard: (
+                <DashboardHome
+                  currentUser={currentUser}
+                  hasSubscription={hasSubscription}
+                  navigate={navigate}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  subjects={subjects}
+                  activeSubject={activeSubject}
+                  setActiveSubject={setActiveSubject}
+                  setActiveTab={setActiveTab}
+                  handleContentAccess={handleContentAccess}
+                />
+              ),
+              mcqs: (
+                <Mcqs
+                  activeSubject={activeSubject}
+                  selectedDifficulty={selectedDifficulty}
+                  setSelectedDifficulty={setSelectedDifficulty}
+                  hasSubscription={hasSubscription}
+                  navigate={navigate}
+                  onBack={() => setActiveTab("subject")}
+                  setActiveTab={setActiveTab}
+                  setMcqResultData={setMcqResultData}
+                />
+              ),
+              revision: <RevisionPage onBack={() => setActiveTab("dashboard")} />,
+              notes: (
+                <Notes
+                  activeSubject={activeSubject}
+                  hasSubscription={hasSubscription}
+                  onBack={() => setActiveTab("subject")}
+                />
+              ),
+              subject: (
+                <SubjectPage
+                  activeSubject={activeSubject}
+                  subjectDetails={subjectDetails}
+                  loadingDetails={loadingDetails}
+                  handleContentAccess={handleContentAccess}
+                  navigate={navigate}
+                  hasSubscription={hasSubscription}
+                />
+              ),
+              mcqPractice: (
+                <McqPracticePage
+                  activeSubject={activeSubject}
+                  difficulty={selectedDifficulty}
+                  onFinish={(result) => {
+                    setMcqResultData(result);
+                    setActiveTab("mcqResult");
+                  }}
+                  onBack={() => setActiveTab("mcqs")}
+                />
+              ),
+              mcqResult: (
+                <McqResultPage
+                  resultData={mcqResultData}
+                  onRetry={() => setActiveTab("mcqPractice")}
+                  onBack={() => setActiveTab("mcqs")}
+                />
+              ),
+            }[activeTab]}
           </div>
         </main>
       </div>

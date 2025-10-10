@@ -12,7 +12,7 @@ const AuthPage = () => {
   // ✅ Redirect if already logged in
   useEffect(() => {
     const stored = localStorage.getItem("user");
-    if (stored) navigate("/dashboard"); // go to dashboard if already logged in
+    if (stored) navigate("/dashboard");
   }, [navigate]);
 
   const [isSignIn, setIsSignIn] = useState(true);
@@ -52,20 +52,30 @@ const AuthPage = () => {
       setLoading(true);
 
       if (isSignIn) {
-        // 🔑 Login
-const res = await loginUser({
-  email: formData.email,
-  password: formData.password,
-});
-console.log("🔑 Login response:", res);
+  // 🔑 Login
+  const res = await loginUser({
+    email: formData.email,
+    password: formData.password,
+  });
+  console.log("🔑 Login response:", res);
 
-// ❌ remove duplicate localStorage.setItem here
-// if (res.token) localStorage.setItem("token", res.token);
-// localStorage.setItem("user", JSON.stringify(res.user));
+  // ✅ Wait a moment to ensure localStorage is saved
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  // ✅ Verify token is saved
+  const savedToken = localStorage.getItem('token');
+  const savedUser = localStorage.getItem('user');
+  console.log("✅ Token saved:", !!savedToken);
+  console.log("✅ User saved:", !!savedUser);
+  console.log("🔍 Actual token:", savedToken);
 
+// After successful login in AuthPage
 toast.success("✅ Logged in successfully!");
-navigate("/dashboard");
 
+// Use this:
+setTimeout(() => {
+  window.location.href = "/dashboard"; // Full page reload
+}, 200);
       } else {
         // 📝 Signup
         const res = await registerUser({
@@ -76,13 +86,12 @@ navigate("/dashboard");
         });
         console.log("📝 Signup response:", res);
 
-        if (res.token) {
-          localStorage.setItem("token", res.token);
-        }
-        localStorage.setItem("user", JSON.stringify(res.user));
-
         toast.success(res.message || "🎉 Account created successfully!");
-        navigate("/dashboard");
+        
+        // Small delay to ensure localStorage is updated
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 100);
       }
     } catch (err) {
       console.error("Auth error:", err);

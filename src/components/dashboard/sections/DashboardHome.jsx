@@ -8,6 +8,12 @@ import {
   FaChevronDown,
   FaChevronRight,
   FaHistory,
+  FaChartBar,
+  FaXRay,
+  FaPills,
+  FaVirus,
+  FaMicroscope,
+  FaHeartbeat
 } from "react-icons/fa";
 import {
   MdOutlineSchool,
@@ -119,12 +125,6 @@ const DashboardHome = ({
     },
   ];
 
-  // Quick access items (MCQs & Notes only)
-  const quickAccessItems = [
-    { id: "mcqs", label: "MCQs Practice", Icon: MdQuiz },
-    { id: "notes", label: "Study Notes", Icon: MdNotes },
-  ];
-
   return (
     <div className="space-y-8 p-4 md:p-6">
       {/* Header */}
@@ -198,10 +198,10 @@ Welcome, {currentUser?.name?.split(" ")[0] || "User"}        </h2>
         ))}
       </div>
 
-      {/* Subject Preview & Quick Access */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Subject Preview & Revision Session */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Subject Preview */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-200 hover:shadow-md">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-200 hover:shadow-md">
           <h3 className="text-xl font-semibold mb-5 flex items-center">
             <FaHistory className="mr-2 text-blue-500" /> Selected Subject Preview
           </h3>
@@ -238,27 +238,24 @@ Welcome, {currentUser?.name?.split(" ")[0] || "User"}        </h2>
           )}
         </div>
 
-        {/* Quick Access */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-200 hover:shadow-md">
-          <h3 className="text-xl font-semibold mb-5 flex items-center">
-            <FaBookmark className="mr-2 text-blue-500" /> Quick Access
-          </h3>
-          <div className="space-y-3">
-            {quickAccessItems.map(({ id, label, Icon }) => (
-              <button
-                key={id}
-                onClick={() => handleContentAccess(id)}
-                className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors duration-200"
-                aria-label={`Access ${label}`}
-              >
-                <div className="flex items-center">
-                  <Icon className="text-blue-500 mr-3 transition-transform duration-200 group-hover:scale-105" />
-                  <span>{label}</span>
-                </div>
-                <span className="text-gray-400">&rarr;</span>
-              </button>
-            ))}
+        {/* Revision Session */}
+        <div className="bg-white shadow-md rounded-xl p-6 border border-blue-600 transition-all duration-200 hover:shadow-md">
+          <h2 className="text-lg font-semibold text-blue-600">Revision Session</h2>
+          <p className="mt-2 text-gray-600">Start a mixed revision across subjects</p>
+          <div className="flex space-x-4 my-4 text-blue-600 text-2xl">
+            <FaChartBar />
+            <FaXRay />
+            <FaPills />
+            <FaVirus />
+            <FaMicroscope />
+            <FaHeartbeat />
           </div>
+          <button
+            onClick={() => setActiveTab("revision")}
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+          >
+            Continue
+          </button>
         </div>
       </div>
 
