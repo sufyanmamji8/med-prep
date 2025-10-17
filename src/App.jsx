@@ -13,9 +13,10 @@ import PastPapers from "./components/dashboard/sections/PastPapers";
 import Videos from "./components/dashboard/sections/Videos";
 import McqPracticePage from "./components/dashboard/sections/McqPracticePage";
 import McqResultPage from "./components/dashboard/sections/McqResultPage";
+import RevisionPage from "./components/dashboard/sections/RevisionPage";
+import QuestionPage from "./components/dashboard/sections/QuestionPage";
 
 function App() {
-  // temporary state for subscription
   const [hasSubscription, setHasSubscription] = useState(false);
 
   return (
@@ -29,7 +30,7 @@ function App() {
         {/* Dashboard Routes */}
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<DashboardHome />} />
-
+          
           {/* Subject-related routes */}
           <Route path="subjects/:subjectId" element={<SubjectPage />} />
           <Route
@@ -49,6 +50,10 @@ function App() {
             path="subjects/:subjectId/mcqs/result"
             element={<McqResultPage />}
           />
+
+          {/* Revision Routes */}
+          <Route path="revision" element={<RevisionPage />} />
+          <Route path="revision/questions" element={<QuestionPage />} />
         </Route>
       </Routes>
     </Router>

@@ -69,29 +69,29 @@ const SubscriptionPage = ({ setHasSubscription }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
       {/* Header with Back Button */}
       <div className="max-w-6xl mx-auto">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center text-blue-700 hover:text-blue-900 mb-8 transition-colors duration-200 group"
+          className="flex items-center text-blue-700 hover:text-blue-900 mb-6 transition-colors duration-200 group text-sm"
         >
-          <FaArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" />
+          <FaArrowLeft className="mr-1.5 group-hover:-translate-x-0.5 transition-transform text-sm" />
           <span className="text-sm font-medium">Back to Dashboard</span>
         </button>
       </div>
 
       {/* Hero Section */}
-      <div className="max-w-6xl mx-auto text-center mb-12">
-        <div className="inline-flex items-center bg-blue-100 text-blue-600 rounded-full px-4 py-2 mb-6 border border-blue-200">
-          <FaCrown className="text-yellow-500 mr-2" />
-          <span className="text-sm font-medium">Premium Features</span>
+      <div className="max-w-4xl mx-auto text-center mb-8">
+        <div className="inline-flex items-center bg-blue-100 text-blue-600 rounded-full px-3 py-1.5 mb-4 border border-blue-200 text-xs">
+          <FaCrown className="text-yellow-500 mr-1.5 text-xs" />
+          <span className="font-medium">Premium Features</span>
         </div>
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
           Upgrade Your
           <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"> Learning</span>
         </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <p className="text-gray-600 max-w-2xl mx-auto text-sm">
           Unlock exclusive features, unlimited access, and accelerate your learning journey with our premium plans.
         </p>
       </div>
@@ -99,45 +99,45 @@ const SubscriptionPage = ({ setHasSubscription }) => {
       {/* Main Content */}
       <div className="max-w-6xl mx-auto">
         {/* Pricing Cards */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-16">
+        <div className="grid lg:grid-cols-2 gap-6 mb-12">
           {Object.entries(plans).map(([key, plan]) => (
             <div
               key={key}
-              className={`relative rounded-2xl p-8 transition-all duration-300 hover:scale-105 ${
+              className={`relative rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] ${
                 plan.popular
-                  ? "bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-500 shadow-2xl shadow-blue-500/20"
-                  : "bg-white border border-gray-200 hover:border-gray-300 shadow-lg"
+                  ? "bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-500 shadow-lg shadow-blue-500/10"
+                  : "bg-white border border-gray-200 hover:border-gray-300 shadow-sm"
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wide flex items-center">
+                  <div className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide flex items-center">
                     <FaStar className="mr-2" />
                     Most Popular
                   </div>
                 </div>
               )}
 
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                <div className="flex items-baseline justify-center mb-2">
-                  <span className="text-5xl font-bold text-gray-900">${plan.price}</span>
-                  <span className="text-gray-600 ml-2">/{plan.period}</span>
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h3>
+                <div className="flex items-baseline justify-center mb-1">
+                  <span className="text-3xl font-bold text-gray-900">${plan.price}</span>
+                  <span className="text-gray-500 ml-1 text-sm">/{plan.period}</span>
                 </div>
                 {plan.savings && (
-                  <div className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                  <div className="inline-block bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium mt-1">
                     {plan.savings}
                   </div>
                 )}
               </div>
 
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-2.5 mb-6">
                 {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center text-gray-700">
-                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                      <FaCheck className="text-green-500 text-xs" />
+                  <li key={index} className="flex items-start text-gray-700 text-sm">
+                    <div className="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <FaCheck className="text-green-500 text-[10px]" />
                     </div>
-                    <span>{feature}</span>
+                    <span className="leading-tight">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -147,9 +147,9 @@ const SubscriptionPage = ({ setHasSubscription }) => {
                   setSelectedPlan(key);
                   handleSubscribe();
                 }}
-                className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 ${
+                className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
                   plan.popular
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/25"
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-md hover:shadow-blue-500/15"
                     : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
               >
@@ -160,22 +160,22 @@ const SubscriptionPage = ({ setHasSubscription }) => {
         </div>
 
         {/* Feature Grid */}
-        <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-lg">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-900 text-center mb-8">
             Everything You Need to <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Succeed</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="text-center p-6 rounded-2xl bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 transition-all duration-300 group"
+                className="text-center p-4 rounded-lg bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 transition-all duration-200 group"
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <feature.icon className="text-2xl text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-105 transition-transform duration-200">
+                  <feature.icon className="text-lg text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <h3 className="font-bold text-gray-900 mb-1.5 text-sm">{feature.title}</h3>
+                <p className="text-gray-600 text-xs leading-snug">
                   {feature.description}
                 </p>
               </div>
@@ -184,16 +184,16 @@ const SubscriptionPage = ({ setHasSubscription }) => {
         </div>
 
         {/* Trust Indicators */}
-        <div className="text-center mt-12">
-          <div className="flex flex-wrap justify-center items-center gap-8 text-gray-600 text-sm">
+        <div className="text-center mt-8">
+          <div className="flex flex-wrap justify-center items-center gap-4 text-gray-500 text-xs">
             <div className="flex items-center">
-              <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mr-2">
-                <FaCheck className="text-white text-xs" />
+              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-1.5">
+                <FaCheck className="text-white text-[10px]" />
               </div>
               <span>Secure payment</span>
             </div>
             <div className="flex items-center">
-              <FaHeadset className="text-blue-500 mr-2" />
+              <FaHeadset className="text-blue-500 mr-1.5 text-sm" />
               <span>24/7 Support</span>
             </div>
           </div>

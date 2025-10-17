@@ -23,8 +23,6 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
     };
   }, [dropdownOpen]);
 
-
-
   return (
     <div className="bg-white h-14 sm:h-16 px-3 sm:px-4 py-2 shadow-sm flex justify-between items-center sticky top-0 z-40 border-b border-gray-200">
       {/* Left Section */}
@@ -71,28 +69,45 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
           <FaRegBell className="w-4 h-4 sm:w-5 sm:h-5" />
           <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
-
+        
         {/* User Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
             className="flex items-center space-x-1 sm:space-x-2 focus:outline-none"
           >
-          <img
-  src={currentUser?.photoURL || "/default-avatar.png"}  // ✅ Use user's photoURL
-  alt="User"
-  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border object-cover flex-shrink-0 bg-gray-100"
-  onError={(e) => {
-    // Fallback if image fails to load
-    e.target.src = "/default-avatar.png";
-  }}
-/>
+            {currentUser?.photoURL ? (
+              <img
+                src={currentUser.photoURL}
+                alt="User"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border object-cover flex-shrink-0 bg-gray-100"
+                onError={(e) => {
+                  // If image fails to load, show initials
+                  e.target.style.display = 'none';
+                  const parent = e.target.parentElement;
+                  const fallback = parent.querySelector('.user-initials');
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            
+            {/* Fallback initials */}
+            <div 
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-medium text-sm sm:text-base flex-shrink-0 user-initials"
+              style={currentUser?.photoURL ? { display: 'none' } : {}}
+            >
+              {currentUser?.name 
+                ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase()
+                : 'U'
+              }
+            </div>
+            
             {/* Show user name */}
             <span className="hidden md:inline text-sm font-medium truncate max-w-[80px] lg:max-w-[120px]">
               {currentUser?.name || "User"}
             </span>
           </button>
-
+          
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
               <div className="px-4 py-2 border-b border-gray-200">
@@ -104,11 +119,8 @@ const Topbar = ({ activeSubject, currentUser, onSignOut, onBack }) => {
                 </p>
               </div>
               <button
-                onClick={() => {
-                  setDropdownOpen(false);
-                  onSignOut();
-                }}
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                onClick={onSignOut}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
               >
                 <FaSignOutAlt className="mr-2 w-4 h-4" /> Sign Out
               </button>

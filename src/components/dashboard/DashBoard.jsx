@@ -10,162 +10,73 @@ import SubjectPage from "./sections/SubjectPage";
 import McqPracticePage from "./sections/McqPracticePage";
 import McqResultPage from "./sections/McqResultPage";
 import RevisionPage from "./sections/RevisionPage";
+import QuestionsPage from "./sections/QuestionPage";
 
-// ✅ Backend Auth
+// Backend Auth
 import { getCurrentUser, logoutUser } from "../../services/authService";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [activeSubject, setActiveSubject] = useState(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasSubscription, setHasSubscription] = useState(true);
   const [subjects, setSubjects] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
-  const [loading, setLoading] = useState(true); // Start with true
+  const [loading, setLoading] = useState(true);
+  const [currentSession, setCurrentSession] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-
-  // ✅ MCQ result state
-  const [mcqResultData, setMcqResultData] = useState(null);
-
-  // ✅ Subject details state
   const [subjectDetails, setSubjectDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-
+  const [mcqResultData, setMcqResultData] = useState(null);
+  
   const navigate = useNavigate();
   const location = useLocation();
-
-  // 1️⃣ FIXED Auth check (Backend)
+  
+  // Fetch current user on component mount
   useEffect(() => {
-    console.log("🔍 Dashboard - Checking authentication...");
+    const fetchCurrentUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setCurrentUser(user);
+        } else {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+        navigate("/");
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    const user = getCurrentUser();
-    const token = localStorage.getItem('token');
-    
-    console.log("🔍 Dashboard - User from getCurrentUser:", user);
-    console.log("🔍 Dashboard - Token from localStorage:", token);
-    console.log("🔍 Dashboard - All localStorage:");
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      console.log(`  ${key}: ${localStorage.getItem(key)?.substring(0, 30)}...`);
-    }
-
-    if (user && token) {
-      console.log("✅ Dashboard - User authenticated");
-      setCurrentUser({
-        name: user.name || "User",
-        email: user.email,
-        photoURL: user.profileImage || "https://randomuser.me/api/portraits/lego/1.jpg",
-      });
-      setLoading(false);
-    } else {
-      console.log("❌ Dashboard - No user or token, redirecting to login");
-      // ✅ FIX: Redirect to LOGIN, not dashboard (this was causing infinite loop)
-      navigate("/");
-    }
+    fetchCurrentUser();
   }, [navigate]);
 
-  // 2️⃣ Fetch subjects
+  // Fetch subjects when user is authenticated
   useEffect(() => {
-    if (loading) return; // Don't fetch until auth is checked
-    
-    console.log("📚 Dashboard - Fetching subjects...");
-    fetch("https://whatsbiz.codovio.com/mrcem/textBookHierarchy")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.textBookHierarchy) {
-          setSubjects(data.textBookHierarchy);
-          console.log("✅ Subjects loaded successfully");
-        } else {
-          setSubjects({});
-          console.log("❌ No subjects data found");
-        }
-      })
-      .catch((error) => {
-        console.error("❌ Error fetching subjects:", error);
-        setSubjects({});
-      });
-  }, [loading]);
-
-  // 3️⃣ Lock body scroll when mobile menu open
-  useEffect(() => {
-    if (mobileMenuOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobileMenuOpen]);
-
-  // 4️⃣ Handle sign out
-  const handleSignOut = () => {
-    console.log("🚪 Dashboard - Signing out...");
-    logoutUser();
-    navigate("/");
-  };
-
-  const handleContentAccess = (tab) => {
-    console.log("📱 Dashboard - Switching to tab:", tab);
-    setActiveTab(tab);
-  };
-
-  // 5️⃣ Build subject path (keep your existing function)
-  const findMainSubjectFor = (subject) => {
-    if (!subject || !subjects) return null;
-    for (const [main, content] of Object.entries(subjects)) {
-      if (Array.isArray(content)) {
-        for (const it of content) {
-          if (typeof it === "string" && it === subject.name) return main;
-          if (
-            typeof it === "object" &&
-            (it.name === subject.name || it.id === subject.id)
-          )
-            return main;
-        }
-      } else if (content && typeof content === "object") {
-        for (const items of Object.values(content)) {
-          if (!Array.isArray(items)) continue;
-          for (const it of items) {
-            if (typeof it === "string" && it === subject.name) return main;
-            if (
-              typeof it === "object" &&
-              (it.name === subject.name || it.id === subject.id)
-            )
-              return main;
+    if (!loading && currentUser) {
+      console.log("📚 Dashboard - Fetching subjects...");
+      fetch("https://whatsbiz.codovio.com/mrcem/textBookHierarchy")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.textBookHierarchy) {
+            setSubjects(data.textBookHierarchy);
+            console.log("✅ Subjects loaded successfully");
+          } else {
+            setSubjects({});
+            console.log("❌ No subjects data found");
           }
-        }
-      }
+        })
+        .catch((error) => {
+          console.error("❌ Error fetching subjects:", error);
+          setSubjects({});
+        });
     }
-    return null;
-  };
+  }, [loading, currentUser]);
 
-  const buildSubjectPath = (subject) => {
-    if (!subject) return null;
-    const parts = [];
-    const main = subject.mainSubject || findMainSubjectFor(subject);
-    if (main) parts.push(main);
-    if (subject.chapter && subject.chapter !== main) parts.push(subject.chapter);
-    const candidateTopic = subject.topic || subject.name;
-    if (
-      candidateTopic &&
-      candidateTopic !== main &&
-      candidateTopic !== subject.chapter
-    ) {
-      parts.push(candidateTopic);
-    }
-    if (parts.length === 0 && subject.name) parts.push(subject.name);
-    const encoded = parts.map((p) => encodeURIComponent(p)).join("|");
-    return encoded;
-  };
-
-  useEffect(() => {
-    if (location.state?.fromMcqPractice && location.state?.mcqResultData) {
-      setMcqResultData(location.state.mcqResultData);
-      setActiveTab("mcqResult");
-      window.history.replaceState({}, document.title); // clean state
-    }
-  }, [location.state]);
-
-  // 6️⃣ Fetch subject details
+  // Fetch subject details when activeSubject changes
   useEffect(() => {
     if (!activeSubject) {
       setSubjectDetails(null);
@@ -193,22 +104,112 @@ const Dashboard = () => {
     fetch(backupUrl, { cache: "no-store" })
       .then((res) => res.text())
       .then((txt) => setSubjectDetails(txt))
-      .catch(() => setSubjectDetails(null))
+      .catch((error) => {
+        console.error('Error fetching subject details:', error);
+        setSubjectDetails(null);
+      })
       .finally(() => setLoadingDetails(false));
-  }, [activeSubject, subjects]);
+  }, [activeSubject]);
 
-  // ✅ Add debug button to check auth status
-  const debugAuth = () => {
-    console.log("=== 🐞 DASHBOARD AUTH DEBUG ===");
-    console.log("Current User State:", currentUser);
-    console.log("Loading State:", loading);
-    console.log("Token:", localStorage.getItem('token'));
-    console.log("User:", localStorage.getItem('user'));
-    console.log("All localStorage:");
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      console.log(`  ${key}: ${localStorage.getItem(key)}`);
+  // Handle direct navigation to mcqResult with sessionId
+  useEffect(() => {
+    if (location.state?.sessionId && activeTab !== "mcqResult") {
+      console.log("📍 Direct navigation to mcqResult with sessionId:", location.state.sessionId);
+      setActiveTab("mcqResult");
     }
+  }, [location.state, activeTab]);
+
+  // Lock body scroll when mobile menu open
+  useEffect(() => {
+    if (mobileMenuOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
+  // Handle sign out
+  const handleSignOut = () => {
+    console.log("🚪 Dashboard - Signing out...");
+    logoutUser();
+    navigate("/");
+  };
+
+  // Custom tab change handler
+  const handleTabChange = (tab, state = {}) => {
+    console.log("🔄 Setting active tab:", tab, "with state:", state);
+    
+    // Clear mcqResultData when navigating away from results
+    if (tab !== "mcqResult") {
+      setMcqResultData(null);
+    }
+    
+    setActiveTab(tab);
+  };
+
+  // Handle content access
+  const handleContentAccess = (contentType, subject = null) => {
+    if (subject) {
+      setActiveSubject(subject);
+    }
+    setActiveTab(contentType);
+  };
+
+  // Build subject path for API
+  const findMainSubjectFor = (subject) => {
+    if (!subject || !subjects) return null;
+    
+    for (const [main, content] of Object.entries(subjects)) {
+      if (Array.isArray(content)) {
+        for (const item of content) {
+          if (typeof item === "string" && item === subject.name) return main;
+          if (typeof item === "object" && (item.name === subject.name || item.id === subject.id)) {
+            return main;
+          }
+        }
+      } else if (content && typeof content === "object") {
+        for (const items of Object.values(content)) {
+          if (!Array.isArray(items)) continue;
+          for (const item of items) {
+            if (typeof item === "string" && item === subject.name) return main;
+            if (typeof item === "object" && (item.name === subject.name || item.id === subject.id)) {
+              return main;
+            }
+          }
+        }
+      }
+    }
+    return null;
+  };
+
+  const buildSubjectPath = (subject) => {
+    if (!subject) return null;
+    const parts = [];
+    const main = subject.mainSubject || findMainSubjectFor(subject);
+    if (main) parts.push(main);
+    if (subject.chapter && subject.chapter !== main) parts.push(subject.chapter);
+    const candidateTopic = subject.topic || subject.name;
+    if (
+      candidateTopic &&
+      candidateTopic !== main &&
+      candidateTopic !== subject.chapter
+    ) {
+      parts.push(candidateTopic);
+    }
+    if (parts.length === 0 && subject.name) parts.push(subject.name);
+    const encoded = parts.map((p) => encodeURIComponent(p)).join("|");
+    return encoded;
+  };
+
+  // Debug function
+  const debugAuth = () => {
+    console.log("=== 🐞 DASHBOARD DEBUG ===");
+    console.log("Active Tab:", activeTab);
+    console.log("Active Subject:", activeSubject);
+    console.log("Current Session:", currentSession);
+    console.log("Location State:", location.state);
+    console.log("Subjects:", subjects);
+    console.log("Subject Details:", subjectDetails);
     console.log("=== END DEBUG ===");
   };
 
@@ -232,12 +233,12 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Debug button */}
+      {/* Debug button - uncomment if needed */}
       {/* <button 
         onClick={debugAuth}
         className="fixed top-2 right-2 z-50 bg-red-500 text-white p-2 rounded text-sm"
       >
-        
+        Debug
       </button> */}
 
       {/* Mobile menu button */}
@@ -274,7 +275,7 @@ const Dashboard = () => {
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabChange}
         handleContentAccess={handleContentAccess}
         subjects={subjects}
         activeSubject={activeSubject}
@@ -293,83 +294,113 @@ const Dashboard = () => {
           onSignOut={handleSignOut}
           onBack={() => {
             setActiveSubject(null);
-            setActiveTab("dashboard");
+            handleTabChange("dashboard");
           }}
         />
 
         <main className="p-4 md:p-8">
           {activeTab !== "dashboard" && (
-            <ContentTabs
-              activeTab={activeTab}
-              handleContentAccess={handleContentAccess}
-            />
+            <ContentTabs activeTab={activeTab} handleContentAccess={handleTabChange} />
           )}
 
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            {{
-              dashboard: (
-                <DashboardHome
-                  currentUser={currentUser}
-                  hasSubscription={hasSubscription}
-                  navigate={navigate}
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  subjects={subjects}
-                  activeSubject={activeSubject}
-                  setActiveSubject={setActiveSubject}
-                  setActiveTab={setActiveTab}
-                  handleContentAccess={handleContentAccess}
-                />
-              ),
-              mcqs: (
-                <Mcqs
-                  activeSubject={activeSubject}
-                  selectedDifficulty={selectedDifficulty}
-                  setSelectedDifficulty={setSelectedDifficulty}
-                  hasSubscription={hasSubscription}
-                  navigate={navigate}
-                  onBack={() => setActiveTab("subject")}
-                  setActiveTab={setActiveTab}
-                  setMcqResultData={setMcqResultData}
-                />
-              ),
-              revision: <RevisionPage onBack={() => setActiveTab("dashboard")} />,
-              notes: (
-                <Notes
-                  activeSubject={activeSubject}
-                  hasSubscription={hasSubscription}
-                  onBack={() => setActiveTab("subject")}
-                />
-              ),
-              subject: (
-                <SubjectPage
-                  activeSubject={activeSubject}
-                  subjectDetails={subjectDetails}
-                  loadingDetails={loadingDetails}
-                  handleContentAccess={handleContentAccess}
-                  navigate={navigate}
-                  hasSubscription={hasSubscription}
-                />
-              ),
-              mcqPractice: (
-                <McqPracticePage
-                  activeSubject={activeSubject}
-                  difficulty={selectedDifficulty}
-                  onFinish={(result) => {
-                    setMcqResultData(result);
-                    setActiveTab("mcqResult");
-                  }}
-                  onBack={() => setActiveTab("mcqs")}
-                />
-              ),
-              mcqResult: (
-                <McqResultPage
-                  resultData={mcqResultData}
-                  onRetry={() => setActiveTab("mcqPractice")}
-                  onBack={() => setActiveTab("mcqs")}
-                />
-              ),
-            }[activeTab]}
+            {(() => {
+              const components = {
+                dashboard: (
+                  <DashboardHome
+                    currentUser={currentUser}
+                    hasSubscription={hasSubscription}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    subjects={subjects}
+                    activeSubject={activeSubject}
+                    setActiveSubject={setActiveSubject}
+                    setActiveTab={handleTabChange}
+                    handleContentAccess={handleContentAccess}
+                  />
+                ),
+                subject: (
+                  <SubjectPage
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    subjects={subjects}
+                    activeSubject={activeSubject}
+                    setActiveSubject={setActiveSubject}
+                    setActiveTab={handleTabChange}
+                    handleContentAccess={handleContentAccess}
+                    subjectDetails={subjectDetails}
+                    loadingDetails={loadingDetails}
+                  />
+                ),
+                mcqs: (
+                  <Mcqs
+                    activeSubject={activeSubject}
+                    selectedDifficulty={selectedDifficulty}
+                    setSelectedDifficulty={setSelectedDifficulty}
+                    hasSubscription={hasSubscription}
+                    navigate={navigate}
+                    onBack={() => handleTabChange("subject")}
+                    setMcqResultData={setMcqResultData}
+                  />
+                ),
+                revision: (
+                  <RevisionPage 
+                    onBack={() => handleTabChange("dashboard")} 
+                    onStartSession={(sessionData) => {
+                      console.log('Session started with data:', sessionData);
+                      setCurrentSession(sessionData);
+                      handleTabChange("questions");
+                    }}
+                  />
+                ),
+                questions: (
+                  <QuestionsPage
+                    sessionData={currentSession}
+                    setActiveTab={handleTabChange}
+                    onBack={() => handleTabChange("revision")}
+                  />
+                ),
+                mcqPractice: (
+                  <McqPracticePage
+                    activeSubject={activeSubject}
+                    difficulty={selectedDifficulty}
+                    onFinish={(result) => {
+                      setMcqResultData(result);
+                      handleTabChange("mcqResult");
+                    }}
+                    onBack={() => handleTabChange("mcqs")}
+                  />
+                ),
+                mcqResult: (
+                  <McqResultPage
+                    tabState={{
+                      sessionId: location.state?.sessionId || currentSession?.sessionId,
+                      subject: activeSubject
+                    }}
+                    onRetry={() => {
+                      // If we have a current session, go back to questions
+                      if (currentSession) {
+                        handleTabChange("questions");
+                      } else {
+                        // Otherwise, go back to revision to start a new session
+                        handleTabChange("revision");
+                      }
+                    }}
+                    onBack={() => handleTabChange("revision")}
+                  />
+                ),
+                notes: (
+                  <Notes
+                    activeSubject={activeSubject}
+                    subjectDetails={subjectDetails}
+                    loadingDetails={loadingDetails}
+                    onBack={() => handleTabChange("subject")}
+                  />
+                )
+              };
+              
+              return components[activeTab] || <div>Page not found - {activeTab}</div>;
+            })()}
           </div>
         </main>
       </div>

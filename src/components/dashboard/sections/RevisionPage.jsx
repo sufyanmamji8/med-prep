@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const RevisionPage = ({ onBack }) => {
+const RevisionPage = ({ setActiveTab, onBack, onStartSession }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [selectedSubjects, setSelectedSubjects] = useState([]);
-  const navigate = useNavigate();
+  const [startingSession, setStartingSession] = useState(false);
 
   useEffect(() => {
     const checkAuth = () => {
       try {
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('user');
-        
-        console.log("🔍 Auth Check - Token:", token);
-        console.log("🔍 Auth Check - User:", user);
 
         if (!token || !user) {
           setError("Please login to access this page.");
           setLoading(false);
+          return; // Stop further execution if not authenticated
         }
         
         setAuthChecked(true);
@@ -42,8 +39,6 @@ const RevisionPage = ({ onBack }) => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem('token');
-        
-        console.log("🚀 Starting API call with token:", token);
 
         if (!token) {
           setError("Authentication token not found. Please login again.");
@@ -63,18 +58,38 @@ const RevisionPage = ({ onBack }) => {
         
         console.log("✅ API Response:", res.data);
         
-        // Process categories to ensure unique IDs
-        const processedCategories = (res.data.data || res.data || []).map((category, catIndex) => ({
-          ...category,
-          processedId: category.id || `category-${catIndex}`,
-          subcategories: (category.subcategories || []).map((sub, subIndex) => ({
+        // Process categories to ensure unique IDs and handle different API response formats
+        const responseData = Array.isArray(res.data.data)
+          ? res.data.data
+          : Array.isArray(res.data)
+          ? res.data
+          : [];
+          
+        const processedCategories = responseData.map((category, catIndex) => {
+          // Ensure category has required fields
+          const processedCategory = {
+            ...category,
+            id: category.id || `cat-${catIndex}`,
+            name: category.name || category.category || `Category ${catIndex + 1}`,
+            processedId: `cat-${category.id || catIndex}`
+          };
+
+          // Process subcategories
+          const processedSubcategories = (category.subcategories || []).map((sub, subIndex) => ({
             ...sub,
-            // Create a unique ID combining category and subcategory
-            processedId: sub.id || `${category.id || catIndex}-sub-${subIndex}`,
-            // Ensure we have a unique name for identification
-            uniqueName: sub.subcategory || sub.name || `Subject-${catIndex}-${subIndex}`
-          }))
-        }));
+            id: sub.id || `${category.id || catIndex}-sub-${subIndex}`,
+            name: sub.name || sub.subcategory || `Subject-${catIndex}-${subIndex}`,
+            category: category.name || category.category || processedCategory.name,
+            categoryId: category.id || processedCategory.id,
+            processedId: `sub-${sub.id || subIndex}`,
+            uniqueName: sub.name || sub.subcategory || `Subject-${catIndex}-${subIndex}`
+          }));
+
+          return {
+            ...processedCategory,
+            subcategories: processedSubcategories
+          };
+        });
         
         console.log("Processed Categories:", processedCategories);
         setCategories(processedCategories);
@@ -107,61 +122,248 @@ const RevisionPage = ({ onBack }) => {
     }));
   };
 
-  // FIXED: Use processedId for unique identification
   const handleSubjectSelect = (subject) => {
-    console.log("Selecting subject:", subject);
     setSelectedSubjects(prev => {
-      const isSelected = prev.some(s => s.processedId === subject.processedId);
-      console.log("Is selected:", isSelected);
+      // Create a unique key using both category and subject IDs
+      const subjectKey = `${subject.categoryId || 'cat'}-${subject.id || 'sub'}`;
+      const isSelected = prev.some(s => 
+        `${s.categoryId || 'cat'}-${s.id || 'sub'}` === subjectKey
+      );
+      
       if (isSelected) {
-        return prev.filter(s => s.processedId !== subject.processedId);
+        return prev.filter(s => 
+          `${s.categoryId || 'cat'}-${s.id || 'sub'}` !== subjectKey
+        );
       } else {
         return [...prev, subject];
       }
     });
   };
 
-  // FIXED: Use processedId for category selection
   const handleSelectAllInCategory = (category) => {
     const categorySubjects = category.subcategories || [];
+    
+    // Check if all subjects in this category are already selected
     const allSelectedInCategory = categorySubjects.every(subject => 
-      selectedSubjects.some(s => s.processedId === subject.processedId)
+      selectedSubjects.some(s => 
+        s.id === subject.id && 
+        (s.categoryId === subject.categoryId || 
+         s.category === subject.category)
+      )
     );
 
-    console.log("Select All - Category:", category.category, "All Selected:", allSelectedInCategory);
-
     if (allSelectedInCategory) {
-      // Deselect all in this category only
+      // If all are selected, deselect all in this category
       setSelectedSubjects(prev => 
         prev.filter(selected => 
-          !categorySubjects.some(catSub => catSub.processedId === selected.processedId)
+          !categorySubjects.some(catSub => 
+            catSub.id === selected.id && 
+            (catSub.categoryId === selected.categoryId || 
+             catSub.category === selected.category)
+          )
         )
       );
     } else {
-      // Select all in this category, avoiding duplicates
+      // Otherwise, select all in this category that aren't already selected
       const newSelections = categorySubjects.filter(subject => 
-        !selectedSubjects.some(s => s.processedId === subject.processedId)
+        !selectedSubjects.some(s => 
+          s.id === subject.id && 
+          (s.categoryId === subject.categoryId || 
+           s.category === subject.category)
+        )
       );
       setSelectedSubjects(prev => [...prev, ...newSelections]);
     }
   };
 
-  const handleStartSession = () => {
-    if (selectedSubjects.length === 0) return;
+  // Helper function to process successful API response
+  const processSessionResponse = (apiResponse, selectedSubjects) => {
+    console.log("🔍 Processing session response:", apiResponse);
     
-    console.log("Starting session with subjects:", selectedSubjects);
-    alert(`Starting revision session with ${selectedSubjects.length} subjects selected!`);
+    // Extract questions from various possible locations in the response
+    let questions = [];
+    let sessionId = '';
+    
+    // Try different possible locations for questions
+    if (Array.isArray(apiResponse)) {
+      questions = apiResponse; // Direct array of questions
+    } 
+    else if (Array.isArray(apiResponse.questions)) {
+      questions = apiResponse.questions;
+    } 
+    else if (apiResponse.data) {
+      if (Array.isArray(apiResponse.data)) {
+        questions = apiResponse.data;
+      } 
+      else if (apiResponse.data.questions) {
+        questions = apiResponse.data.questions;
+      }
+      else if (apiResponse.data.data && Array.isArray(apiResponse.data.data)) {
+        questions = apiResponse.data.data;
+      }
+    }
+    
+    // Try to get session ID from different locations
+    sessionId = apiResponse.session_id || 
+               apiResponse.data?.session_id || 
+               apiResponse.sessionId ||
+               `session-${Date.now()}`;
+    
+    console.log("📝 Extracted questions:", questions);
+    console.log("🔑 Session ID:", sessionId);
+    
+    if (!questions || questions.length === 0) {
+      const errorMsg = apiResponse.message || "No questions found in the response. The test bank might be empty for the selected subjects.";
+      console.error(errorMsg);
+      setError(errorMsg);
+      setStartingSession(false);
+      return;
+    }
+    
+    // Create session data object
+    const sessionData = {
+      sessionData: apiResponse,
+      selectedSubjects: selectedSubjects,
+      questions: questions,
+      sessionId: sessionId
+    };
+    
+    console.log("💾 Session data to be saved:", sessionData);
+    
+    // Store in localStorage as backup
+    try {
+      localStorage.setItem('currentSession', JSON.stringify(sessionData));
+    } catch (e) {
+      console.error("Failed to save session to localStorage:", e);
+    }
+    
+    // Pass session data to parent component
+    if (onStartSession) {
+      console.log("📤 Passing session data to parent");
+      onStartSession(sessionData);
+    } else {
+      console.log("🚀 Starting session directly");
+      setActiveTab("questions");
+    }
   };
 
-  const handleRetry = () => {
-    window.location.reload();
+  const handleStartSession = async () => {
+    if (selectedSubjects.length === 0) {
+      setError("Please select at least one subject to start a session.");
+      return;
+    }
+
+    setStartingSession(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found");
+
+      // Format subjects for the API with proper error handling
+      const subcategories = selectedSubjects.map(subject => {
+        // Validate required fields
+        if (!subject.id || !subject.name) {
+          console.warn('Invalid subject data:', subject);
+          return null;
+        }
+        
+        return {
+          category: subject.category || (categories.find(cat => 
+            cat.subcategories?.some(sub => sub.id === subject.id)
+          )?.name || 'General'),
+          subcategory: subject.name || subject.subcategory || subject.uniqueName
+        };
+      }).filter(Boolean); // Remove any null entries from invalid subjects
+
+      if (subcategories.length === 0) {
+        throw new Error('No valid subjects selected');
+      }
+
+      // Create payload with proper structure
+      const payload = { 
+        subcategories: subcategories,
+        select_all: false 
+      };
+
+      console.log("🔍 Selected subjects:", selectedSubjects);
+      // Create a custom stringify function to control the formatting
+      const customStringify = (obj) => {
+        return JSON.stringify(obj, null, 2)
+          .replace(/\{\s*\n\s*"(\w+)":/g, '{ "$1":')
+          .replace(/,\s*\n\s*"(\w+)":/g, ', "$1":');
+      };
+      
+      console.log("🟢 Sending payload:", customStringify(payload));
+
+      const response = await axios.post(
+        "http://mrbe.codovio.com/api/v1/revision/start",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+
+      console.log("✅ API Response:", response.data);
+
+      // Process the response
+      if (response.status === 200) {
+        // Try different response formats
+        let questions = [];
+        
+        // Check different possible locations for questions
+        if (Array.isArray(response.data)) {
+          questions = response.data; // Direct array of questions
+        } else if (response.data?.questions) {
+          questions = response.data.questions;
+        } else if (response.data?.data?.questions) {
+          questions = response.data.data.questions;
+        } else if (response.data?.data && Array.isArray(response.data.data)) {
+          questions = response.data.data;
+        }
+        
+        console.log("🔍 Found questions:", questions);
+        
+        if (questions && questions.length > 0) {
+          processSessionResponse({
+            ...response.data,
+            questions: questions
+          }, selectedSubjects);
+        } else {
+          throw new Error("No questions found in the response. The test bank might be empty for the selected subjects.");
+        }
+      } else {
+        throw new Error(response.data?.message || "Failed to start session");
+      }
+    } catch (error) {
+      console.error("❌ Failed to start session:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to start session. Please try again.";
+      
+      setError(errorMessage);
+      
+      // Only show alert for non-401 errors
+      if (error.response?.status !== 401) {
+        alert(errorMessage);
+      }
+      
+      // Handle 401 Unauthorized
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
+    } finally {
+      setStartingSession(false);
+    }
   };
 
-  const handleLogin = () => {
-    navigate('/auth');
-  };
-
-  // Medical-themed background patterns
   const MedicalPattern = () => (
     <div className="absolute inset-0 opacity-5 pointer-events-none">
       <div className="absolute top-10 left-10 w-20 h-20 border-2 border-blue-400"></div>
@@ -177,8 +379,8 @@ const RevisionPage = ({ onBack }) => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 relative overflow-hidden">
         <MedicalPattern />
         <button
-          onClick={onBack || (() => navigate("/dashboard"))}
-          className="mb-6 px-6 py-3 bg-white/80 backdrop-blur-sm hover:bg-white border border-blue-200 transition-all duration-300 flex items-center gap-2 text-blue-700 font-medium shadow-sm"
+          onClick={onBack}
+          className="mb-6 px-6 py-3 bg-white/80 backdrop-blur-sm hover:bg-white border border-blue-200 transition-all duration-300 flex items-center gap-2 text-blue-700 font-medium shadow-sm rounded-lg"
         >
           <span>←</span>
           Back to Dashboard
@@ -196,8 +398,8 @@ const RevisionPage = ({ onBack }) => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 relative overflow-hidden">
         <MedicalPattern />
         <button
-          onClick={onBack || (() => navigate("/dashboard"))}
-          className="mb-6 px-6 py-3 bg-white/80 backdrop-blur-sm hover:bg-white border border-blue-200 transition-all duration-300 flex items-center gap-2 text-blue-700 font-medium shadow-sm"
+          onClick={onBack}
+          className="mb-6 px-6 py-3 bg-white/80 backdrop-blur-sm hover:bg-white border border-blue-200 transition-all duration-300 flex items-center gap-2 text-blue-700 font-medium shadow-sm rounded-lg"
         >
           ← Back to Dashboard
         </button>
@@ -206,20 +408,12 @@ const RevisionPage = ({ onBack }) => {
           <div className="text-red-600 font-semibold text-xl mb-3">Error</div>
           <div className="text-red-500 mb-6">{error}</div>
           
-          <div className="space-y-3">
-            <button 
-              onClick={handleRetry}
-              className="w-full px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 font-medium shadow-sm"
-            >
-              Try Again
-            </button>
-            <button 
-              onClick={handleLogin}
-              className="w-full px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 font-medium shadow-sm"
-            >
-              Login Again
-            </button>
-          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="w-full px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 font-medium shadow-sm rounded-lg"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -227,14 +421,13 @@ const RevisionPage = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 relative overflow-hidden">
-      {/* Medical-themed background pattern */}
       <MedicalPattern />
       
       {/* Header */}
       <div className="mb-8 relative">
         <button
-          onClick={onBack || (() => navigate("/dashboard"))}
-          className="mb-6 px-6 py-3 bg-white/80 backdrop-blur-sm hover:bg-white border border-blue-200 transition-all duration-300 flex items-center gap-2 text-blue-700 font-medium shadow-sm"
+          onClick={onBack}
+          className="mb-6 px-6 py-3 bg-white/80 backdrop-blur-sm hover:bg-white border border-blue-200 transition-all duration-300 flex items-center gap-2 text-blue-700 font-medium shadow-sm rounded-lg"
         >
           <span>←</span>
           Back to Dashboard
@@ -272,12 +465,13 @@ const RevisionPage = ({ onBack }) => {
             <p className="text-blue-600 text-lg">No categories found.</p>
           </div>
         ) : (
-          categories.map((category, index) => {
+          categories.map((category) => {
             const categoryId = category.processedId;
             const isExpanded = expandedCategories[categoryId];
             const subcategories = category.subcategories || [];
-            const visibleSubcategories = isExpanded ? subcategories : subcategories.slice(0, 6);
-            const hasMore = subcategories.length > 6;
+            // Always show 4 items when collapsed, plus the "Show more" button
+            const visibleSubcategories = isExpanded ? subcategories : subcategories.slice(0, 5);
+            const hasMore = subcategories.length > 5;
             const categorySelectedCount = subcategories.filter(subject => 
               selectedSubjects.some(s => s.processedId === subject.processedId)
             ).length;
@@ -285,8 +479,12 @@ const RevisionPage = ({ onBack }) => {
             return (
               <div 
                 key={categoryId}
-                className="bg-white/80 backdrop-blur-sm border border-blue-200 overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all duration-300"
-                style={{ height: '420px' }}
+                className="bg-white/80 backdrop-blur-sm border border-blue-200 overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all duration-300 rounded-lg"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: 'auto'
+                }}
               >
                 {/* Category Header */}
                 <div className="bg-blue-600 text-white p-4">
@@ -309,55 +507,128 @@ const RevisionPage = ({ onBack }) => {
                 </div>
 
                 {/* Subcategories List */}
-                <div className="flex-1 p-4 overflow-y-auto">
+                <div className="flex-1 p-4">
                   <ul className="space-y-2">
                     {visibleSubcategories.length > 0 ? (
-                      visibleSubcategories.map((subcategory, subIndex) => {
-                        const isSelected = selectedSubjects.some(s => s.processedId === subcategory.processedId);
-                        return (
+                      <>
+                        {/* First 4 subcategories */}
+                        {visibleSubcategories.slice(0, 4).map((subcategory) => (
                           <li
-                            key={subcategory.processedId}
+                            key={`${subcategory.categoryId || 'cat'}-${subcategory.id || 'sub'}`}
                             className="flex items-center gap-3 p-3 hover:bg-blue-50/50 cursor-pointer transition-all duration-200 group border border-transparent hover:border-blue-200 rounded"
+                            onClick={() => handleSubjectSelect(subcategory)}
                           >
                             <input
                               type="checkbox"
-                              checked={isSelected}
-                              onChange={() => handleSubjectSelect(subcategory)}
+                              checked={selectedSubjects.some(s => 
+                                `${s.categoryId || 'cat'}-${s.id || 'sub'}` === `${subcategory.categoryId || 'cat'}-${subcategory.id || 'sub'}`
+                              )}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                handleSubjectSelect(subcategory);
+                              }}
                               className="w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
+                              onClick={(e) => e.stopPropagation()}
                             />
-                            <span 
-                              className={`font-medium text-sm transition-colors ${
-                                isSelected ? 'text-blue-700' : 'text-gray-700 group-hover:text-blue-600'
-                              }`}
-                            >
-                              {subcategory.subcategory || subcategory.name || "Unnamed Subcategory"}
-                            </span>
-                            <span className={`text-xs px-2 py-1 font-medium min-w-16 text-center transition-colors ${
-                              isSelected 
-                                ? 'bg-blue-100 text-blue-700' 
-                                : 'bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600'
-                            }`}>
-                              {subcategory.total_questions || subcategory.questions_count || 0} Qs
-                            </span>
+                            <div className="flex-1 flex justify-between items-center">
+                              <span 
+                                className={`font-medium text-sm transition-colors ${
+                                  selectedSubjects.some(s => 
+                                    `${s.categoryId || 'cat'}-${s.id || 'sub'}` === `${subcategory.categoryId || 'cat'}-${subcategory.id || 'sub'}`
+                                  ) ? 'text-blue-700' : 'text-gray-700 group-hover:text-blue-600'
+                                }`}
+                              >
+                                {subcategory.name || subcategory.subcategory}
+                              </span>
+                              {(subcategory.total_questions || subcategory.questions_count) && (
+                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                  {subcategory.total_questions || subcategory.questions_count} Qs
+                                </span>
+                              )}
+                            </div>
                           </li>
-                        );
-                      })
+                        ))}
+                        
+                        {/* Remaining subcategories when expanded */}
+                        {isExpanded && visibleSubcategories.slice(4).map((subcategory) => (
+                          <li
+                            key={`${subcategory.categoryId || 'cat'}-${subcategory.id || 'sub'}`}
+                            className="flex items-center gap-3 p-3 hover:bg-blue-50/50 cursor-pointer transition-all duration-200 group border border-transparent hover:border-blue-200 rounded"
+                            onClick={() => handleSubjectSelect(subcategory)}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedSubjects.some(s => 
+                                `${s.categoryId || 'cat'}-${s.id || 'sub'}` === `${subcategory.categoryId || 'cat'}-${subcategory.id || 'sub'}`
+                              )}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                handleSubjectSelect(subcategory);
+                              }}
+                              className="w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <div className="flex-1 flex justify-between items-center">
+                              <span 
+                                className={`font-medium text-sm transition-colors ${
+                                  selectedSubjects.some(s => 
+                                    `${s.categoryId || 'cat'}-${s.id || 'sub'}` === `${subcategory.categoryId || 'cat'}-${subcategory.id || 'sub'}`
+                                  ) ? 'text-blue-700' : 'text-gray-700 group-hover:text-blue-600'
+                                }`}
+                              >
+                                {subcategory.name || subcategory.subcategory}
+                              </span>
+                              {(subcategory.total_questions || subcategory.questions_count) && (
+                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                  {subcategory.total_questions || subcategory.questions_count} Qs
+                                </span>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                        
+                        {/* Show More/Less Buttons */}
+                        {hasMore && (
+                          <li className="mt-2">
+                            <button
+                              onClick={() => toggleCategory(categoryId)}
+                              className="w-full flex items-center justify-center gap-2 text-blue-600 hover:bg-blue-50 py-2 px-3 rounded-md transition-colors text-sm font-medium border border-blue-200"
+                            >
+                              {isExpanded ? (
+                                <>
+                                  Show less
+                                  <svg 
+                                    className="w-4 h-4 transform rotate-180"
+                                    fill="none" 
+                                    viewBox="0 0 24 24" 
+                                    stroke="currentColor"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </>
+                              ) : (
+                                <>
+                                  Show {subcategories.length - 4} more topics
+                                  <svg 
+                                    className="w-4 h-4"
+                                    fill="none" 
+                                    viewBox="0 0 24 24" 
+                                    stroke="currentColor"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </>
+                              )}
+                            </button>
+                          </li>
+                        )}
+                      </>
                     ) : (
                       <li className="text-blue-500 text-sm text-center py-4">
                         No subcategories available
                       </li>
                     )}
                   </ul>
-
-                  {/* Show More/Less Button */}
-                  {hasMore && (
-                    <button
-                      onClick={() => toggleCategory(categoryId)}
-                      className="w-full mt-3 py-2 text-blue-600 hover:bg-blue-50 text-sm font-medium transition-all duration-200 border border-blue-200 rounded"
-                    >
-                      {isExpanded ? 'Show Less' : `+${subcategories.length - 6} More Topics`}
-                    </button>
-                  )}
                 </div>
 
                 {/* Total Questions Footer */}
@@ -383,14 +654,21 @@ const RevisionPage = ({ onBack }) => {
       <div className="flex justify-center mb-12">
         <button
           onClick={handleStartSession}
-          disabled={selectedSubjects.length === 0}
-          className={`px-8 py-3 font-semibold text-white transition-all duration-300 ${
-            selectedSubjects.length === 0
+          disabled={selectedSubjects.length === 0 || startingSession}
+          className={`px-8 py-4 font-semibold text-white transition-all duration-300 flex items-center gap-3 rounded-lg ${
+            selectedSubjects.length === 0 || startingSession
               ? 'bg-blue-400 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105'
           }`}
         >
-          Start New Session
+          {startingSession ? (
+            <>
+              <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+              Starting Session...
+            </>
+          ) : (
+            `Start New Session (${selectedSubjects.length} subjects)`
+          )}
         </button>
       </div>
 
