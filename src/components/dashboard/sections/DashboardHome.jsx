@@ -1,5 +1,5 @@
-// DashboardHome.jsx
-import React, { useState, useMemo } from "react";
+// DashboardHome.jsx - Updated version
+import React, { useState, useMemo, useEffect } from "react";
 import {
   FaLock,
   FaBookmark,
@@ -13,7 +13,8 @@ import {
   FaPills,
   FaVirus,
   FaMicroscope,
-  FaHeartbeat
+  FaHeartbeat,
+  FaArrowRight
 } from "react-icons/fa";
 import {
   MdOutlineSchool,
@@ -87,8 +88,60 @@ const DashboardHome = ({
   handleContentAccess,
 }) => {
   const [openSubjects, setOpenSubjects] = useState({});
+  const [recentSessions, setRecentSessions] = useState([]);
 
   const normalizedSubjects = useMemo(() => normalizeSubjects(subjects), [subjects]);
+
+  // Load recent sessions from localStorage
+  useEffect(() => {
+    const loadRecentSessions = () => {
+      try {
+        const savedProgress = localStorage.getItem('revisionProgress');
+        const sessions = [];
+        
+        if (savedProgress) {
+          const progress = JSON.parse(savedProgress);
+          sessions.push({
+            id: progress.sessionId,
+            date: formatSessionDate(progress.submittedAt),
+            score: progress.percentage || 0,
+            subject: progress.subject?.name || "Revision Session"
+          });
+        }
+        
+        // Add mock sessions for demonstration (remove in production)
+        if (sessions.length === 0) {
+          sessions.push(
+            { id: 1, date: "15/10/25", score: 25, subject: "Revision Session" },
+            { id: 2, date: "15/10/25", score: 0, subject: "Revision Session" },
+            { id: 3, date: "15/10/25", score: 0, subject: "Revision Session" },
+            { id: 4, date: "08/10/25", score: 0, subject: "Revision Session" }
+          );
+        }
+        
+        setRecentSessions(sessions.slice(0, 4)); // Show only 4 most recent
+      } catch (error) {
+        console.error("Error loading recent sessions:", error);
+      }
+    };
+    
+    loadRecentSessions();
+  }, []);
+
+  const formatSessionDate = (dateString) => {
+    if (!dateString) return "Recent";
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'numeric',
+        year: '2-digit'
+      }).replace(/\//g, '/');
+    } catch {
+      return "Recent";
+    }
+  };
 
   const toggleDropdown = (mainSubject) => {
     setOpenSubjects((prev) => ({
@@ -97,7 +150,7 @@ const DashboardHome = ({
     }));
   };
 
-  // Stats data (without video lectures & past papers)
+  // Stats data
   const statsData = [
     {
       id: "subjects-enrolled",
@@ -128,9 +181,10 @@ const DashboardHome = ({
   return (
     <div className="space-y-8 p-4 md:p-6">
       {/* Header */}
-      <div className=" flex flex-col md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 transition-colors">
-Welcome, {currentUser?.name?.split(" ")[0] || "User"}        </h2>
+          Welcome, {currentUser?.name?.split(" ")[0] || "User"}
+        </h2>
         <div className="relative mt-3 md:mt-0 md:w-64">
           <input
             type="text"
@@ -198,48 +252,63 @@ Welcome, {currentUser?.name?.split(" ")[0] || "User"}        </h2>
         ))}
       </div>
 
-      {/* Subject Preview & Revision Session */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Subject Preview */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-200 hover:shadow-md">
-          <h3 className="text-xl font-semibold mb-5 flex items-center">
-            <FaHistory className="mr-2 text-blue-500" /> Selected Subject Preview
-          </h3>
+      {/* Main Content Grid - Equal Height Containers */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Previous Sessions - Left Side */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-200 hover:shadow-md h-full">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-semibold flex items-center">
+              <FaHistory className="mr-2 text-blue-500" /> PREVIOUS SESSIONS
+            </h3>
+            <button
+              onClick={() => setActiveTab("sessionHistory")}
+              className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1"
+            >
+              VIEW ALL <FaArrowRight className="text-xs" />
+            </button>
+          </div>
 
-          {!activeSubject && (
-            <div className="text-sm text-gray-500">
-              No subject selected. Click a subject below or from the sidebar to open its page.
-            </div>
-          )}
-
-          {activeSubject && (
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs text-gray-500">Selected</p>
-                <h4 className="text-lg font-semibold">{activeSubject.name}</h4>
-                {activeSubject.chapter && <p className="text-xs text-gray-400">Chapter: {activeSubject.chapter}</p>}
+          <div className="space-y-4">
+            {recentSessions.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <FaHistory className="text-4xl text-gray-300 mx-auto mb-3" />
+                <p>No recent sessions found</p>
+                <p className="text-sm">Complete a revision session to see your history here</p>
               </div>
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setActiveTab("subject")}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"
-                >
-                  Open Subject Page
-                </button>
-                <button
-                  onClick={() => handleContentAccess("mcqs")}
-                  className="border border-gray-200 px-4 py-2 rounded-lg text-sm"
-                >
-                  Practice MCQs
-                </button>
-              </div>
-            </div>
-          )}
+            ) : (
+              recentSessions.map((session) => (
+                <div key={session.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                      session.score >= 70 ? 'bg-green-100 text-green-600' :
+                      session.score >= 50 ? 'bg-yellow-100 text-yellow-600' :
+                      'bg-red-100 text-red-600'
+                    }`}>
+                      <FaChartBar className="text-lg" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800">{session.subject}</h4>
+                      <p className="text-sm text-gray-600">{session.date}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-lg font-bold ${
+                      session.score >= 70 ? 'text-green-600' :
+                      session.score >= 50 ? 'text-yellow-600' :
+                      'text-red-600'
+                    }`}>
+                      {session.score}%
+                    </div>
+                    <div className="text-xs text-gray-500">SCORE</div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
-        {/* Revision Session */}
-        <div className="bg-white shadow-md rounded-xl p-6 border border-blue-600 transition-all duration-200 hover:shadow-md">
+        {/* Revision Session - Right Side - ORIGINAL BLUE COLOR */}
+        <div className="bg-white shadow-md rounded-xl p-6 border border-blue-600 transition-all duration-200 hover:shadow-md h-full">
           <h2 className="text-lg font-semibold text-blue-600">Revision Session</h2>
           <p className="mt-2 text-gray-600">Start a mixed revision across subjects</p>
           <div className="flex space-x-4 my-4 text-blue-600 text-2xl">
@@ -289,10 +358,11 @@ Welcome, {currentUser?.name?.split(" ")[0] || "User"}        </h2>
                           setActiveSubject({ ...topic, mainSubject });
                           setActiveTab && setActiveTab("subject");
                         }}
-                        className={`flex items-center w-full p-2 rounded-md text-sm transition-colors duration-200 ${activeSubject?.id === topic.id
+                        className={`flex items-center w-full p-2 rounded-md text-sm transition-colors duration-200 ${
+                          activeSubject?.id === topic.id
                             ? "bg-blue-100 text-blue-700"
                             : "text-gray-600 hover:bg-gray-100"
-                          }`}
+                        }`}
                         aria-label={`Select ${topic.name}`}
                       >
                         <span>{topic.name}</span>

@@ -11,6 +11,8 @@ import McqPracticePage from "./sections/McqPracticePage";
 import McqResultPage from "./sections/McqResultPage";
 import RevisionPage from "./sections/RevisionPage";
 import QuestionsPage from "./sections/QuestionPage";
+import SessionHistory from "./sections/SessionHistory";
+import SingleSessionHistory from "./sections/SingleSessionHistory";
 
 // Backend Auth
 import { getCurrentUser, logoutUser } from "../../services/authService";
@@ -29,6 +31,10 @@ const Dashboard = () => {
   const [subjectDetails, setSubjectDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [mcqResultData, setMcqResultData] = useState(null);
+  
+  // States for single session view
+  const [selectedSessionId, setSelectedSessionId] = useState(null);
+  const [viewSingleSession, setViewSingleSession] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -139,6 +145,12 @@ const Dashboard = () => {
   const handleTabChange = (tab, state = {}) => {
     console.log("🔄 Setting active tab:", tab, "with state:", state);
     
+    // Clear single session view when navigating away from session history
+    if (tab !== "sessionHistory") {
+      setViewSingleSession(false);
+      setSelectedSessionId(null);
+    }
+    
     // Clear mcqResultData when navigating away from results
     if (tab !== "mcqResult") {
       setMcqResultData(null);
@@ -153,6 +165,20 @@ const Dashboard = () => {
       setActiveSubject(subject);
     }
     setActiveTab(contentType);
+  };
+
+  // Handle single session view
+  const handleViewSingleSession = (sessionId) => {
+    console.log("📋 Opening single session view for:", sessionId);
+    setSelectedSessionId(sessionId);
+    setViewSingleSession(true);
+  };
+
+  // Handle back from single session
+  const handleBackFromSingleSession = () => {
+    console.log("🔙 Returning to session history list");
+    setViewSingleSession(false);
+    setSelectedSessionId(null);
   };
 
   // Build subject path for API
@@ -210,6 +236,8 @@ const Dashboard = () => {
     console.log("Location State:", location.state);
     console.log("Subjects:", subjects);
     console.log("Subject Details:", subjectDetails);
+    console.log("View Single Session:", viewSingleSession);
+    console.log("Selected Session ID:", selectedSessionId);
     console.log("=== END DEBUG ===");
   };
 
@@ -299,12 +327,22 @@ const Dashboard = () => {
         />
 
         <main className="p-4 md:p-8">
-          {activeTab !== "dashboard" && (
+          {activeTab !== "dashboard" && !viewSingleSession && (
             <ContentTabs activeTab={activeTab} handleContentAccess={handleTabChange} />
           )}
 
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
             {(() => {
+              // Render SingleSessionHistory when in single session view
+              if (viewSingleSession && selectedSessionId) {
+                return (
+                  <SingleSessionHistory
+                    sessionId={selectedSessionId}
+                    onBack={handleBackFromSingleSession}
+                  />
+                );
+              }
+
               const components = {
                 dashboard: (
                   <DashboardHome
@@ -317,6 +355,12 @@ const Dashboard = () => {
                     setActiveSubject={setActiveSubject}
                     setActiveTab={handleTabChange}
                     handleContentAccess={handleContentAccess}
+                  />
+                ),
+                sessionHistory: (
+                  <SessionHistory
+                    onBack={() => handleTabChange("dashboard")}
+                    onViewSessionDetails={handleViewSingleSession}
                   />
                 ),
                 subject: (

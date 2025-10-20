@@ -11,7 +11,9 @@ import {
   FiLoader,
   FiAlertCircle,
   FiArrowLeft,
-  FiRotateCw
+  FiRotateCw,
+  FiHome,
+  FiRefreshCw
 } from "react-icons/fi";
 
 const McqResultPage = ({ 
@@ -427,12 +429,12 @@ const McqResultPage = ({
   // Get grade based on percentage
   const getGrade = () => {
     const percentage = parseFloat(scoreData.finalPercentage);
-    if (percentage >= 90) return { grade: 'A+', color: 'text-green-600' };
-    if (percentage >= 80) return { grade: 'A', color: 'text-green-500' };
-    if (percentage >= 70) return { grade: 'B', color: 'text-blue-500' };
-    if (percentage >= 60) return { grade: 'C', color: 'text-yellow-500' };
-    if (percentage >= 50) return { grade: 'D', color: 'text-orange-500' };
-    return { grade: 'F', color: 'text-red-500' };
+    if (percentage >= 90) return { grade: 'A+', color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-green-200' };
+    if (percentage >= 80) return { grade: 'A', color: 'text-green-500', bgColor: 'bg-green-50', borderColor: 'border-green-200' };
+    if (percentage >= 70) return { grade: 'B', color: 'text-blue-500', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' };
+    if (percentage >= 60) return { grade: 'C', color: 'text-yellow-500', bgColor: 'bg-yellow-50', borderColor: 'border-yellow-200' };
+    if (percentage >= 50) return { grade: 'D', color: 'text-orange-500', bgColor: 'bg-orange-50', borderColor: 'border-orange-200' };
+    return { grade: 'F', color: 'text-red-500', bgColor: 'bg-red-50', borderColor: 'border-red-200' };
   };
 
   const gradeInfo = getGrade();
@@ -443,6 +445,20 @@ const McqResultPage = ({
       ...prev,
       [questionId]: !prev[questionId]
     }));
+  };
+
+  // Expand all questions
+  const expandAllQuestions = () => {
+    const allExpanded = {};
+    data.questions.forEach(q => {
+      allExpanded[q.id] = true;
+    });
+    setExpandedQuestions(allExpanded);
+  };
+
+  // Collapse all questions
+  const collapseAllQuestions = () => {
+    setExpandedQuestions({});
   };
 
   // Loading state
@@ -461,15 +477,15 @@ const McqResultPage = ({
   if (error || !data) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-gray-200">
+        <div className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full text-center border border-gray-200">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <FiX className="text-2xl text-red-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">No Result Available</h2>
-          <p className="text-gray-600 mb-6">{error || 'Please complete a quiz to see results.'}</p>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">No Result Available</h2>
+          <p className="text-gray-600 mb-6 text-sm">{error || 'Please complete a quiz to see results.'}</p>
           <button
             onClick={() => (onBack ? onBack() : navigate("/dashboard"))}
-            className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
           >
             Go to Dashboard
           </button>
@@ -483,25 +499,23 @@ const McqResultPage = ({
   const totalQuestions = questions.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-4 sm:py-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-3 sm:py-6">
       <div className="max-w-4xl mx-auto px-3 sm:px-4">
-        {/* Header */}
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-            <div className="text-center sm:text-left w-full sm:w-auto">
-              <div className="flex items-center justify-center sm:justify-start space-x-3 mb-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <FiAward className="text-lg sm:text-xl text-white" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-800 truncate">Quiz Results</h1>
-                  <p className="text-gray-600 text-xs sm:text-sm truncate">{subject.name}</p>
-                </div>
+        {/* Header - Mobile Optimized */}
+        <div className="bg-white rounded-xl shadow-lg p-4 mb-4 border border-gray-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center space-x-3 w-full sm:w-auto">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <FiAward className="text-lg text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg font-bold text-gray-800 truncate">Quiz Results</h1>
+                <p className="text-gray-600 text-xs sm:text-sm truncate">{subject.name}</p>
               </div>
             </div>
             
             {timeUp && (
-              <div className="inline-flex items-center space-x-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs">
+              <div className="inline-flex items-center space-x-2 bg-yellow-100 text-yellow-800 px-3 py-1.5 rounded-full text-xs w-full sm:w-auto justify-center sm:justify-start">
                 <FiClock size={12} />
                 <span>Time's Up</span>
               </div>
@@ -509,65 +523,89 @@ const McqResultPage = ({
           </div>
         </div>
 
-        {/* Compact Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white text-center shadow">
-            <div className="text-xl sm:text-2xl font-bold">{finalPercentage}%</div>
+        {/* Main Stats Grid - Mobile Optimized */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+          {/* Score Card */}
+          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-3 text-white text-center shadow">
+            <div className="text-xl font-bold">{finalPercentage}%</div>
             <div className="text-blue-100 text-xs">Score</div>
           </div>
           
-          <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 text-center shadow border border-gray-200">
-            <div className="text-xl sm:text-2xl font-bold text-green-600">{correctCount}</div>
+          {/* Correct Answers */}
+          <div className="bg-white rounded-xl p-3 text-center shadow border border-gray-200">
+            <div className="text-xl font-bold text-green-600">{correctCount}</div>
             <div className="text-gray-600 text-xs">Correct</div>
           </div>
           
-          <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 text-center shadow border border-gray-200">
-            <div className="text-xl sm:text-2xl font-bold text-gray-800">{attemptedCount}/{totalQuestions}</div>
+          {/* Attempted */}
+          <div className="bg-white rounded-xl p-3 text-center shadow border border-gray-200">
+            <div className="text-xl font-bold text-gray-800">{attemptedCount}/{totalQuestions}</div>
             <div className="text-gray-600 text-xs">Attempted</div>
           </div>
           
-          <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 text-center shadow border border-gray-200">
-            <div className={`text-xl sm:text-2xl font-bold ${gradeInfo.color}`}>{gradeInfo.grade}</div>
+          {/* Grade */}
+          <div className={`rounded-xl p-3 text-center shadow border ${gradeInfo.bgColor} ${gradeInfo.borderColor}`}>
+            <div className={`text-xl font-bold ${gradeInfo.color}`}>{gradeInfo.grade}</div>
             <div className="text-gray-600 text-xs">Grade</div>
           </div>
         </div>
 
-        {/* Quick Summary */}
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-center">
+        {/* Quick Summary - Mobile Optimized */}
+        <div className="bg-white rounded-xl shadow-lg p-4 mb-4 border border-gray-200">
+          <div className="grid grid-cols-2 gap-3 text-center">
             <div>
-              <div className="text-xs sm:text-sm text-gray-600">Total Questions</div>
-              <div className="text-base sm:text-lg font-bold text-gray-800">{totalQuestions}</div>
+              <div className="text-xs text-gray-600 mb-1">Total Questions</div>
+              <div className="text-base font-bold text-gray-800">{totalQuestions}</div>
             </div>
             <div>
-              <div className="text-xs sm:text-sm text-gray-600">Wrong Answers</div>
-              <div className="text-base sm:text-lg font-bold text-red-600">{attemptedCount - correctCount}</div>
+              <div className="text-xs text-gray-600 mb-1">Wrong Answers</div>
+              <div className="text-base font-bold text-red-600">{attemptedCount - correctCount}</div>
             </div>
             <div>
-              <div className="text-xs sm:text-sm text-gray-600">Not Attempted</div>
-              <div className="text-base sm:text-lg font-bold text-orange-600">
+              <div className="text-xs text-gray-600 mb-1">Not Attempted</div>
+              <div className="text-base font-bold text-orange-600">
                 {totalQuestions - attemptedCount}
               </div>
             </div>
             <div>
-              <div className="text-xs sm:text-sm text-gray-600">Accuracy</div>
-              <div className="text-base sm:text-lg font-bold text-blue-600">
+              <div className="text-xs text-gray-600 mb-1">Accuracy</div>
+              <div className="text-base font-bold text-blue-600">
                 {attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0}%
               </div>
             </div>
           </div>
         </div>
 
-        {/* Collapsible Questions Review - Improved for mobile */}
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-4 sm:p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h3 className="text-base sm:text-lg font-bold text-gray-800">Question Review</h3>
-            <span className="text-xs sm:text-sm text-gray-600">
-              {Object.values(expandedQuestions).filter(Boolean).length} expanded
-            </span>
+        {/* Question Review Section - Mobile Optimized */}
+        <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-200">
+          {/* Section Header with Controls */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
+            <div>
+              <h3 className="text-base font-bold text-gray-800">Question Review</h3>
+              <p className="text-xs text-gray-600 mt-1">
+                {totalQuestions} questions • {Object.values(expandedQuestions).filter(Boolean).length} expanded
+              </p>
+            </div>
+            
+            {/* Expand/Collapse Controls */}
+            <div className="flex gap-2 w-full sm:w-auto">
+              <button
+                onClick={expandAllQuestions}
+                className="flex-1 sm:flex-none px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-medium rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
+              >
+                Expand All
+              </button>
+              <button
+                onClick={collapseAllQuestions}
+                className="flex-1 sm:flex-none px-3 py-1.5 bg-gray-50 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+              >
+                Collapse All
+              </button>
+            </div>
           </div>
           
-          <div className="space-y-2 sm:space-y-3">
+          {/* Questions List */}
+          <div className="space-y-2">
             {questions.map((q, index) => {
               const userAnswer = userAnswers[q.id];
               const correctAnswer = correctAnswers[q.id];
@@ -576,56 +614,56 @@ const McqResultPage = ({
               const isExpanded = expandedQuestions[q.id];
               
               return (
-                <div key={q.id} className="border border-gray-200 rounded-lg sm:rounded-xl overflow-hidden">
+                <div key={q.id} className="border border-gray-200 rounded-lg overflow-hidden">
                   {/* Question Header - Always Visible */}
                   <button
                     onClick={() => toggleQuestion(q.id)}
-                    className="w-full p-3 sm:p-4 text-left hover:bg-gray-50 transition-colors"
+                    className="w-full p-3 text-left hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                        <div className="flex items-center">
-                          <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium flex-shrink-0 ${
-                            !isAttempted 
-                              ? 'bg-gray-300 text-gray-700' 
-                              : isCorrect 
-                              ? 'bg-green-500 text-white' 
-                              : 'bg-red-500 text-white'
-                          }`}>
-                            {index + 1}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-3 min-w-0 flex-1">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5 ${
+                          !isAttempted 
+                            ? 'bg-gray-300 text-gray-700' 
+                            : isCorrect 
+                            ? 'bg-green-500 text-white' 
+                            : 'bg-red-500 text-white'
+                        }`}>
+                          {index + 1}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm text-gray-800 line-clamp-2 text-left">
+                            {q.question}
                           </div>
-                          <div className="ml-3">
-                            <div className="text-gray-800 text-sm sm:text-base line-clamp-1">
-                              {q.question}
-                            </div>
-                            <div className="flex items-center space-x-2 mt-1 text-xs">
-                              <span className={`px-2 py-0.5 rounded-full ${
-                                !isAttempted 
-                                  ? 'bg-gray-100 text-gray-600' 
-                                  : isCorrect 
-                                  ? 'bg-green-100 text-green-600' 
-                                  : 'bg-red-100 text-red-600'
-                              }`}>
-                                {!isAttempted ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect'}
+                          <div className="flex flex-wrap items-center gap-1 mt-1">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                              !isAttempted 
+                                ? 'bg-gray-100 text-gray-600' 
+                                : isCorrect 
+                                ? 'bg-green-100 text-green-600' 
+                                : 'bg-red-100 text-red-600'
+                            }`}>
+                              {!isAttempted ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect'}
+                            </span>
+                            {isAttempted && (
+                              <span className="text-gray-500 text-xs">
+                                Your choice: {String.fromCharCode(65 + (q.options || []).indexOf(userAnswer))}
                               </span>
-                              {isAttempted && (
-                                <span className="text-gray-500">
-                                  Your choice: {String.fromCharCode(65 + (q.options || []).indexOf(userAnswer))}
-                                </span>
-                              )}
-                            </div>
+                            )}
                           </div>
                         </div>
                       </div>
-                      <div className="flex-shrink-0 ml-2">
-                        {isExpanded ? <FiChevronUp className="text-gray-400" size={18} /> : <FiChevronDown className="text-gray-400" size={18} />}
+                      <div className="flex-shrink-0 ml-2 pt-0.5">
+                        {isExpanded ? <FiChevronUp className="text-gray-400" size={16} /> : <FiChevronDown className="text-gray-400" size={16} />}
                       </div>
                     </div>
                   </button>
+                  
                   {/* Collapsible Content */}
                   {isExpanded && (
-                    <div className="p-3 sm:p-4 bg-gray-50">
-                      <div className="space-y-2">
+                    <div className="p-3 bg-gray-50 border-t border-gray-200">
+                      {/* Options List */}
+                      <div className="space-y-2 mb-3">
                         {(q.options || []).map((opt, idx) => {
                           const isCorrectAnswer = String(opt).trim() === String(correctAnswer || '').trim();
                           const isUserAnswer = String(opt).trim() === String(userAnswer || '').trim();
@@ -634,16 +672,16 @@ const McqResultPage = ({
                           return (
                             <div
                               key={idx}
-                              className={`p-2 sm:p-3 rounded-lg text-xs sm:text-sm ${
+                              className={`p-2 rounded-lg text-xs ${
                                 isCorrectAnswer
-                                  ? 'bg-green-50 text-green-800 border-2 border-green-400'
+                                  ? 'bg-green-50 text-green-800 border border-green-300'
                                   : showAsIncorrect
-                                  ? 'bg-red-50 text-red-800 border-2 border-red-400'
+                                  ? 'bg-red-50 text-red-800 border border-red-300'
                                   : 'bg-white text-gray-700 border border-gray-200'
                               }`}
                             >
-                              <div className="flex items-center">
-                                <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center mr-2 text-xs font-medium flex-shrink-0 ${
+                              <div className="flex items-start">
+                                <span className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 text-xs font-medium flex-shrink-0 mt-0.5 ${
                                   isCorrectAnswer
                                     ? 'bg-green-500 text-white'
                                     : isUserAnswer
@@ -652,38 +690,44 @@ const McqResultPage = ({
                                 }`}>
                                   {String.fromCharCode(65 + idx)}
                                 </span>
-                                <span className="break-words flex-1">{opt}</span>
-                                {isCorrectAnswer && (
-                                  <div className="ml-2 flex items-center text-green-600">
-                                    <FiCheck className="mr-1" size={14} />
-                                    <span className="text-xs">Correct</span>
-                                  </div>
-                                )}
-                                {isUserAnswer && !isCorrectAnswer && (
-                                  <div className="ml-2 flex items-center text-red-600">
-                                    <FiX className="mr-1" size={14} />
-                                    <span className="text-xs">Your Answer</span>
-                                  </div>
-                                )}
+                                <span className="break-words flex-1 leading-relaxed">{opt}</span>
+                                <div className="flex-shrink-0 ml-2">
+                                  {isCorrectAnswer && (
+                                    <div className="flex items-center text-green-600 text-xs">
+                                      <FiCheck className="mr-1" size={12} />
+                                      <span>Correct</span>
+                                    </div>
+                                  )}
+                                  {isUserAnswer && !isCorrectAnswer && (
+                                    <div className="flex items-center text-red-600 text-xs">
+                                      <FiX className="mr-1" size={12} />
+                                      <span>Your Answer</span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           );
                         })}
                       </div>
                       
-                      <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-sm font-medium text-blue-800 mb-2">
-                          {isCorrect ? 'Correct! ' : 'Incorrect. '}
-                          {isCorrect ? 'Your answer is correct.' : 'The correct answer is:'}
-                        </p>
+                      {/* Explanation */}
+                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="flex items-center mb-2">
+                          <FiAlertCircle className="text-blue-600 mr-2" size={14} />
+                          <p className="text-sm font-medium text-blue-800">
+                            {isCorrect ? 'Correct! ' : 'Incorrect. '}
+                            {isCorrect ? 'Your answer is correct.' : 'The correct answer is:'}
+                          </p>
+                        </div>
                         
                         {!isCorrect && (
-                          <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded">
-                            <p className="text-sm font-medium text-green-800">
+                          <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded text-sm">
+                            <p className="font-medium text-green-800">
                               {correctAnswer || 'No correct answer provided'}
                             </p>
                             {userAnswer && (
-                              <p className="text-sm text-red-600 mt-1">
+                              <p className="text-red-600 mt-1 text-xs">
                                 Your answer: {userAnswer}
                               </p>
                             )}
@@ -694,7 +738,7 @@ const McqResultPage = ({
                           <div className="mt-3 pt-3 border-t border-blue-100">
                             <p className="text-xs font-medium text-blue-800 mb-1">Explanation:</p>
                             <div 
-                              className="text-xs text-blue-700 space-y-2 whitespace-pre-line"
+                              className="text-xs text-blue-700 space-y-1 whitespace-pre-line leading-relaxed"
                               dangerouslySetInnerHTML={{ 
                                 __html: (q.explanation || '').replace(/\n/g, '<br />')
                               }}
@@ -709,7 +753,8 @@ const McqResultPage = ({
             })}
           </div>
           
-          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+          {/* Action Buttons - Mobile Optimized */}
+          <div className="mt-6 flex flex-col gap-3">
             <button
               onClick={() => {
                 if (onRetry) {
@@ -725,15 +770,17 @@ const McqResultPage = ({
                   navigate('/dashboard/revision');
                 }
               }}
-              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg sm:rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all shadow font-medium text-sm sm:text-base flex-1"
+              className="px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow font-medium text-sm flex items-center justify-center gap-2"
             >
+              <FiRefreshCw size={16} />
               Retry Quiz
             </button>
             <button
               onClick={() => (onBack ? onBack() : navigate('/dashboard'))}
-              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-gray-700 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 transition-all shadow font-medium text-sm sm:text-base flex-1"
+              className="px-4 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all shadow font-medium text-sm flex items-center justify-center gap-2"
             >
-              Back to Revision Categories
+              <FiHome size={16} />
+              Back to Revison Page
             </button>
           </div>
         </div>

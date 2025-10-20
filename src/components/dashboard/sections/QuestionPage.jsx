@@ -77,6 +77,35 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
             console.log(`Setting ${questionsToSet.length} questions`);
             setQuestions(questionsToSet);
             setUserAnswers(Array(questionsToSet.length).fill(null));
+            
+            // Extract subject from session data
+            let subjectFromData = 'Revision Session';
+            
+            // Check different possible locations for subject
+            if (sessionData.subject) {
+              // Case 1: Direct subject object
+              if (typeof sessionData.subject === 'object') {
+                subjectFromData = sessionData.subject.name || sessionData.subject.subcategory || 'Revision Session';
+              } 
+              // Case 2: Subject as string
+              else if (typeof sessionData.subject === 'string') {
+                subjectFromData = sessionData.subject;
+              }
+            } 
+            // Case 3: Check selectedSubjects array
+            else if (sessionData.selectedSubjects && sessionData.selectedSubjects.length > 0) {
+              const firstSubject = sessionData.selectedSubjects[0];
+              subjectFromData = firstSubject.name || firstSubject.subcategory || 'Revision Session';
+            }
+            // Case 4: Check in sessionData.data
+            else if (sessionData.data?.subject) {
+              subjectFromData = typeof sessionData.data.subject === 'string' 
+                ? sessionData.data.subject 
+                : sessionData.data.subject.name || 'Revision Session';
+            }
+            
+            console.log('Extracted subject:', subjectFromData);
+            setSubject(subjectFromData);
           } else {
             console.error('No questions found in session data');
             setError('No questions found in session data');
@@ -164,12 +193,30 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
   }, [currentQuestionIndex, questions.length]);
 
   const handleAutoNextQuestion = () => {
+    // Mark current question as not attempted before moving to next
+    const currentQuestion = questions[currentQuestionIndex];
+    if (currentQuestion) {
+      setUserAnswers(prevAnswers => {
+        const updatedAnswers = [...prevAnswers];
+        // Only mark as not attempted if not already answered
+        if (!updatedAnswers[currentQuestionIndex]?.isAnswered) {
+          updatedAnswers[currentQuestionIndex] = {
+            questionId: currentQuestion.id || `q${currentQuestionIndex}`,
+            selectedAnswer: null,
+            timestamp: new Date().toISOString(),
+            isAnswered: false
+          };
+        }
+        return updatedAnswers;
+      });
+    }
+
+    // Move to next question or finish session
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer(null);
-      setShowExplanation(false);
+      setSelectedAnswer(userAnswers[currentQuestionIndex + 1]?.selectedAnswer || null);
+      setQuestionTimeRemaining(60); // Reset timer for next question
     } else {
-      // End of session if it's the last question
       handleFinishSession();
     }
   };
@@ -198,18 +245,40 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
       updatedAnswers[currentQuestionIndex] = {
         questionId: currentQuestion.id || `q${currentQuestionIndex}`,
         selectedAnswer: answer,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        isAnswered: true
       };
       return updatedAnswers;
     });
   };
 
   const handleNextQuestion = () => {
+    // Check if current question is answered before proceeding
+    const isCurrentQuestionAnswered = userAnswers[currentQuestionIndex]?.isAnswered;
+    
+    if (!isCurrentQuestionAnswered) {
+      // Mark as not attempted
+      const currentQuestion = questions[currentQuestionIndex];
+      if (currentQuestion) {
+        setUserAnswers(prevAnswers => {
+          const updatedAnswers = [...prevAnswers];
+          updatedAnswers[currentQuestionIndex] = {
+            questionId: currentQuestion.id || `q${currentQuestionIndex}`,
+            selectedAnswer: null,
+            timestamp: new Date().toISOString(),
+            isAnswered: false
+          };
+          return updatedAnswers;
+        });
+      }
+    }
+    
+    // Move to next question or finish
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedAnswer(userAnswers[currentQuestionIndex + 1]?.selectedAnswer || null);
+      setQuestionTimeRemaining(60); // Reset timer for next question
     } else {
-      // End of session - show results
       handleFinishSession();
     }
   };
@@ -370,7 +439,7 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
           <p className="mt-4 text-blue-700 font-medium">Loading your revision session...</p>
@@ -381,13 +450,13 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm border border-red-200 p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-red-200 p-6 text-center">
           <div className="text-red-600 font-semibold text-xl mb-4">Session Error</div>
           <div className="text-red-500 mb-6">{error}</div>
           <button 
             onClick={onBack}
-            className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
+            className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium rounded-lg"
           >
             Back to Revision
           </button>
@@ -398,13 +467,13 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm border border-blue-200 p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-blue-200 p-6 text-center">
           <div className="text-blue-600 font-semibold text-xl mb-4">No Questions Available</div>
           <p className="text-blue-500 mb-6">No questions found for this session.</p>
           <button 
             onClick={onBack}
-            className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
+            className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium rounded-lg"
           >
             Back to Revision
           </button>
@@ -414,40 +483,49 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto mb-8">
-        <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      {/* Header - Mobile Optimized */}
+      <div className="max-w-6xl mx-auto mb-6">
+        {/* Top Bar - Stack on mobile */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-4">
+          {/* Exit Button */}
           <button
             onClick={handleExitSession}
-            className="px-6 py-3 bg-white hover:bg-gray-50 border border-blue-200 transition-colors flex items-center gap-2 text-blue-700 font-medium rounded-lg"
+            className="w-full lg:w-auto px-4 py-3 bg-white hover:bg-gray-50 border border-blue-200 transition-colors flex items-center justify-center gap-2 text-blue-700 font-medium rounded-lg shadow-sm"
           >
-            ← Exit Session
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Exit Session
           </button>
           
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-blue-900 mb-3">{subject}</h1>
-            <div className="flex items-center justify-center gap-4 text-sm text-blue-700">
-              <span className="font-medium">Question {currentQuestionIndex + 1} of {questions.length}</span>
-              <div className="h-5 w-px bg-gray-300"></div>
-              <div className="flex items-center gap-1">
-                <span className="font-medium">Time Remaining for this question:</span>
-                <span className={`px-2 py-0.5 rounded-full text-sm ${questionTimeRemaining < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+          {/* Session Info - Centered */}
+          <div className="text-center order-first lg:order-none">
+            <h1 className="text-xl lg:text-2xl font-bold text-blue-900 mb-2 line-clamp-2">
+              {subject || 'Revision Session'}
+            </h1>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-blue-700">
+              <span className="font-medium bg-blue-50 px-2 py-1 rounded">Question {currentQuestionIndex + 1} of {questions.length}</span>
+              <div className="hidden sm:block h-4 w-px bg-gray-300"></div>
+              <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded">
+                <span className="font-medium hidden xs:inline">Time:</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${questionTimeRemaining < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                   {questionTimeRemaining}s
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded">
+          {/* Session ID - Hidden on small screens */}
+          <div className="hidden lg:block text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded">
             Session ID: {sessionId?.substring(0, 8)}...
           </div>
         </div>
         
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+        <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
           <div 
-            className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+            className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
             style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
           ></div>
         </div>
@@ -455,35 +533,34 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
           <span>Progress: {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}%</span>
           <span>Answered: {userAnswers.filter(a => a !== undefined).length}/{currentQuestionIndex + 1}</span>
         </div>
-
-      </div> {/* Close the max-w-6xl container */}
+      </div>
       
       {/* Question Card */}
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm border border-blue-200 p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-blue-200 p-4 lg:p-6 mb-6">
           {/* Session Info */}
-          <div className="mb-6 pb-4 border-b border-gray-100">
-            <h1 className="text-2xl font-bold text-blue-800">
+          <div className="mb-4 lg:mb-6 pb-4 border-b border-gray-100">
+            <h1 className="text-lg lg:text-xl font-bold text-blue-800">
               Revision Session
             </h1>
           </div>
           
           {/* Question */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              {currentQuestionIndex + 1}. {currentQuestion.question_text || currentQuestion.question || "Question not available"}
+          <div className="mb-4 lg:mb-6">
+            <h2 className="text-base lg:text-lg font-semibold text-gray-900 mb-4 leading-relaxed">
+              <span className="text-blue-600 font-bold">{currentQuestionIndex + 1}.</span> {currentQuestion.question_text || currentQuestion.question || "Question not available"}
             </h2>
             
             {/* Question Image if available */}
             {currentQuestion.image_url && (
-              <div className="mb-6 mt-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <div className="mb-4 lg:mb-6 mt-4 bg-gray-50 p-3 lg:p-4 rounded-lg border border-gray-200">
                 <div className="flex justify-center">
                   <img 
                     src={currentQuestion.image_url} 
                     alt="Question illustration" 
                     className="max-w-full h-auto rounded-lg shadow-sm border border-gray-200"
                     style={{
-                      maxHeight: '400px',
+                      maxHeight: '300px',
                       objectFit: 'contain',
                       width: 'auto',
                       height: 'auto',
@@ -512,7 +589,7 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
             )}
           </div>
 
-          {/* Parse options from string if needed */}
+          {/* Options */}
           {(() => {
             let options = [];
             try {
@@ -531,10 +608,10 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
                   const isCorrect = option === currentQuestion.correct_answer;
                   const isSelected = selectedAnswer === option;
                   
-                  let buttonClass = "w-full text-left p-4 border rounded-lg transition-colors font-medium ";
+                  let buttonClass = "w-full text-left p-3 lg:p-4 border rounded-lg transition-all duration-200 font-medium text-sm lg:text-base ";
                   buttonClass += isSelected 
-                    ? "bg-blue-100 border-blue-400 text-blue-800" 
-                    : "bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100";
+                    ? "bg-blue-100 border-blue-400 text-blue-800 shadow-sm" 
+                    : "bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-gray-400";
 
                   return (
                     <button
@@ -542,9 +619,9 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
                       onClick={() => handleAnswerSelect(option)}
                       className={buttonClass}
                     >
-                      <div className="flex items-center">
-                        <span className="font-semibold mr-3 w-6">{String.fromCharCode(65 + index)}.</span>
-                        <span className="flex-1">{option}</span>
+                      <div className="flex items-start">
+                        <span className="font-semibold mr-3 w-5 flex-shrink-0 mt-0.5">{String.fromCharCode(65 + index)}.</span>
+                        <span className="flex-1 text-left leading-relaxed">{option}</span>
                       </div>
                     </button>
                   );
@@ -553,22 +630,51 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
             );
           })()}
 
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center">
+          {/* Navigation Buttons - Stack on mobile */}
+          <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-3">
             <button
               onClick={handlePreviousQuestion}
               disabled={currentQuestionIndex === 0}
-              className="px-6 py-3 bg-gray-600 text-white hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium rounded-lg"
+              className="w-full sm:w-auto px-6 py-3 bg-gray-600 text-white hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium rounded-lg flex items-center justify-center gap-2"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
               Previous
             </button>
             
             <button
               onClick={handleNextQuestion}
-              className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium rounded-lg"
+              disabled={currentQuestionIndex === questions.length - 1 
+                ? userAnswers.filter(a => a?.isAnswered).length < questions.length
+                : !userAnswers[currentQuestionIndex]?.isAnswered}
+              className={`w-full sm:w-auto px-6 py-3 transition-colors font-medium rounded-lg flex items-center justify-center gap-2 ${
+                (currentQuestionIndex === questions.length - 1 
+                  ? userAnswers.filter(a => a?.isAnswered).length < questions.length
+                  : !userAnswers[currentQuestionIndex]?.isAnswered)
+                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             >
-              {currentQuestionIndex === questions.length - 1 ? 'Finish Session' : 'Next Question'}
+              {currentQuestionIndex === questions.length - 1 ? (
+                <>
+                  Finish Session
+                  <span className="text-xs font-normal ml-1">
+                    ({userAnswers.filter(a => a?.isAnswered).length}/{questions.length} answered)
+                  </span>
+                </>
+              ) : 'Next Question'}
+              {currentQuestionIndex < questions.length - 1 && (
+                <svg 
+                  className="w-4 h-4" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                  style={!userAnswers[currentQuestionIndex]?.isAnswered ? { opacity: 0.6 } : {}}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
             </button>
           </div>
         </div>
@@ -577,7 +683,7 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
       {/* Exit Session Modal with Animation */}
       {showExitModal && (
         <div 
-          className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${isModalOpen ? 'opacity-100' : 'opacity-0'}`}
+          className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${isModalOpen ? 'opacity-100' : 'opacity-0'} p-4`}
           style={{
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
             backdropFilter: 'blur(4px)',
@@ -585,7 +691,7 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
           }}
         >
           <div 
-            className={`relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 transition-all duration-300 transform ${isModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+            className={`relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-auto transition-all duration-300 transform ${isModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
             style={{
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
             }}
@@ -595,16 +701,16 @@ const QuestionsPage = ({ sessionData, setActiveTab, onBack }) => {
             <p className="text-gray-600 mb-6">
               Your progress will be saved. You can resume this session later from your dashboard.
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col sm:flex-row justify-end gap-3">
               <button
                 onClick={handleCancelExit}
-                className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="w-full sm:w-auto px-5 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmExit}
-                className="px-5 py-2.5 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200 font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200 font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Exit Session
               </button>

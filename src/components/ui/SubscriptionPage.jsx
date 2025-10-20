@@ -69,75 +69,86 @@ const SubscriptionPage = ({ setHasSubscription }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 py-8 px-4 sm:px-6 lg:px-8">
       {/* Header with Back Button */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center text-blue-700 hover:text-blue-900 mb-6 transition-colors duration-200 group text-sm"
+          className="flex items-center text-blue-600 hover:text-blue-800 mb-8 transition-all duration-200 group text-sm font-medium"
         >
-          <FaArrowLeft className="mr-1.5 group-hover:-translate-x-0.5 transition-transform text-sm" />
-          <span className="text-sm font-medium">Back to Dashboard</span>
+          <FaArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
+          Back to Dashboard
         </button>
       </div>
 
       {/* Hero Section */}
-      <div className="max-w-4xl mx-auto text-center mb-8">
-        <div className="inline-flex items-center bg-blue-100 text-blue-600 rounded-full px-3 py-1.5 mb-4 border border-blue-200 text-xs">
-          <FaCrown className="text-yellow-500 mr-1.5 text-xs" />
-          <span className="font-medium">Premium Features</span>
+      <div className="max-w-4xl mx-auto text-center mb-12 lg:mb-16">
+        <div className="inline-flex items-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full px-4 py-2 mb-6 shadow-lg shadow-blue-500/25">
+          <FaCrown className="text-yellow-300 mr-2" />
+          <span className="font-semibold text-sm">Premium Features</span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-          Upgrade Your
-          <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"> Learning</span>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          Upgrade Your{" "}
+          <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Learning Experience
+          </span>
         </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto text-sm">
-          Unlock exclusive features, unlimited access, and accelerate your learning journey with our premium plans.
+        <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
+          Unlock exclusive features, unlimited access, and accelerate your learning journey with our premium plans designed for success.
         </p>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto">
-        {/* Pricing Cards */}
-        <div className="grid lg:grid-cols-2 gap-6 mb-12">
+      {/* Pricing Cards */}
+      <div className="max-w-7xl mx-auto mb-16 lg:mb-20">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto">
           {Object.entries(plans).map(([key, plan]) => (
             <div
               key={key}
-              className={`relative rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] ${
+              className={`relative rounded-2xl p-8 transition-all duration-300 hover:scale-[1.02] ${
                 plan.popular
-                  ? "bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-500 shadow-lg shadow-blue-500/10"
-                  : "bg-white border border-gray-200 hover:border-gray-300 shadow-sm"
+                  ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl shadow-blue-500/30 transform lg:-translate-y-4"
+                  : "bg-white border border-gray-200 hover:border-gray-300 shadow-xl hover:shadow-2xl hover:shadow-gray-200"
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide flex items-center">
+                  <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide flex items-center shadow-lg">
                     <FaStar className="mr-2" />
                     Most Popular
                   </div>
                 </div>
               )}
 
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h3>
-                <div className="flex items-baseline justify-center mb-1">
-                  <span className="text-3xl font-bold text-gray-900">${plan.price}</span>
-                  <span className="text-gray-500 ml-1 text-sm">/{plan.period}</span>
+              <div className="text-center mb-8">
+                <h3 className={`text-2xl font-bold mb-3 ${plan.popular ? "text-white" : "text-gray-900"}`}>
+                  {plan.name}
+                </h3>
+                <div className="flex items-baseline justify-center mb-2">
+                  <span className={`text-4xl lg:text-5xl font-bold ${plan.popular ? "text-white" : "text-gray-900"}`}>
+                    ${plan.price}
+                  </span>
+                  <span className={`ml-2 text-lg ${plan.popular ? "text-blue-100" : "text-gray-500"}`}>
+                    /{plan.period}
+                  </span>
                 </div>
                 {plan.savings && (
-                  <div className="inline-block bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium mt-1">
+                  <div className="inline-block bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-sm font-semibold mt-2">
                     {plan.savings}
                   </div>
                 )}
               </div>
 
-              <ul className="space-y-2.5 mb-6">
+              <ul className="space-y-4 mb-8">
                 {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-start text-gray-700 text-sm">
-                    <div className="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <FaCheck className="text-green-500 text-[10px]" />
+                  <li key={index} className="flex items-start">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 ${
+                      plan.popular ? "bg-blue-400/30" : "bg-blue-100"
+                    }`}>
+                      <FaCheck className={plan.popular ? "text-white text-xs" : "text-blue-500 text-xs"} />
                     </div>
-                    <span className="leading-tight">{feature}</span>
+                    <span className={`text-left ${plan.popular ? "text-blue-50" : "text-gray-700"} leading-relaxed`}>
+                      {feature}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -147,10 +158,10 @@ const SubscriptionPage = ({ setHasSubscription }) => {
                   setSelectedPlan(key);
                   handleSubscribe();
                 }}
-                className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 ${
                   plan.popular
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-md hover:shadow-blue-500/15"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                    ? "bg-white text-blue-600 hover:bg-gray-100 hover:shadow-lg hover:shadow-white/25"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/25"
                 }`}
               >
                 Get Started
@@ -158,44 +169,53 @@ const SubscriptionPage = ({ setHasSubscription }) => {
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Feature Grid */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-          <h2 className="text-xl font-bold text-gray-900 text-center mb-8">
-            Everything You Need to <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Succeed</span>
+      {/* Feature Grid */}
+      <div className="max-w-7xl mx-auto mb-16">
+        <div className="bg-white rounded-2xl p-8 lg:p-12 shadow-xl border border-gray-100">
+          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 text-center mb-12">
+            Everything You Need to{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Succeed
+            </span>
           </h2>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="text-center p-4 rounded-lg bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 transition-all duration-200 group"
+                className="text-center p-6 rounded-xl bg-gradient-to-br from-gray-50 to-white hover:from-blue-50 hover:to-indigo-50 border border-gray-200 hover:border-blue-300 transition-all duration-300 group hover:shadow-lg"
               >
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-105 transition-transform duration-200">
-                  <feature.icon className="text-lg text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/25">
+                  <feature.icon className="text-2xl text-white" />
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1.5 text-sm">{feature.title}</h3>
-                <p className="text-gray-600 text-xs leading-snug">
+                <h3 className="font-bold text-gray-900 mb-3 text-lg">{feature.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
                   {feature.description}
                 </p>
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Trust Indicators */}
-        <div className="text-center mt-8">
-          <div className="flex flex-wrap justify-center items-center gap-4 text-gray-500 text-xs">
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-1.5">
-                <FaCheck className="text-white text-[10px]" />
-              </div>
-              <span>Secure payment</span>
+      {/* Trust Indicators */}
+      <div className="max-w-7xl mx-auto text-center">
+        <div className="flex flex-wrap justify-center items-center gap-6 lg:gap-8 text-gray-600 text-sm">
+          <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
+            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mr-2">
+              <FaCheck className="text-white text-xs" />
             </div>
-            <div className="flex items-center">
-              <FaHeadset className="text-blue-500 mr-1.5 text-sm" />
-              <span>24/7 Support</span>
-            </div>
+            <span className="font-medium">Secure payment</span>
+          </div>
+          <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
+            <FaHeadset className="text-blue-500 mr-2 text-base" />
+            <span className="font-medium">24/7 Support</span>
+          </div>
+          <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
+            <FaStar className="text-yellow-500 mr-2 text-base" />
+            <span className="font-medium">30-day guarantee</span>
           </div>
         </div>
       </div>

@@ -26,8 +26,8 @@ axios.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       // Don't redirect if we're already on the auth page
-      if (!window.location.pathname.includes('auth')) {
-        window.location.href = '/auth';
+      if (!window.location.pathname.includes('/')) {
+        window.location.href = '/';
       }
     }
     return Promise.reject(error);

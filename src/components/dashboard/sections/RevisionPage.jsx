@@ -220,13 +220,23 @@ const RevisionPage = ({ setActiveTab, onBack, onStartSession }) => {
       return;
     }
     
-    // Create session data object
+    // Create session data object with subject information
     const sessionData = {
       sessionData: apiResponse,
       selectedSubjects: selectedSubjects,
       questions: questions,
-      sessionId: sessionId
+      sessionId: sessionId,
+      // Add subject information
+      subject: selectedSubjects.length > 0 
+        ? {
+            id: selectedSubjects[0].id,
+            name: selectedSubjects[0].name || selectedSubjects[0].subcategory || 'Revision Session',
+            category: selectedSubjects[0].category
+          }
+        : { name: 'Revision Session' }
     };
+    
+    console.log('📌 Session data with subject:', sessionData);
     
     console.log("💾 Session data to be saved:", sessionData);
     
