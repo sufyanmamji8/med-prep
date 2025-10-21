@@ -10,7 +10,6 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // FIXED: Pagination state - 4 sessions per page
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 4,
@@ -21,42 +20,32 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
   // Format month for API call
   const formatMonthForAPI = (monthString) => {
     if (monthString === "ALL TIME") return null;
-    
     const [month, year] = monthString.split(' ');
     const monthMap = {
       'JANUARY': '01', 'FEBRUARY': '02', 'MARCH': '03', 'APRIL': '04',
       'MAY': '05', 'JUNE': '06', 'JULY': '07', 'AUGUST': '08',
       'SEPTEMBER': '09', 'OCTOBER': '10', 'NOVEMBER': '11', 'DECEMBER': '12'
     };
-    
     return `${year}-${monthMap[month]}`;
   };
 
-  // FIXED: Calculate percentage with proper validation
+  // Calculate percentage
   const calculatePercentage = (correctAnswers, totalQuestions) => {
-    console.log("📊 Calculating percentage:", { correctAnswers, totalQuestions });
-    
     const correct = Number(correctAnswers) || 0;
     const total = Number(totalQuestions) || 0;
-    
-    if (total === 0) {
-      console.log("❌ No total questions, returning 0");
-      return 0;
-    }
-    
+    if (total === 0) return 0;
     const percentage = Math.round((correct / total) * 100);
-    console.log("✅ Calculated percentage:", percentage);
     return isNaN(percentage) ? 0 : percentage;
   };
 
-  // FIXED: Improved session data extraction with question analysis
+  // FIXED: Proper session data extraction from localStorage
   const getSessionDataFromStorage = () => {
     const sessionData = [];
     
     try {
       console.log("🔍 Scanning localStorage for session data...");
 
-      // 1. Check revisionProgress
+      // 1. Check revisionProgress - FIXED: Proper comparison of userAnswers vs correctAnswers
       const savedRevision = localStorage.getItem('revisionProgress');
       if (savedRevision) {
         try {
@@ -67,36 +56,61 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
             let correctCount = 0;
             let totalQuestions = 0;
 
-            // FIXED: Analyze questions array to count correct answers
-            if (revision.questions && Array.isArray(revision.questions)) {
+            // Try multiple methods to get correct data
+            
+            // Method 1: Check if we have userAnswers and correctAnswers objects
+            if (revision.userAnswers && revision.correctAnswers && typeof revision.userAnswers === 'object' && typeof revision.correctAnswers === 'object') {
+              const questionIds = Object.keys(revision.userAnswers);
+              totalQuestions = questionIds.length;
+              
+              correctCount = questionIds.filter(questionId => {
+                const userAnswer = revision.userAnswers[questionId];
+                const correctAnswer = revision.correctAnswers[questionId];
+                return userAnswer === correctAnswer;
+              }).length;
+              
+              // Method 1 successful
+            }
+            // Method 2: Check questions array
+            else if (revision.questions && Array.isArray(revision.questions)) {
               totalQuestions = revision.questions.length;
               correctCount = revision.questions.filter(q => {
-                // Check multiple possible correct answer indicators
                 return q.isCorrect === true || 
                        q.correct === true ||
+                       q.is_correct === true ||
                        q.status === 'correct' ||
                        (q.userAnswer && q.correctAnswer && q.userAnswer === q.correctAnswer) ||
                        (q.selectedAnswer && q.correctAnswer && q.selectedAnswer === q.correctAnswer) ||
                        (q.answer && q.correctAnswer && q.answer === q.correctAnswer);
               }).length;
-              console.log(`❓ Analyzed ${revision.questions.length} questions, found ${correctCount} correct`);
+              // Method 2 successful
             }
-
-            // Use direct properties as fallback
-            if (revision.correctCount !== undefined) {
+            
+            // Method 3: Use direct properties if available
+            if (revision.correctCount !== undefined && revision.correctCount !== null) {
               correctCount = parseInt(revision.correctCount) || correctCount;
+              // Method 3 successful
             }
-            if (revision.correctAnswers !== undefined) {
-              correctCount = parseInt(revision.correctAnswers) || correctCount;
+            if (revision.correct_count !== undefined && revision.correct_count !== null) {
+              correctCount = parseInt(revision.correct_count) || correctCount;
+              // Method 3 successful
             }
-            if (revision.totalQuestions !== undefined) {
+            if (revision.totalQuestions !== undefined && revision.totalQuestions !== null) {
               totalQuestions = parseInt(revision.totalQuestions) || totalQuestions;
             }
+            if (revision.total_questions !== undefined && revision.total_questions !== null) {
+              totalQuestions = parseInt(revision.total_questions) || totalQuestions;
+            }
 
-            // FIXED: If we have questions but no correct count, assume all are correct if score is 100%
-            if (revision.questions && revision.questions.length > 0 && correctCount === 0 && revision.score === 100) {
-              correctCount = revision.questions.length;
-              console.log("🎯 Assuming all answers correct based on 100% score");
+            // Method 4: Calculate from score/percentage if we have it
+            if (correctCount === 0 && totalQuestions > 0) {
+              if (revision.percentage !== undefined && revision.percentage !== null && revision.percentage > 0) {
+                correctCount = Math.round((revision.percentage / 100) * totalQuestions);
+                // Method 4: Calculated from percentage
+              } else if (revision.score !== undefined && revision.score !== null && revision.score > 0) {
+                correctCount = Math.round((revision.score / 100) * totalQuestions);
+                // Method 4: Calculated from score
+              }
             }
 
             // Ensure valid numbers
@@ -112,15 +126,27 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
             });
             
             sessionData.push({
-              id: revision.sessionId || `local-rev-${Date.now()}-${Math.random()}`,
+              id: revision.sessionId || `local-rev-${Date.now()}`,
               type: "REVISION",
               title: revision.title || "Revision Session",
               date: revision.submittedAt || revision.completedAt || new Date().toISOString(),
-              score: revision.score || percentage,
+              score: percentage,
               percentage: percentage,
               totalQuestions: totalQuestions,
               correctAnswers: correctCount,
-              timeSpent: parseInt(revision.timeSpent) || (revision.timeSpent ? Math.round(revision.timeSpent / 1000) : 0),
+              timeSpent: (() => {
+                // Handle different time formats
+                if (revision.timeSpent !== undefined && revision.timeSpent !== null) {
+                  const time = parseInt(revision.timeSpent);
+                  // If time is very large, it's probably in milliseconds
+                  return time > 36000 ? Math.round(time / 1000) : time;
+                }
+                if (revision.time_spent !== undefined && revision.time_spent !== null) {
+                  const time = parseInt(revision.time_spent);
+                  return time > 36000 ? Math.round(time / 1000) : time;
+                }
+                return 0;
+              })(),
               subject: revision.subject?.name || revision.subject || "General",
               submittedAt: revision.submittedAt || revision.completedAt || new Date().toISOString(),
               source: 'local'
@@ -131,7 +157,7 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
         }
       }
 
-      // 2. Check quizResults
+      // 2. Check quizResults - FIXED: Similar logic for quiz data
       const savedQuiz = localStorage.getItem('quizResults');
       if (savedQuiz) {
         try {
@@ -142,20 +168,58 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
             let correctAnswers = 0;
             let totalQuestions = 0;
 
-            if (quiz.questions && Array.isArray(quiz.questions)) {
+            // Try multiple methods to get correct data
+            
+            // Method 1: Check for userAnswers vs correctAnswers comparison
+            if (quiz.userAnswers && quiz.correctAnswers && typeof quiz.userAnswers === 'object' && typeof quiz.correctAnswers === 'object') {
+              const questionIds = Object.keys(quiz.userAnswers);
+              totalQuestions = questionIds.length;
+              
+              correctAnswers = questionIds.filter(questionId => {
+                const userAnswer = quiz.userAnswers[questionId];
+                const correctAnswer = quiz.correctAnswers[questionId];
+                return userAnswer === correctAnswer;
+              }).length;
+              // Quiz Method 1 successful
+            }
+            // Method 2: Check questions array
+            else if (quiz.questions && Array.isArray(quiz.questions)) {
               totalQuestions = quiz.questions.length;
               correctAnswers = quiz.questions.filter(q => 
                 q.isCorrect === true || 
                 q.correct === true ||
+                q.is_correct === true ||
+                q.status === 'correct' ||
                 (q.userAnswer && q.correctAnswer && q.userAnswer === q.correctAnswer)
               ).length;
+              // Quiz Method 2 successful
+            }
+            
+            // Method 3: Use direct properties
+            if (quiz.correctAnswers !== undefined && typeof quiz.correctAnswers === 'number') {
+              correctAnswers = parseInt(quiz.correctAnswers) || correctAnswers;
+              // Quiz Method 3 successful
+            }
+            if (quiz.correct_count !== undefined && quiz.correct_count !== null) {
+              correctAnswers = parseInt(quiz.correct_count) || correctAnswers;
+              // Quiz Method 3 successful
+            }
+            if (quiz.totalQuestions !== undefined && quiz.totalQuestions !== null) {
+              totalQuestions = parseInt(quiz.totalQuestions) || totalQuestions;
+            }
+            if (quiz.total_questions !== undefined && quiz.total_questions !== null) {
+              totalQuestions = parseInt(quiz.total_questions) || totalQuestions;
             }
 
-            if (quiz.correctAnswers !== undefined) {
-              correctAnswers = parseInt(quiz.correctAnswers) || correctAnswers;
-            }
-            if (quiz.totalQuestions !== undefined) {
-              totalQuestions = parseInt(quiz.totalQuestions) || totalQuestions;
+            // Method 4: Calculate from score/percentage
+            if (correctAnswers === 0 && totalQuestions > 0) {
+              if (quiz.percentage !== undefined && quiz.percentage !== null && quiz.percentage > 0) {
+                correctAnswers = Math.round((quiz.percentage / 100) * totalQuestions);
+                // Quiz Method 4: Calculated from percentage
+              } else if (quiz.score !== undefined && quiz.score !== null && quiz.score > 0) {
+                correctAnswers = Math.round((quiz.score / 100) * totalQuestions);
+                // Quiz Method 4: Calculated from score
+              }
             }
 
             if (totalQuestions === 0) totalQuestions = 1;
@@ -164,15 +228,25 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
             const percentage = calculatePercentage(correctAnswers, totalQuestions);
             
             sessionData.push({
-              id: quiz.quizId || `quiz-${Date.now()}-${Math.random()}`,
+              id: quiz.quizId || `quiz-${Date.now()}`,
               type: "QUIZ",
               title: quiz.quizTitle || "Quiz Session",
               date: quiz.completedAt || new Date().toISOString(),
-              score: quiz.score || percentage,
+              score: percentage,
               percentage: percentage,
               totalQuestions: totalQuestions,
               correctAnswers: correctAnswers,
-              timeSpent: parseInt(quiz.timeSpent) || 0,
+              timeSpent: (() => {
+                if (quiz.timeSpent !== undefined && quiz.timeSpent !== null) {
+                  const time = parseInt(quiz.timeSpent);
+                  return time > 36000 ? Math.round(time / 1000) : time;
+                }
+                if (quiz.time_spent !== undefined && quiz.time_spent !== null) {
+                  const time = parseInt(quiz.time_spent);
+                  return time > 36000 ? Math.round(time / 1000) : time;
+                }
+                return 0;
+              })(),
               subject: quiz.subject || "General",
               submittedAt: quiz.completedAt || new Date().toISOString(),
               source: 'local'
@@ -191,7 +265,6 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
           if (Array.isArray(sessions)) {
             sessions.forEach(session => {
               if (session && session.id) {
-                // Recalculate percentage to ensure accuracy
                 const percentage = calculatePercentage(
                   session.correctAnswers, 
                   session.totalQuestions
@@ -217,7 +290,7 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
     return sessionData;
   };
 
-  // FIXED: Fetch all sessions with proper pagination
+  // Fetch all sessions
   const fetchAllSessions = async (page = 1) => {
     try {
       setLoading(true);
@@ -226,7 +299,7 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
       const allSessions = [];
       const localSessions = getSessionDataFromStorage();
       
-      // 1. Fetch from API
+      // Fetch ALL sessions from API (not just 4)
       try {
         const token = localStorage.getItem('token');
         if (token) {
@@ -234,8 +307,8 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
           let apiUrl = "http://mrbe.codovio.com/api/v1/revision/sessions";
           
           const params = new URLSearchParams();
-          params.append('page', page.toString());
-          params.append('limit', '4'); // FIXED: 4 sessions per page
+          params.append('page', '1');
+          params.append('limit', '100'); // Fetch more sessions to get all
           
           if (currentMonth) {
             params.append('month', currentMonth);
@@ -254,11 +327,10 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
           console.log("📡 API Response:", response.data);
 
           if (response.data?.status === "success") {
-            // FIXED: Proper pagination handling
             if (response.data.pagination) {
               setPagination({
                 page: response.data.pagination.page || 1,
-                limit: 4, // Always 4 per page
+                limit: 4,
                 total: response.data.pagination.total || 0,
                 totalPages: response.data.pagination.total_pages || 0
               });
@@ -266,28 +338,79 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
 
             if (Array.isArray(response.data.data) && response.data.data.length > 0) {
               const apiSessionsData = response.data.data.map(session => {
-                const correctCount = 
-                  parseInt(session.correct_count) || 
-                  parseInt(session.correctAnswers) || 
-                  0;
-                  
-                const totalQuestions = 
+                console.log('🔍 Raw API session:', session);
+                
+                // Extract total questions
+                let totalQuestions = 
                   parseInt(session.total_questions) || 
                   parseInt(session.totalQuestions) || 
                   1;
-                  
-                const percentage = calculatePercentage(correctCount, totalQuestions);
+                
+                // Extract correct count - API uses 'score' field as the number of correct answers
+                let correctCount = 0;
+                
+                // First try: score field (which is the correct count in this API)
+                if (session.score !== undefined && session.score !== null) {
+                  correctCount = Math.round(parseFloat(session.score));
+                  // Using API score as correct count
+                } else if (session.correct_count !== undefined && session.correct_count !== null) {
+                  correctCount = parseInt(session.correct_count);
+                } else if (session.correctAnswers !== undefined && session.correctAnswers !== null) {
+                  correctCount = parseInt(session.correctAnswers);
+                } else if (session.correct_answers !== undefined && session.correct_answers !== null) {
+                  correctCount = parseInt(session.correct_answers);
+                }
+                
+                // Get percentage - API provides it directly
+                let percentage = 0;
+                if (session.percentage !== undefined && session.percentage !== null) {
+                  percentage = Math.round(parseFloat(session.percentage));
+                  // Using API percentage
+                } else {
+                  percentage = calculatePercentage(correctCount, totalQuestions);
+                  // Calculated percentage
+                }
+                
+                // API Session processed
                 
                 return {
-                  id: session.session_id || session.id || `api-${Date.now()}-${Math.random()}`,
+                  id: session.session_id || session.id || `api-${Date.now()}`,
                   type: session.type || "REVISION",
                   title: session.title || "Revision Session",
                   date: session.submitted_at || session.created_at || new Date().toISOString(),
-                  score: session.score || 0,
+                  score: percentage,
                   percentage: percentage,
                   totalQuestions: totalQuestions,
                   correctAnswers: correctCount,
-                  timeSpent: parseInt(session.time_spent) || parseInt(session.timeSpent) || 0,
+                  timeSpent: (() => {
+                    let time = 0;
+                    
+                    // First try: direct time_spent field
+                    if (session.time_spent !== undefined && session.time_spent !== null) {
+                      time = parseInt(session.time_spent);
+                      console.log('⏱️ Found time_spent:', session.time_spent);
+                    } else if (session.timeSpent !== undefined && session.timeSpent !== null) {
+                      time = parseInt(session.timeSpent);
+                      console.log('⏱️ Found timeSpent:', session.timeSpent);
+                    } 
+                    // Calculate from start_at and submitted_at if available
+                    else if (session.start_at && session.submitted_at) {
+                      try {
+                        const startTime = new Date(session.start_at).getTime();
+                        const endTime = new Date(session.submitted_at).getTime();
+                        time = Math.round((endTime - startTime) / 1000); // Convert to seconds
+                        console.log('⏱️ Calculated time from timestamps:', time, 'seconds');
+                      } catch (e) {
+                        console.log('⚠️ Error calculating time from timestamps:', e);
+                        time = 0;
+                      }
+                    } else {
+                      console.log('⚠️ No time information available');
+                    }
+                    
+                    // Ensure time is non-negative and reasonable
+                    return Math.max(0, time);
+                  })(),
                   subject: session.subject || session.category || "General",
                   submittedAt: session.submitted_at || session.created_at || new Date().toISOString(),
                   source: 'api'
@@ -300,37 +423,35 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
         }
       } catch (apiError) {
         console.error("❌ API Error:", apiError);
-        // Use local data as fallback
       }
       
-      // FIXED: Combine API and local sessions intelligently
-      // For page 1, show local sessions first, then API sessions
-      if (page === 1) {
-        allSessions.push(...localSessions);
-      }
+      // Always include local sessions (but avoid duplicates with API)
+      allSessions.push(...localSessions);
       
-      // Remove duplicates
-      const uniqueSessions = allSessions.filter((session, index, self) =>
-        index === self.findIndex(s => 
-          s.id === session.id && s.submittedAt === session.submittedAt
-        )
-      );
-
-      // Sort by date (newest first)
+      // Remove duplicates by session_id (prefer API data over local)
+      const sessionMap = new Map();
+      
+      // Add API sessions first (they have more complete data)
+      allSessions.forEach(session => {
+        if (session.source === 'api') {
+          sessionMap.set(session.id, session);
+        }
+      });
+      
+      // Add local sessions only if not already in map
+      allSessions.forEach(session => {
+        if (session.source === 'local' && !sessionMap.has(session.id)) {
+          sessionMap.set(session.id, session);
+        }
+      });
+      
+      const uniqueSessions = Array.from(sessionMap.values());
       uniqueSessions.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
       
-      console.log("🎯 Final sessions to display:", uniqueSessions.length);
+      console.log("🎯 Final sessions to display:", uniqueSessions.length, "sessions");
       setSessions(uniqueSessions);
       
-      // FIXED: If no API pagination, calculate client-side pagination
-      if (pagination.total === 0 && uniqueSessions.length > 0) {
-        const totalPages = Math.ceil(uniqueSessions.length / 4);
-        setPagination(prev => ({
-          ...prev,
-          total: uniqueSessions.length,
-          totalPages: totalPages
-        }));
-      }
+      // Don't set pagination here - it's calculated client-side from filtered sessions
       
       if (uniqueSessions.length === 0 && page === 1) {
         setError("No sessions found. Complete a session to see your history here.");
@@ -344,24 +465,11 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
     }
   };
 
-  // FIXED: Handle page change
+  // Handle page change - CLIENT SIDE ONLY
   const handlePageChange = (newPage) => {
-    console.log("🔄 Changing page to:", newPage);
-    if (newPage >= 1 && newPage <= pagination.totalPages) {
+    if (newPage >= 1 && newPage <= totalFilteredPages) {
       setPagination(prev => ({ ...prev, page: newPage }));
-      fetchAllSessions(newPage);
     }
-  };
-
-  // FIXED: Improved accuracy calculation
-  const calculateSessionAccuracy = (session) => {
-    const correct = Number(session.correctAnswers) || 0;
-    const total = Number(session.totalQuestions) || 0;
-    
-    if (total === 0) return 0;
-    
-    const accuracy = Math.round((correct / total) * 100);
-    return isNaN(accuracy) ? 0 : accuracy;
   };
 
   // Handle view details
@@ -372,76 +480,65 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
     }
   };
 
-  // FIXED: Refresh when filters change
+  // Initial load only
   useEffect(() => {
-    console.log("🔄 Filter changed, fetching sessions...");
     fetchAllSessions(1);
+  }, []);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, page: 1 }));
   }, [filterMonth, filterType]);
 
-  // FIXED: Improved time formatting
+  // Time formatting
   const formatTimeSpent = (seconds) => {
     if (!seconds || isNaN(seconds)) return "0:00";
-    
     const totalSeconds = Math.round(Number(seconds));
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
-    
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Calculate statistics
-  const calculateTotalTimeSpent = (sessions) => {
+  const calculateTotalTimeSpent = () => {
     return sessions.reduce((total, session) => {
-      const timeSpent = parseInt(session.timeSpent) || 0;
-      return total + timeSpent;
+      return total + (parseInt(session.timeSpent) || 0);
     }, 0);
   };
 
-  const calculateTotalQuestions = (sessions) => {
+  const calculateTotalQuestions = () => {
     return sessions.reduce((total, session) => {
-      const questions = parseInt(session.totalQuestions) || 0;
-      return total + questions;
+      return total + (parseInt(session.totalQuestions) || 0);
     }, 0);
   };
 
-  const calculateTotalCorrect = (sessions) => {
+  const calculateTotalCorrect = () => {
     return sessions.reduce((total, session) => {
-      const correct = parseInt(session.correctAnswers) || 0;
-      return total + correct;
+      return total + (parseInt(session.correctAnswers) || 0);
     }, 0);
   };
 
-  const calculateAverageScore = (sessions) => {
+  const calculateAverageScore = () => {
     if (sessions.length === 0) return 0;
-    
-    const validSessions = sessions.filter(session => {
-      const percentage = parseFloat(session.percentage) || 0;
-      return !isNaN(percentage);
-    });
-    
-    if (validSessions.length === 0) return 0;
-    
-    const totalPercentage = validSessions.reduce((sum, session) => {
+    const totalPercentage = sessions.reduce((sum, session) => {
       return sum + (parseFloat(session.percentage) || 0);
     }, 0);
-    
-    return Math.round(totalPercentage / validSessions.length);
+    return Math.round(totalPercentage / sessions.length);
   };
 
-  // FIXED: Date formatting
+  // Date formatting
   const formatDisplayDate = (dateString) => {
     if (!dateString) return "COMPLETED: RECENTLY";
-    
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return "COMPLETED: RECENTLY";
-      
       const day = date.getDate();
       const suffix = day % 10 === 1 && day !== 11 ? 'ST' : 
                    day % 10 === 2 && day !== 12 ? 'ND' : 
                    day % 10 === 3 && day !== 13 ? 'RD' : 'TH';
-      
-      return `COMPLETED: ${day}${suffix} ${date.toLocaleDateString('en-US', { month: 'long' }).toUpperCase()} ${date.getFullYear()}`;
+      const month = date.toLocaleDateString('en-US', { month: 'long' }).toUpperCase();
+      const year = date.getFullYear();
+      return `COMPLETED: ${day}${suffix} ${month} ${year}`;
     } catch {
       return "COMPLETED: RECENTLY";
     }
@@ -479,10 +576,9 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
     { id: 'QUIZ', name: 'Quiz Sessions' }
   ];
 
-  // FIXED: Filter sessions properly
+  // Filter sessions
   const filteredSessions = sessions.filter(session => {
     if (filterType !== "ALL" && session.type !== filterType) return false;
-    
     if (filterMonth !== "ALL TIME") {
       try {
         const sessionDate = new Date(session.submittedAt);
@@ -495,31 +591,35 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
         return false;
       }
     }
-    
     return true;
   });
 
-  // FIXED: Client-side pagination for filtered results
+  // Pagination
   const sessionsPerPage = 4;
   const startIndex = (pagination.page - 1) * sessionsPerPage;
   const endIndex = startIndex + sessionsPerPage;
   const paginatedSessions = filteredSessions.slice(startIndex, endIndex);
-  
-  // Calculate total pages for filtered results
   const totalFilteredPages = Math.ceil(filteredSessions.length / sessionsPerPage);
 
-  // Calculate statistics based on ALL sessions
-  const totalSessions = sessions.length;
-  const totalQuestions = calculateTotalQuestions(sessions);
-  const totalCorrect = calculateTotalCorrect(sessions);
-  const totalTimeSpent = calculateTotalTimeSpent(sessions);
-  const averageScore = calculateAverageScore(sessions);
-
+  // Statistics - Use FILTERED sessions for accurate stats
+  const totalSessions = filteredSessions.length;
+  const totalQuestions = filteredSessions.reduce((total, session) => {
+    return total + (parseInt(session.totalQuestions) || 0);
+  }, 0);
+  const totalCorrect = filteredSessions.reduce((total, session) => {
+    return total + (parseInt(session.correctAnswers) || 0);
+  }, 0);
+  const totalTimeSpent = filteredSessions.reduce((total, session) => {
+    return total + (parseInt(session.timeSpent) || 0);
+  }, 0);
+  const averageScore = filteredSessions.length === 0 ? 0 : Math.round(
+    filteredSessions.reduce((sum, session) => sum + (parseFloat(session.percentage) || 0), 0) / filteredSessions.length
+  );
   const accuracyPercentage = totalQuestions > 0 
     ? Math.round((totalCorrect / totalQuestions) * 100) 
     : 0;
 
-  // FIXED: Pagination generation
+  // Pagination generation
   const generatePageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
@@ -533,20 +633,22 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
     } else {
       let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
       let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
       if (endPage - startPage + 1 < maxVisiblePages) {
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
       }
-
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-
     return pages;
   };
 
   const shouldShowPagination = totalFilteredPages > 1;
+
+  // Toggle filter panel
+  const toggleFilterPanel = () => {
+    setShowFilters(!showFilters);
+  };
 
   if (loading) {
     return (
@@ -706,6 +808,7 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
                     onClick={() => {
                       setFilterType("ALL");
                       setFilterMonth("ALL TIME");
+                      setPagination(prev => ({ ...prev, page: 1 }));
                     }}
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
@@ -728,7 +831,7 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
 
                   <div className="space-y-4">
                     {paginatedSessions.map((session, index) => {
-                      const accuracy = calculateSessionAccuracy(session);
+                      console.log('Session data:', { id: session.id, timeSpent: session.timeSpent, subject: session.subject, title: session.title });
                       const displayTime = formatTimeSpent(session.timeSpent);
                       
                       return (
@@ -751,13 +854,8 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
                                   )}
                                 </div>
                                 <h3 className="text-xl font-semibold text-gray-900 truncate">
-                                  {session.title || getSessionType(session.type)}
+                                  {session.subject && session.subject !== "General" ? session.subject : (session.title || getSessionType(session.type))}
                                 </h3>
-                                {session.subject && session.subject !== "General" && (
-                                  <p className="text-sm text-gray-600 mt-1">
-                                    {session.subject}
-                                  </p>
-                                )}
                               </div>
                               
                               {/* Score Section */}
@@ -777,7 +875,7 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
                               </div>
                             </div>
                             
-                            {/* Stats Row */}
+                            {/* Stats Row - Only Time Display */}
                             <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-100">
                               <div className="flex items-center gap-3 flex-1">
                                 <FaClock className="text-gray-400 flex-shrink-0" />
@@ -785,15 +883,6 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
                                   <span className="text-sm text-gray-500">Time:</span>
                                   <span className="text-sm font-medium text-gray-900">
                                     {displayTime}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-3 flex-1">
-                                <FaCheckCircle className="text-green-500 flex-shrink-0" />
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm text-gray-500">Accuracy:</span>
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {accuracy}%
                                   </span>
                                 </div>
                               </div>
@@ -815,7 +904,7 @@ const SessionHistory = ({ onBack, onViewSessionDetails }) => {
                   </div>
                 </div>
 
-                {/* FIXED: Pagination */}
+                {/* Pagination */}
                 {shouldShowPagination && (
                   <div className="mt-8 flex justify-center items-center space-x-2">
                     <button
